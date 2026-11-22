@@ -102,6 +102,7 @@ window.CarI18nZh = function (translate) {
     "Nachrichten": "消息",
     "Tanken & Rasten": "加油与休息",
     "Fahrtenbuch": "行车日志",
+    "Assistenz": "辅助驾驶",
     "Kalender": "日历",
     "Telefon": "电话",
     "Wetter": "天气",
@@ -468,6 +469,7 @@ window.CarI18nZh = function (translate) {
     "Zeigt das Display im Cockpit nur einen Teil des Bildes (oben, unten oder an der Seite fehlt etwas), hier den fehlenden Rand einstellen, bis alles zu sehen ist. CabPlay zeichnet dann genau in den sichtbaren Teil. Bei 0 % überall: ganzes Bild.": "如果驾驶室屏幕只显示画面的一部分（上方、下方或侧面缺了内容），请在此调整缺失的边距，直到全部可见。CabPlay 随后会正好绘制在可见部分内。全部为 0%：完整画面。",
     "Aus wie bei Google": "与 Google 一样关闭",
     "Fest wie bei Google": "与 Google 一样固定",
+    "Truck-Symbol": "卡车图标",
     "Xiaoyu (AI-Stimme, empfohlen)": "晓雨（AI 语音，推荐）",
     "Windows-Stimme": "Windows 语音",
     "Empfohlen: Xiaoyu. Mit Spracherkennung geprüft – sie wird am besten verstanden. Die Windows-Stimme braucht das chinesische Sprachpaket von Windows.": "推荐：晓雨。经语音识别检验——她的发音最清楚。Windows 语音需要安装 Windows 中文语言包。",
@@ -494,7 +496,7 @@ window.CarI18nZh = function (translate) {
     "Beim Blinken das Bild der Kameraspiegel dieser Seite – wie eine Totwinkel-Kamera. Nur in Trucks mit Kameraspiegeln (z. B. Volvo FH) und in der Innenansicht. Video ersetzen: Ein Video im Bild-im-Bild macht so lange Platz.": "打转向灯时显示该侧摄像头后视镜画面——如同盲区摄像头。仅限配备摄像头后视镜的卡车（如 Volvo FH）且在车内视角。替换视频：画中画视频会暂时让位。",
     "Nur für Lkw, die im Spiel keine Kameraspiegel haben, aber per Mod welche bekommen.": "仅适用于游戏中没有摄像头后视镜、但通过模组加装的卡车。",
     "Uhrzeit, Temperatur, Reichweite und AdBlue.": "时间、温度、续航和 AdBlue。",
-    "Gilt für das Design Fahrassistenz und die Straßenansicht im Instrument.": "适用于“驾驶辅助”样式及仪表中的道路视图。",
+    "Gilt für das Design Fahrassistenz, die Straßenansicht im Instrument und die App Assistenz – auch Hintergrund und Farbe sind dort gleich.": "适用于“驾驶辅助”样式、仪表中的道路视图和“辅助驾驶”应用——背景和颜色也相同。",
     "Die Taste für den Displaymodus (ab Werk I) schaltet die ausgewählten Designs der Reihe nach durch.": "显示模式键（默认 I）依次切换所选样式。",
     "Hinweis-Karten: Mitteilungen des Navis gleiten oben im Instrument ein.": "提示卡片：导航消息从仪表顶部滑入。",
     "Der Disponent meldet sich bei Aufträgen, Lieferungen, Strafen und Warnungen – Wichtiges kommt als Anruf.": "调度员会在任务、交货、罚款和警告时联系你——重要事项以来电方式通知。",
@@ -1530,6 +1532,8 @@ window.CarI18nZh = function (translate) {
   };
 
   const SENTENCES = [
+    // 两步联合播报的「然后 X 米后 …」必须最先处理，否则后面的环岛/出口子句会先把机动文字换成中文，导致这里匹配不上
+    [/Danach in ([\d.,]+ (?:m|km|ft|yd|mi)) (links halten|rechts halten|die Ausfahrt (?:links|rechts) nehmen|(?:scharf )?(?:links|rechts) abbiegen|wenden|im Kreisverkehr die \d+\. Ausfahrt nehmen|die Fähre nehmen)\./g, (m, dist, turn) => `然后${translate(dist)}后${translate(turn)}。`],
     [/^Halt (\d+) von (\d+)$/g, '第 $1 站，共 $2 站'], // Fortschritt der Buslinie
     // Buslinie: Haltestellen-Ansagen (05-telemetrie.js busAnnounce) – mit Punkt; die Anzeige „Nächster Halt: X“ (ohne) weiter unten
     [/^Nächster Halt: (.+)\.$/g, '下一站：$1。'],
@@ -1663,6 +1667,7 @@ window.CarI18nZh = function (translate) {
     [/^Bitte die (\d+)\. Spur von rechts nehmen\.$/g, "请走右侧第 $1 车道"],
     [/^Bitte die (\d+) linken Spuren nehmen\.$/g, "请走左侧 $1 车道"],
     [/^Bitte die (\d+) rechten Spuren nehmen\.$/g, "请走右侧 $1 车道"],
+    [/Danach in ([\d.,]+ (?:m|km|ft|yd|mi)) (links halten|rechts halten|die Ausfahrt (?:links|rechts) nehmen|(?:scharf )?(?:links|rechts) abbiegen|wenden|im Kreisverkehr die \d+\. Ausfahrt nehmen|die Fähre nehmen)\./g, (m, dist, turn) => `然后${translate(dist)}后${translate(turn)}。`],
     [/die Ausfahrt links nehmen/g, "走左侧出口"],
     [/die Ausfahrt rechts nehmen/g, "走右侧出口"],
     [/Du fährst (.+?) nach ([^.]+)\./g, (m, c, b) => `你正把 ${translate(c)} 运往 ${b}。`],
