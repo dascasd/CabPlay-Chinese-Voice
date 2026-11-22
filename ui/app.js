@@ -701,6 +701,7 @@
     startScreen: { last: 'Zuletzt geöffnet', dashboard: 'Dashboard', home: 'Home', maps: 'Karten', music: 'Musik' },
     mapStyle: catalog.MAP_STYLES,
     mapFps: { 30: 'Flüssig (30 Bilder/s)', 20: 'Ausgewogen (20 Bilder/s)', 15: 'Sparsam (15 Bilder/s)' },
+    mapTruckSize: { small: 'Klein', medium: 'Mittel', large: 'Groß' },
     'dashboard.0': catalog.WIDGETS,
     'dashboard.1': catalog.WIDGETS,
     'dashboard.2': catalog.WIDGETS,
@@ -716,7 +717,7 @@
     mirrorTarget: 'Zeigen im', mapNextLimitStyle: 'Position', clusterDesign: 'Design', clusterAccent: 'Farbe', clusterBackground: 'Hintergrund', clusterTint: 'Hintergrundfarbe', clusterGauge: 'Instrumente', clusterBootStyle: 'Begrüßung', clusterCenter: 'Mitte', clusterFps: 'Bildrate', clusterArrows: 'Blinkerpfeile', clusterBlinkers: 'Blinker im Display', clusterWidgetMode: 'Wechsel', clusterDialRight: 'Rechts unten', clusterInfoStyle: 'Stil der Leiste', clusterFocus: 'Größer anzeigen',
     displayFormat: 'Displayformat', language: 'Sprache', units: 'Einheiten', clock: 'Uhrzeit', appearance: 'Darstellung', appearanceAuto: 'Automatisch', radarTolerance: 'Tempo-Warnung', gradeMin: 'Steigungen', glass: 'Liquid Glass', iconTheme: 'Symbol-Set', iconStyle: 'Symbolstil', textScale: 'Textgröße', gamma: 'Bildkorrektur', mapTheme: 'Farbschema', volumeVoice: 'Sprachansagen', volumeAnnounce: 'Durchsagen im Bus', volumeAlerts: 'Warntöne', volumeSiri: 'Sprachbefehl-Töne', volumeVideo: 'Video', volumeRadio: 'Radio', gammaValue: 'Kontrast (Gamma)', whiteLevel: 'Weißpunkt',
     sidebar: 'Position', sidebarCount: 'Anzahl Apps', phoneBattery: 'Handy-Akku', logoStore: 'Logos', phoneSignal: 'Mobilfunk', musicArt: 'Musik-Ansicht', dispatcher: 'Disponent', mirrorView: 'Spiegel', mirrorFps: 'Bildrate', voiceName: 'Stimme', voiceLang: 'Sprache der Ansagen', voiceZh: 'Chinesische Stimme', sidebarMode: 'Apps in der Seitenleiste', iconSize: 'Symbolgröße', startScreen: 'Startbildschirm',
-    mapStyle: 'Kartenstil', mapFps: 'Bildrate der Karte', 'overlays.banner': 'Abbiegehinweis', 'overlays.eta': 'Ankunftszeit', 'overlays.speed': 'Tempo-Anzeige',
+    mapStyle: 'Kartenstil', mapFps: 'Bildrate der Karte', mapTruckSize: 'Truck-Symbol', 'overlays.banner': 'Abbiegehinweis', 'overlays.eta': 'Ankunftszeit', 'overlays.speed': 'Tempo-Anzeige',
     'overlays.compass': 'Kompass', 'dashboard.0': 'Großes Widget', 'dashboard.1': 'Widget oben', 'dashboard.2': 'Widget unten',
   };
   const NOTES = {
@@ -807,7 +808,24 @@
     return settings[key];
   }
 
+  // Jeder Kartenstil merkt sich seine eigenen Positionen der Kartenelemente (Issue #9): beim Wechsel die des alten Stils
+  // ablegen und die des neuen holen. Noch nie eingestellt: die bisherigen bleiben.
+  function swapOverlayLayout(s, from, to) {
+    s.overlaysByStyle = { ...(s.overlaysByStyle || {}) };
+    s.overlaysByStyle[from] = { overlays: { ...s.overlays }, overlayFree: { ...(s.overlayFree || {}) } };
+    const saved = s.overlaysByStyle[to];
+    if (!saved) return;
+    s.overlays = { ...s.overlays, ...saved.overlays };
+    s.overlayFree = { ...(s.overlayFree || {}), ...saved.overlayFree };
+  }
+
   function setOption(s, key, value) {
+    const styleBefore = s.mapStyle;
+    setOptionValue(s, key, value);
+    if (s.mapStyle !== styleBefore) swapOverlayLayout(s, styleBefore, s.mapStyle);
+  }
+
+  function setOptionValue(s, key, value) {
     if (key.startsWith('dashboard.')) {
       const w = s.dashboard.widgets;
       const slot = Number(key.split('.')[1]);
@@ -1107,6 +1125,7 @@
             choiceRow('mapTheme', 'appearance', 'indigo'),
             toggleRow('mapTilt', 'layers', 'indigo', '3D-Ansicht'),
             toggleRow('mapNorth', 'maps', 'red', 'Norden oben'),
+            choiceRow('mapTruckSize', 'maps', 'blue'),
             choiceRow('mapFps', 'display', 'teal'),
           ])
             + group([
@@ -1308,7 +1327,7 @@
             + group([
               toggleRow('clusterReverseAid', 'truck', 'orange', 'Rangierhilfe beim Rückwärtsfahren'),
               ...(settings.clusterReverseAid !== false ? [toggleRow('clusterReversePath', 'sliders', 'orange', 'Fahrweg nach Lenkeinschlag')] : []),
-            ], 'Gilt für das Design Fahrassistenz und die Straßenansicht im Instrument.'),
+            ], 'Gilt für das Design Fahrassistenz, die Straßenansicht im Instrument und die App Assistenz – auch Hintergrund und Farbe sind dort gleich.'),
         };
       case 'cluster-widgets': {
         // Unterseite: welche Widgets im Stapel sind (Reihenfolge fest: Pause, Lieferfrist, Reichweite, Verbrauch)
@@ -1807,6 +1826,7 @@
             ])
             + `<p class="group-title">Apps</p>` + group([
               appRow('maps', 'maps', catalog.MAP_STYLES[settings.mapStyle]),
+              appRow('assist', 'cluster-assist'), // App „Assistenz“: dieselben Einstellungen wie die Fahrassistenz im Kombiinstrument
               appRow('music', 'music'),
               appRow('radar', 'radar', settings.radar ? 'Ein' : 'Aus'),
               appRow('video', 'video'),
@@ -1876,9 +1896,7 @@
     }
     for (const e of entries) {
       e.nLabel = searchNorm(e.label);
-      // 当前界面语言（中文等）的翻译也加入索引：页面是德文生成、屏幕上再翻译的，否则中文搜索搜不到
-      const tr = [e.label, e.note, ...e.titles].map((t) => CarI18n.translate(t)).join(' ');
-      e.nAll = searchNorm(`${e.label} ${e.value} ${e.titles.join(' ')} ${e.note} ${tr}`);
+      e.nAll = searchNorm(`${e.label} ${e.value} ${e.titles.join(' ')} ${e.note}`);
     }
     return entries;
   }
@@ -2329,6 +2347,16 @@
         <div class="log-body" data-list="logbook"></div>
       </div></section>
       <section class="screen ultra-screen" data-screen="ultra">${ultraScreenHtml()}</section>
+      <section class="screen assist-screen" data-screen="assist"><div class="assist-split ${settings.assistLayout === 'scene' ? 'scene-only map-off' : ''}">
+        <div class="card map-card" data-focus data-open="maps">${mapView('dash')}</div>
+        <div class="card assist-scene" data-assist-scene>${assistHudHtml()}
+          <button class="assist-tap" data-action="assist-layout" tabindex="-1" aria-hidden="true"></button>
+          <div class="glass assist-tools">
+            <button class="assist-gear" data-focus data-action="assist-settings" aria-label="Einstellungen">${ICONS.settings}</button>
+            <button class="assist-expand" data-focus data-action="assist-layout" aria-label="Vollbild">${ICONS[settings.assistLayout === 'scene' ? 'fullscreen-exit' : 'fullscreen']}</button>
+          </div>
+        </div>
+      </div></section>
       <section class="screen" data-screen="settings">${settingsScreen()}</section>`;
   }
 
@@ -2474,6 +2502,7 @@
     if (ultraSection && id === 'ultra' && !ultraSection.querySelector('.cl-frame')) ultraSection.innerHTML = ultraScreenHtml();
     if (id !== 'ultra') ultraSection?.querySelector('.cl-frame')?.remove();
     if (id !== 'settings') stage.querySelector('.screen[data-screen="settings"] .cl-frame')?.remove(); // Vorschau unter Einstellungen › Kombiinstrument ebenso
+    syncAssistScene(id); // App „Assistenz“: Straßenszene nur, solange offen (10c)
     if (id === 'home' || id === 'dashboard') lastHub = id;
     if (id === 'phone') renderPhone();
     if (id === 'chat') renderChatApp();
@@ -2601,11 +2630,12 @@
       mapSheetPage = 'main';
       return rerenderMapSheet();
     }
-    // Aus der App CabPlay Ultra („Alle Einstellungen“): zurück in die App
-    if (settingsReturn === 'ultra' && settingsStack.length === 2) {
+    // Aus der App CabPlay Ultra („Alle Einstellungen“) bzw. Assistenz (Zahnrad): zurück in die App
+    if ((settingsReturn === 'ultra' || settingsReturn === 'assist') && settingsStack.length === 2) {
+      const app = settingsReturn;
       settingsStack = ['main'];
       capturing = null;
-      return showScreen('ultra');
+      return showScreen(app);
     }
     const from = settingsStack.length > 1 ? settingsStack.pop() : null;
     capturing = null;
@@ -2628,6 +2658,7 @@
   function applySettings(next, persist) {
     settings = catalog.sanitize(next);
     render();
+    assistEmit('settings', assistSettings()); // App „Assistenz“ (10c)
     if (persist && api) api.saveSettings(settings);
   }
 
@@ -2728,6 +2759,7 @@
     if (next !== theme || document.body.dataset.theme !== next) {
       theme = next;
       document.body.dataset.theme = next;
+      assistEmit('settings', assistSettings()); // App „Assistenz“ (10c): Einstellungen wie im Kombiinstrument
     }
     // Option „Nachts dunkler“: wie ein echtes Display gedimmt, solange es Nacht ist (Spielzeit) oder das Licht brennt –
     // in jedem Farbschema (früher nur im dunklen: mit „Hell“ tat der Schalter nichts) und auch im Fenster am PC,
@@ -3163,6 +3195,7 @@
   let etaLabel = 'Ankunft'; // Ankunftsleiste: „Ankunft Osnabrück“, wenn sie bis zum nächsten Bushalt rechnet (auch fürs Kombiinstrument)
   if (demoMode) window.__telemetry = (patch) => telemetry && onTelemetry({ ...telemetry, ...patch(telemetry) }); // Test: Telemetrie abwandeln
   function onTelemetry(t) {
+    assistEmit('telemetry', t); // App „Assistenz“ (10c): Straßenszene
     telemetry = t;
     paLook(t); // Bus-Durchsage: Klang folgt dem Kopf (Innenkamera)
     if (!t.available) {
@@ -4556,7 +4589,7 @@
     return v && v !== 'ui' ? v : CarI18n.lang;
   }
   // lang: Text ist schon in dieser Sprache (Antworten des AI-Sprachmodells) – so vorlesen, unabhängig von speechLang
-  // 播报优先级队列（指南 §3）：P0 紧急 / P1 执行 / P2 准备 / P3 预告
+  // 播报优先级队列（P0 紧急 / P1 执行 / P2 准备 / P3 预告）
   const speechQueue = [];
   const isSpeaking = () => (currentAudio && !currentAudio.ended) || (typeof speechSynthesis !== 'undefined' && speechSynthesis.speaking);
   function speak(text, onEnd0, { pa = false, lang = null, priority = 2 } = {}) {
@@ -4569,7 +4602,7 @@
       setTimeout(() => afterPa === queued && runAfterPa(), paBusyUntil - Date.now() + 50);
       return;
     }
-    // 优先级（指南 §3）：P0/P1 打断并清空普通队列；P2/P3 正在播报时排队等待
+    // 优先级：P0/P1 打断并清空普通队列；P2/P3 正在播报时排队等待
     if (!pa && isSpeaking()) {
       if (priority >= 2) { speechQueue.push({ text, onEnd0, lang, priority }); return; }
       speechQueue.length = 0;
@@ -5886,11 +5919,12 @@
     if (m) naviTurn = t ? { index: t.index, kind: t.kind, side: t.side, distance: t.distance, road: t.road, towards: t.towards } : null;
   }
 
-  // 车道引导（高德式）：150–900 m 前主动播报推荐车道（SET 集合 / SINGLE 单条）；
-  // 走错车道 3 秒后纠偏。同一路口主动播一次、纠偏播一次。
+  // 车道引导（高德式）：80–600 m 前主动播报推荐车道；走错 3 秒后纠偏；两次播报至少间隔 10 秒
   const laneSaid = new Set();   // 主动推荐已播（一次）
   const laneWarned = new Set(); // 纠偏已播（一次）
   let laneWrongSince = 0;
+  let laneLastAt = 0;
+  const LANE_COOLDOWN = 10000;
   function lanePhrase(count, goal) {
     // goal：从左边数(0-based)的推荐车道索引（已升序）
     if (goal.length === 1) {
@@ -5904,19 +5938,20 @@
     const leftCount = goal.length;
     const fromLeftEdge = goal[0];
     const fromRightEdge = count - 1 - goal[goal.length - 1];
+    if (fromLeftEdge === 0 && fromRightEdge === 0) return ''; // 两侧都有空，不报
     if (fromLeftEdge <= fromRightEdge) return `Bitte die ${leftCount} linken Spuren nehmen.`;
     return `Bitte die ${leftCount} rechten Spuren nehmen.`;
   }
   function laneVoice(m) {
     const hint = m?.laneHint;
-    if (!settings.navVoice || !hint?.key || hint.distance < 40 || hint.distance > 900) { laneWrongSince = 0; return; }
+    if (!settings.navVoice || !hint?.key || hint.distance < 80 || hint.distance > 600) { laneWrongSince = 0; return; }
     const goal = [...Array(hint.lanes).keys()].filter((i) => (hint.mask >> i) & 1);
     if (!goal.length) { laneWrongSince = 0; return; }
-    // 主动推荐（一次）：只要有车道选择就报，不依赖当前车道数
-    if (!laneSaid.has(hint.key)) {
-      laneSaid.add(hint.key);
+    const now = performance.now();
+    // 主动推荐（一次，且两次播报之间至少 10 秒）
+    if (!laneSaid.has(hint.key) && now - laneLastAt >= LANE_COOLDOWN) {
       const p = lanePhrase(hint.lanes, goal);
-      if (p) speak(p, null, { priority: 2 });
+      if (p) { laneSaid.add(hint.key); laneLastAt = now; speak(p, null, { priority: 2 }); }
     }
     // 纠偏：需要知道当前车道（且车道数一致时才能判断是否走错）
     if (!hint.laneNow || hint.laneNow.own !== hint.lanes) { laneWrongSince = 0; return; }
@@ -5926,13 +5961,14 @@
     // blinkt schon in Richtung der richtigen Spur: wechselt gerade – nicht dazwischenreden
     const blink = blinkSide();
     if (blink && ((blink === 'l' && goal[0] < lane) || (blink === 'r' && goal[goal.length - 1] > lane))) { laneWrongSince = 0; return; }
-    const now = performance.now();
     if (!laneWrongSince) { laneWrongSince = now; return; }
     if (now - laneWrongSince < 3000) return;
+    if (now - laneLastAt < LANE_COOLDOWN) return; // 限流
     let best = -1;
     for (let i = 0; i < hint.lanes; i++) if ((hint.mask >> i) & 1 && (best < 0 || Math.abs(i - lane) < Math.abs(best - lane))) best = i;
     if (best < 0) return;
     laneWarned.add(hint.key);
+    laneLastAt = now;
     laneWrongSince = 0;
     speak(best < lane ? 'Bitte links einordnen.' : 'Bitte rechts einordnen.', null, { priority: 2 });
   }
@@ -6231,6 +6267,7 @@
       water: settings.mapWater,
       inland: settings.mapInlandWater,
       trail: settings.mapTrail,
+      truckScale: { small: 0.7, medium: 1, large: 1.3 }[settings.mapTruckSize] || 1, // Größe des Truck-Symbols
       driven: settings.mapDriven,
       forest: settings.mapForest,
       meadow: settings.mapMeadow,
@@ -7226,6 +7263,7 @@
     const curveOf = hex.map(() => null);
     const laneOff = hex.map(() => null);
     spokenTurns.clear(); // neue Route: Ansagen neu
+    laneSaid.clear(); laneWarned.clear(); // 车道推荐也重新来
     lastFirstTurn = null;
     if (!curveData) return { curveOf, laneOff };
     const choice = hex.map(() => null); // Kreuzung: { inLane, outLane, nIn, nOut }
@@ -7290,27 +7328,35 @@
   const spokenTurns = new Map(); // Abbiegung (Routenpunkt) -> zuletzt angesagte Stufe
   let lastTurnSay = { text: '', at: 0 }; // gleicher Satz nicht zweimal kurz hintereinander
   let lastFirstTurn = null; // nächste Abbiegung beim letzten Mal – wechselt sie, ist die vorige geschafft
+  let turnLock = null; // 正在播报的转弯（route index）；它的「现在」播报完成前，不播下一个转弯
   function announceTurn(m) {
     if (!settings.navVoice || !m) return;
-    const t = m.turns[0];
+    // 选转弯：锁定了某个转弯且它还在前面 → 继续报它；否则报最近的
+    let t = null;
+    if (turnLock !== null) {
+      const locked = m.turns.find((x) => x.index === turnLock);
+      if (locked && locked.distance > -25) t = locked;
+      else turnLock = null;
+    }
+    if (!t) t = m.turns[0] || null;
     const firstKey = t ? String(t.index) : 'none';
     if (lastFirstTurn !== null && firstKey !== lastFirstTurn && num(telemetry?.speedKmh) > 15) {
       // gerade abgebogen: ist die nächste weit weg, „24 km geradeaus“ (wie echte Navis)
       if (t && t.distance > 3000) {
         const km = Math.round(t.distance / 1000);
         lastFirstTurn = firstKey;
-        speak(`${imperial() ? meters(t.distance) : `${km} km`} geradeaus.`, null, { priority: 3 });
+        speak(`${imperial() ? meters(t.distance) : `${km} km`} geradeaus.`);
         return;
       }
-      if (!t) speak('Der Route folgen.', null, { priority: 3 });
+      if (!t) speak('Der Route folgen.');
     }
     lastFirstTurn = firstKey;
     if (!t) return;
     const v = num(telemetry?.speedKmh);
     const mps = v / 3.6; // 游戏内米 / 现实秒
     const T_SPEECH = 3;  // 语音时长补偿（约 3 秒，语音在参考点恰好结束）
-    // 提前秒数（按速度近似道路等级：高速/主干路更长，城市更短）；执行层提前 0.5 秒
-    const adv = v > 65 ? [45, 14, 0.5] : v > 35 ? [30, 10, 0.5] : [18, 7, 0.5];
+    // 提前秒数（按速度近似道路等级：高速/主干路更长，城市更短）；执行层提前 1.5 秒
+    const adv = v > 65 ? [45, 14, 1.5] : v > 35 ? [30, 10, 1.5] : [18, 7, 1.5];
     // D_ref = V × 提前秒数；D_trigger = D_ref + V × T_speech
     const refs = adv.map((s) => Math.round(mps * s));
     const trigs = refs.map((d) => d + Math.round(mps * T_SPEECH));
@@ -7324,13 +7370,22 @@
     if ((spokenTurns.get(key) ?? -1) >= lv) return; // 同一 (id, level) 全局只播一次
     spokenTurns.set(key, lv);
     const isNow = lv === 2;
-    // 两步联合播报（组合弯道）：预告/准备层且下一机动很近（< 400 m）时合并为“，然后 …”
-    const then = lv <= 1 && m.turns[1] && m.turns[1].distance - t.distance < 400 ? `, dann ${turnSpoken(m.turns[1])}` : '';
+    // 锁定/解锁：预告/准备层锁定这个转弯；执行层（现在）报完就解锁，允许报下一个转弯
+    if (lv <= 1) turnLock = t.index;
+    else turnLock = null;
+    // 两步联合播报：第二机动在 200 m 内才合并「然后 X 米后 …」；超过 200 m 不提前播
+    const thenGap = lv <= 1 && m.turns[1] ? m.turns[1].distance - t.distance : Infinity;
+    const thenTurn = thenGap < 200 ? m.turns[1] : null;
+    const then = thenTurn ? ` Danach in ${meters(Math.max(10, Math.round(thenGap / 10) * 10))} ${turnSpoken(thenTurn)}.` : '';
     // Ziel vom Wegweiser (nur wenn das Schild zur Route passt): „Ausfahrt rechts nehmen Richtung München“
     const yard = yardTurn(m, t) ? ' auf das Firmengelände' : t.towards && t.kind !== 'roundabout' ? ` Richtung ${t.towards}` : '';
+    // 显示用【当前】距离（随时间递减），而不是参考距离——避免“距离越来越远”
+    const step = t.distance >= 1000 ? 100 : 50;
+    const near = Math.max(step, Math.round(t.distance / step) * step);
+    const spokenDist = !imperial() && near >= 1000 && near % 1000 === 0 ? `${near / 1000} km` : meters(near);
     const say = isNow
-      ? (t.kind === 'roundabout' ? 'Jetzt aus dem Kreisverkehr ausfahren.' : `Jetzt ${turnSpoken(t)}${yard}${then}.`)
-      : `In ${meters(refs[lv])} ${turnSpoken(t)}${yard}${then}.`;
+      ? (t.kind === 'roundabout' ? 'Jetzt aus dem Kreisverkehr ausfahren.' : `Jetzt ${turnSpoken(t)}${yard}.`)
+      : `In ${spokenDist} ${turnSpoken(t)}${yard}.${then}`;
     if (say === lastTurnSay.text && performance.now() - lastTurnSay.at < 20000) return;
     lastTurnSay = { text: say, at: performance.now() };
     if (demoMode) (window.__said = window.__said || []).push(`${Math.round(t.distance)} m bei ${Math.round(v)} km/h: ${say}`); // Test
@@ -10241,6 +10296,13 @@
     } else if (d.action === 'lanes-share') {
       api?.laneShare?.().then((ok) => { if (!ok) showToast({ icon: 'turn-slight', color: 'purple', title: 'Spurdaten', text: 'Noch nichts zu teilen' }); });
     } else if (d.action === 'ultra-next') ultraNextDesign();
+    else if (d.action === 'assist-layout') toggleAssistLayout(); // App „Assistenz“: Szene groß ↔ geteilt
+    else if (d.action === 'assist-settings') { // App „Assistenz“: Zahnrad → Einstellungen › Fahrassistenz, Zurück führt in die App
+      showScreen('settings');
+      settingsStack = ['main', 'cluster-assist'];
+      settingsReturn = 'assist';
+      rerenderSettings();
+    }
     else if (d.action === 'ultra-settings') openUltraSettings();
     else if (d.action === 'map-settings') {
       mapSheetOpen = false;
@@ -10883,7 +10945,8 @@
   // Design gerade im Instrument (nachts evtl. ein anderes)
   const clusterDesign = () => catalog.clusterDesignNow(settings, telemetry?.gameTimeMin);
   // Straßenszene (Netz, Verkehr, Schilder …): Fahrassistenz und seit 1.18.6 auch das Balken-Design (Szene in der Mitte)
-  const clusterRoad = () => ['tesla', 'bars'].includes(clusterDesign());
+  // App „Assistenz“ offen (10c): zeigt dieselbe Straßenszene – braucht Netz, Route, Schilder … auch ohne Kombiinstrument
+  const clusterRoad = () => assistOpen() || ['tesla', 'bars'].includes(clusterDesign());
   const clusterSmallMap = () => clusterDesign() === 'dials' && settings.clusterCenter === 'map'; // Balken: Mitte ist die Straßenszene
   const clusterMapWanted = () => kombiHere && clusterActive && (clusterDesign() === 'map' || clusterDesign() === 'mapdials' || clusterSmallMap()) && !!api?.clusterMap && CarMap.hasMapData();
   function drawClusterMap(speed, options) {
@@ -10977,6 +11040,7 @@
   let clusterWorks = null; // Baustellen-Objekte ringsum
   let clusterRbs = null; // Kreisverkehre ringsum
   let clusterJns = null; // Kreuzungsumrisse ringsum (Karten ab Version 19)
+  let clusterAreas = null; // Gelände als Boden: Umrisse und Kartenflächen der Prefabs ringsum
   // Gebäude für die Fahrassistenz: nur größere (ab 80 m² Grundfläche und 3 m Höhe) und keins, das auf einer Straße
   // steht (Straßenpunkt im Umriss oder näher am Umriss als die halbe Fahrbahnbreite)
   function clearOfRoads(blds, lines) {
@@ -11044,7 +11108,12 @@
     const blds = settings.clusterBuildings && CarMap.buildingsNear ? CarMap.buildingsNear(p.x, p.z, 260) : Promise.resolve(null);
     const rbs = CarMap.roundaboutsNear ? CarMap.roundaboutsNear(p.x, p.z, 320) : Promise.resolve(null);
     const jns = CarMap.junctionsNear ? CarMap.junctionsNear(p.x, p.z, 320) : Promise.resolve(null);
-    Promise.all([CarMap.linesNear(p.x, p.z, 320), blds, rbs, jns]).then(([lines, b, rb, jn]) => {
+    // Gelände als Boden (Tankstellen, Firmen, Parkplätze): Umrisse der Gelände und Kartenflächen der Prefabs
+    const areas = CarMap.areasNear ? CarMap.areasNear(p.x, p.z, 260) : Promise.resolve(null);
+    Promise.all([CarMap.linesNear(p.x, p.z, 320), blds, rbs, jns, areas]).then(([lines, b, rb, jn, ar]) => {
+      const sites = CarMap.sitesNear ? CarMap.sitesNear(p.x, p.z, 260) : [];
+      const ground = [...sites.map((s) => ({ c: 4, p: s.p })), ...(ar || [])];
+      clusterAreas = ground.length ? ground : null;
       clusterRbs = rb && rb.length ? rb : null;
       clusterJns = jn && jn.length ? jn : null;
       clusterNet = lines && lines.length ? lines : null;
@@ -11054,7 +11123,8 @@
   }
 
   setInterval(() => {
-    if (!kombiHere || !clusterActive || !api?.clusterState) return;
+    const toCluster = kombiHere && clusterActive && !!api?.clusterState;
+    if (!toCluster && !assistOpen()) return;
     updateClusterNet();
     const t = telemetry || {};
     const p0 = pose.current();
@@ -11085,6 +11155,7 @@
       works: clusterRoad() && settings.clusterWorks !== false && clusterWorks && clusterWorks.length ? clusterWorks.slice(0, 400) : null,
       rbs: clusterRoad() ? clusterRbs : null,
       jns: clusterRoad() ? clusterJns : null, // Kreuzungsumrisse: Fläche und Bordstein
+      areas: clusterRoad() ? clusterAreas : null, // Gelände als Boden (c: 0 befestigt, 1 hell, 2 dunkel, 3 grün, 4 Geländeumriss)
       // Straßenform für „Fahrassistenz“: Route voraus, nur in diesem Design (sonst unnötig viel zu schicken)
       road: clusterRoad() && CarMap.onRoute() ? (CarMap.routeAheadPoints(260) || []).map(([x, y]) => [Math.round(x * 10) / 10, Math.round(y * 10) / 10]) : null,
       media: clusterMedia(),
@@ -11094,7 +11165,8 @@
     const json = JSON.stringify(state);
     if (json === clusterSent) return;
     clusterSent = json;
-    api.clusterState(state);
+    if (toCluster) api.clusterState(state);
+    assistEmit('state', state);
   }, 250);
   // ------------------------------------------------------------------ App „CabPlay Ultra“ (1.18.6)
   // Wie bei Apple: das Kombiinstrument direkt im Navi anpassen – oben die Live-Vorschau, darunter Design, Hintergrund,
@@ -11199,6 +11271,98 @@
     settingsReturn = 'ultra';
     rerenderSettings();
   }
+  // ------------------------------------------------------------------ App „Assistenz“ (Issue #9)
+  // Geteilt wie im Auto: links die Navi-Karte, rechts die Straßenszene der Fahrassistenz – dieselbe Szene wie im
+  // Kombiinstrument (Design „Fahrassistenz“): Route auf den Spuren, Fahrzeuge ringsum, Schilder. Die Szene ist
+  // cluster.html?embed=assist im iframe und bekommt ihre Daten von hier per postMessage (file:// – kein direkter Zugriff):
+  // Einstellungen, Telemetrie (05), Zustand (10a, alle 250 ms), Lichter und Verkehr ringsum (Hauptprozess, nur solange offen).
+  // Die Szene läuft nur, solange die App offen ist – das iframe entsteht beim Öffnen und verschwindet beim Verlassen.
+
+  // An die Szene schicken – Funktion statt Variable: wird schon vor diesem Abschnitt gebraucht (05, 10a)
+  function assistEmit(kind, data) {
+    const w = assistEmit.frame?.contentWindow;
+    if (!w) return;
+    try {
+      w.postMessage({ assist: kind, data }, '*');
+    } catch {
+      // nicht übertragbare Daten oder Rahmen geht gerade zu – nächstes Mal wieder
+    }
+  }
+  // Einstellungen für die Szene: dieselben wie im Kombiinstrument – auch der Hintergrund und das Dimmen bei Nacht (Nutzer
+  // 21.11.: beide immer gleich; vorher hell/dunkel wie das Navi)
+  function assistSettings() {
+    return { settings };
+  }
+  function assistOpen() {
+    return !!assistEmit.frame;
+  }
+
+  function assistSceneQuery() {
+    const q = new URLSearchParams({ embed: 'assist', lang: CarI18n.lang, units: imperial() ? 'us' : 'metric', ats: isAts() ? '1' : '0' });
+    if (demoMode) { q.set('demo', '1'); q.set('live', '1'); } // Demo-Fahrt: Ersatz-Autobahn wie im Demo-Kombiinstrument
+    return q.toString();
+  }
+
+  // showScreen (03): iframe beim Öffnen anlegen, beim Verlassen entfernen; dem Hauptprozess Bescheid geben (Verkehr anfordern)
+  function syncAssistScene(id) {
+    const host = stage.querySelector('[data-assist-scene]');
+    let frame = host?.querySelector('iframe') || null;
+    if (host && id === 'assist' && !frame) {
+      // unter die Navi-Anzeigen (assist-hud): die liegen über der Szene
+      host.insertAdjacentHTML('afterbegin', `<iframe class="assist-frame" src="cluster.html?${escape(assistSceneQuery())}" tabindex="-1" aria-hidden="true"></iframe>`);
+      frame = host.querySelector('iframe');
+    } else if (host && id !== 'assist' && frame) {
+      frame.remove();
+      frame = null;
+    }
+    const was = assistOpen();
+    assistEmit.frame = frame;
+    if (was !== !!frame) api?.assistActive?.(!!frame);
+  }
+
+  // Navi-Anzeigen über der Szene (nur bei „Szene groß“ sichtbar): dieselben wie auf der Karte – Abbiegehinweis, Ankunft,
+  // Tempo – ohne Kartenbild und Kompass, nicht verschiebbar (Positionen wie auf der Karte eingestellt)
+  function assistHudHtml() {
+    return mapView('dash')
+      .replace('<div class="map map-dash">', '<div class="map map-dash assist-hud">')
+      .replace('<canvas data-map></canvas>', '')
+      .replace(/<div class="map-note[^>]*><\/div>/, '')
+      .replace(/<button class="ov compass[\s\S]*?<\/button>/, '')
+      .replace(/ data-ov="[^"]*"/g, '')
+      .replace(/ data-free/g, '');
+  }
+
+  // Ansicht: Karte + Szene oder nur die Szene (antippen wechselt) – ohne Neuaufbau, sonst lüde die Szene neu
+  function applyAssistLayout() {
+    const split = stage.querySelector('.assist-split');
+    const scene = settings.assistLayout === 'scene';
+    split?.classList.toggle('scene-only', scene);
+    // verdeckte Karte nach dem Übergang ganz aus (map-off: display none) – sonst zeichnete sie unter der Szene weiter
+    clearTimeout(applyAssistLayout.timer);
+    if (!scene) split?.classList.remove('map-off');
+    else applyAssistLayout.timer = setTimeout(() => split?.classList.toggle('map-off', settings.assistLayout === 'scene'), 480);
+    const btn = stage.querySelector('.assist-expand');
+    if (btn) btn.innerHTML = ICONS[settings.assistLayout === 'scene' ? 'fullscreen-exit' : 'fullscreen'];
+  }
+  function toggleAssistLayout() {
+    settings = { ...settings, assistLayout: settings.assistLayout === 'scene' ? 'split' : 'scene' };
+    applyAssistLayout();
+    api?.saveSettings?.(settings); // gespeichert; kommt zurück und ändert nur die Ansicht (11-editor-start: kein Neuaufbau)
+  }
+
+  // Szene geladen: Einstellungen und letzte Telemetrie gleich schicken, Zustand beim nächsten Takt vollständig
+  window.addEventListener('message', (e) => {
+    if (!e.data?.assistReady || !assistEmit.frame || e.source !== assistEmit.frame.contentWindow) return;
+    assistEmit('settings', assistSettings());
+    if (telemetry) assistEmit('telemetry', telemetry);
+    clusterSent = '';
+    // erst einblenden, wenn die Szene mit den richtigen Farben (hell/dunkel) gezeichnet ist
+    const frame = assistEmit.frame;
+    setTimeout(() => frame.classList.add('loaded'), 200);
+  });
+  api?.assistActive?.(false); // nach dem Neuladen der Seite: Anmeldung der alten Seite zurücknehmen
+  api?.onLights?.((list) => assistEmit('lights', list));
+  api?.onAssistTraffic?.((data) => assistEmit('traffic', data));
   // ------------------------------------------------------------------ Tastenkürzel aufnehmen (Editor)
   function startCapture(action) {
     capturing = capturing === action ? null : action;
@@ -11355,8 +11519,10 @@
         // nur Einstellungen des Kombiinstruments (z. B. Design per Displaytaste I): der Truck-Bildschirm zeigt davon nichts –
         // nicht alles neu aufbauen (sonst flackert Navi und Karte bei jedem Tastendruck); offen ist nur die Einstellungsseite
         const changedKeys = Object.keys({ ...next, ...settings }).filter((k) => k !== 'recents' && k !== 'lastScreen' && JSON.stringify(next[k]) !== JSON.stringify(settings[k]));
-        if (!imagesChanged && changedKeys.length && changedKeys.every((k) => k.startsWith('cluster'))) {
+        if (!imagesChanged && changedKeys.length && changedKeys.every((k) => k.startsWith('cluster') || k === 'assistLayout')) {
           settings = next;
+          applyAssistLayout();
+          assistEmit('settings', assistSettings()); // App „Assistenz“: Szene zeigt Farbe, Gebäude … des Kombiinstruments
           if (screen === 'settings') render();
           return;
         }
