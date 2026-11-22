@@ -15,6 +15,7 @@
     stops: { name: 'Tanken & Rasten', color: 'blue', kind: 'other' },
     logbook: { name: 'Fahrtenbuch', color: 'yellow', kind: 'other' },
     ultra: { name: 'CabPlay Ultra', color: 'blue', kind: 'other' }, // Kombiinstrument anpassen (Vorschau, Design, Schnellschalter)
+    assist: { name: 'Assistenz', color: 'graphite', kind: 'other' }, // Karte + Straßenszene der Fahrassistenz nebeneinander (Issue #9)
     calendar: { name: 'Kalender', color: 'red', kind: 'other' },
     phone: { name: 'Telefon', color: 'green', kind: 'other' },
     weather: { name: 'Wetter', color: 'blue', kind: 'other' },
@@ -106,6 +107,8 @@
     displayFormats: {}, // Displayformat je Lkw-ID ("scania.r": "4:3") – fehlt einer: automatisch (Spieldateien, sonst 16:9)
     mapZoom: 0,          // 0 = automatisch nach Tempo, 1 (nah) … 5 (weit)
     mapTilt: true,       // 3D-Ansicht (geneigt) statt 2D
+    mapTruckSize: 'medium', // Größe des Truck-Symbols auf der Karte: small | medium | large (Issue #9)
+    assistLayout: 'split', // App „Assistenz“: split (Karte + Szene) | scene (nur die Szene, mit Navi-Anzeigen darüber)
     mapNorth: false,     // Norden oben statt Fahrtrichtung oben
     mapAlong: false,     // Rastplätze und Tankstellen entlang der Route als Liste auf der Karte
     setupDone: false,     // Einrichtung beim ersten Start erledigt (bestehende Einstellungen: ja)
@@ -263,6 +266,7 @@
     musicArt: 'right', // Cover rechts (CarPlay) oder links (Spotify)
     overlays: { banner: 'top-left', eta: 'bottom', speed: 'bottom-left', compass: 'top-right' },
     overlayFree: { banner: false, speed: false }, // Kartenstil Google/Apple: eigene Position statt „fest wie im Original“
+    overlaysByStyle: {}, // gemerkte overlays/overlayFree je Kartenstil (beim Stilwechsel getauscht, Issue #9)
   };
 
   // Video-Einträge: yt (Video), ytl (Playlist), tw (Twitch-Kanal), twv (Twitch-Video), twc (Twitch-Clip)
@@ -540,6 +544,8 @@
       if (Number.isFinite(v) && v >= 0 && v <= 100) s[key] = Math.round(v); // alle Lautstärken in 1er-Schritten
     }
     s.mapStyle = pick(src.mapStyle, Object.keys(MAP_STYLES), s.mapStyle);
+    s.mapTruckSize = pick(src.mapTruckSize, ['small', 'medium', 'large'], s.mapTruckSize);
+    s.assistLayout = pick(src.assistLayout, ['split', 'scene'], s.assistLayout);
     s.mapHighways = bool(src.mapHighways, s.mapHighways);
     s.mapAreas = bool(src.mapAreas, s.mapAreas);
     s.mapBuildings = bool(src.mapBuildings, s.mapBuildings);
@@ -706,15 +712,29 @@
       if (!all.includes('nav')) s.dashboard.stacks[1] = ['nav', ...s.dashboard.stacks[1]].slice(0, 6);
     }
 
-    if (src.overlays && typeof src.overlays === 'object') {
-      const banner = { top: 'top-left', bottom: 'top-left' }[src.overlays.banner] || src.overlays.banner;
-      s.overlays.banner = pick(banner, OVERLAYS.banner, s.overlays.banner);
-      s.overlays.eta = pick(src.overlays.eta, OVERLAYS.eta, s.overlays.eta);
-      s.overlays.speed = pick(src.overlays.speed, CORNERS, s.overlays.speed);
-      s.overlays.compass = pick(src.overlays.compass, CORNERS, s.overlays.compass);
-    }
-    if (src.overlayFree && typeof src.overlayFree === 'object') {
-      s.overlayFree = { banner: bool(src.overlayFree.banner, false), speed: bool(src.overlayFree.speed, false) };
+    const cleanOverlays = (o, fallback) => {
+      const banner = { top: 'top-left', bottom: 'top-left' }[o.banner] || o.banner;
+      return {
+        banner: pick(banner, OVERLAYS.banner, fallback.banner),
+        eta: pick(o.eta, OVERLAYS.eta, fallback.eta),
+        speed: pick(o.speed, CORNERS, fallback.speed),
+        compass: pick(o.compass, CORNERS, fallback.compass),
+      };
+    };
+    const cleanFree = (f) => ({ banner: bool(f.banner, false), speed: bool(f.speed, false) });
+    if (src.overlays && typeof src.overlays === 'object') s.overlays = cleanOverlays(src.overlays, s.overlays);
+    if (src.overlayFree && typeof src.overlayFree === 'object') s.overlayFree = cleanFree(src.overlayFree);
+    // Positionen je Kartenstil (Issue #9): beim Wechsel des Stils gemerkt und wiederhergestellt (02-einstellungen.js)
+    s.overlaysByStyle = {};
+    if (src.overlaysByStyle && typeof src.overlaysByStyle === 'object') {
+      for (const style of Object.keys(MAP_STYLES)) {
+        const saved = src.overlaysByStyle[style];
+        if (!saved || typeof saved !== 'object' || !saved.overlays || typeof saved.overlays !== 'object') continue;
+        s.overlaysByStyle[style] = {
+          overlays: cleanOverlays(saved.overlays, DEFAULTS.overlays),
+          overlayFree: cleanFree(saved.overlayFree && typeof saved.overlayFree === 'object' ? saved.overlayFree : {}),
+        };
+      }
     }
     return s;
   };
