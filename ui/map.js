@@ -453,7 +453,7 @@
 
   function classify(delta) {
     const a = Math.abs(delta) * 180 / Math.PI;
-    const side = delta > 0 ? 'left' : 'right'; // 修正：原角度判定的左右是反的（与游戏数据一致）
+    const side = delta > 0 ? 'right' : 'left'; // y zeigt nach Süden → positiver Winkel = im Uhrzeigersinn
     if (a < 28) return null;
     if (a < 55) return { kind: 'slight', side };
     if (a < 130) return { kind: 'turn', side };
@@ -629,6 +629,8 @@
         // in eine Kreuzung mündet, wäre sonst „Wenden“ kurz vor dem eigentlichen Abbiegen
         if (knowsTurns && !routePoints[s[k].i]?.branch && !Array.isArray(junctionTurnNear(s[k].i, 40, 40))) continue;
         let type = decide(classify(total), j);
+        // 没有路口转弯数据（jt）的几何转弯 = 只是道路弯道，不报成左转/右转（弯道不是路口转弯）
+        if (type && !Array.isArray(jt) && (type.kind === 'turn' || type.kind === 'sharp')) continue;
         if (type && (bl === 'l' || bl === 'r') && type.side !== (bl === 'r' ? 'right' : 'left')) type = { kind: 'slight', side: bl === 'r' ? 'right' : 'left' };
         if (!type) continue;
         const prev = routeTurns[routeTurns.length - 1];
@@ -718,7 +720,7 @@
       };
       const a = at(routeCum[i - 1] - 40), b = routePoints[i - 1], c = routePoints[end], d = at(routeCum[end] + 40);
       const total = a && b && c && d ? angleDelta(Math.atan2(b.y - a.y, b.x - a.x), Math.atan2(d.y - c.y, d.x - c.x)) : 0;
-      const side = Math.abs(total) < (25 * Math.PI) / 180 ? 'straight' : total > 0 ? 'left' : 'right';
+      const side = Math.abs(total) < (25 * Math.PI) / 180 ? 'straight' : total > 0 ? 'right' : 'left';
       // endCum: Ausfahrt – die Anzeige bleibt im Kreisverkehr stehen und zählt bis dorthin herunter
       routeTurns.push({ kind: 'roundabout', side, exit: p.rb, cum: routeCum[i - 1], endCum: routeCum[end], index: i - 1, angle: total, lanes: 0, junction: null });
     }
@@ -796,7 +798,7 @@
         const angle = Math.atan2(fx * dy - fy * dx, fx * dx + fy * dy); // > 0: rechts
         const deg = Math.abs((angle * 180) / Math.PI);
         if (deg > 45 && prev && prev.deg > 45 && Math.sign(prev.angle) === Math.sign(angle)) {
-          startTurn = { kind: deg > 150 ? 'uturn' : deg > 120 ? 'sharp' : 'turn', side: angle > 0 ? 'left' : 'right', distance: Math.max(10, prev.cum - here), index: k, lanes: 0, junction: null, start: true }; // Wenden/Abbiegen beim Losfahren (nicht aus der Route)
+          startTurn = { kind: deg > 150 ? 'uturn' : deg > 120 ? 'sharp' : 'turn', side: angle > 0 ? 'right' : 'left', distance: Math.max(10, prev.cum - here), index: k, lanes: 0, junction: null, start: true }; // Wenden/Abbiegen beim Losfahren (nicht aus der Route)
           break;
         }
         prev = { deg, angle, cum: routeCum[k] };
@@ -1060,7 +1062,7 @@
         if (places) this.drawPlaces(toScreen, view, w, h, scale, theme, options, reach);
         if (trailerSpot) this.drawTrailerMarker(toScreen, w, h);
       }
-      this.drawTruck(cx, cy, Math.min(w, h * 1.4), squash, theme, view ? mapRotation - view.heading : 0);
+      this.drawTruck(cx, cy, Math.min(w, h * 1.4) * (options.truckScale || 1), squash, theme, view ? mapRotation - view.heading : 0);
     }
 
     drawOverview(pose, themeName, theme, options, w, h) {
@@ -1104,7 +1106,7 @@
       if (places) this.drawPlaces(toScreen, center, w, h, scale, theme, { ...options, pois: false }, 1);
       const sx = toScreen.a * pose.x + toScreen.c * pose.z + toScreen.e;
       const sy = toScreen.b * pose.x + toScreen.d * pose.z + toScreen.f;
-      this.drawTruck(sx, sy, Math.min(w, h * 1.4) * 0.8, 1, theme, -headingRadians(pose));
+      this.drawTruck(sx, sy, Math.min(w, h * 1.4) * 0.8 * (options.truckScale || 1), 1, theme, -headingRadians(pose));
     }
 
     drawGrid(pose, w, h, scale, theme) {
@@ -1263,6 +1265,18 @@
         layers.worker.postMessage({ type: 'jns', id, x, y, r });
         setTimeout(() => { if (linesWaiting.delete(id)) resolve(null); }, 3000);
       } else resolve(mapData && mapData.junctionsNear ? mapData.junctionsNear(x, y, r) : null);
+    });
+  }
+
+  // Kartenflächen der Prefabs um (x, y) – Tankstellen, Firmengelände, Parkplätze (gleicher Weg wie die Straßen)
+  function areasNear(x, y, r) {
+    return new Promise((resolve) => {
+      if (layers.worker && layers.ready) {
+        const id = linesId++;
+        linesWaiting.set(id, resolve);
+        layers.worker.postMessage({ type: 'areas', id, x, y, r });
+        setTimeout(() => { if (linesWaiting.delete(id)) resolve(null); }, 3000);
+      } else resolve(mapData && mapData.areasNear ? mapData.areasNear(x, y, r) : null);
     });
   }
 
@@ -2427,6 +2441,9 @@
     buildingsNear: (x, y, r) => buildingsNear(x, y, r),
     roundaboutsNear: (x, y, r) => roundaboutsNear(x, y, r),
     junctionsNear: (x, y, r) => junctionsNear(x, y, r),
+    areasNear: (x, y, r) => areasNear(x, y, r),
+    // Firmen-, Werkstatt-, Händlergelände und Steinbrüche um (x, y): [{ k: Art, p: [x, y, …] }] (Umriss wie auf der Karte)
+    sitesNear: (x, y, r) => (places && places.siteList ? places.siteList.filter((s) => s.x1 > x - r && s.x0 < x + r && s.y1 > y - r && s.y0 < y + r).map((s) => ({ k: s.k, p: s.c })) : []),
     // Baustellen-Objekte um (x, y): [x, y, Art] – null ohne Daten
     worksNear: (x, y, r) => {
       const list = places && places.works;
