@@ -643,6 +643,7 @@
     language: { auto: 'Automatisch (wie Windows)', de: 'Deutsch', en: 'English', pl: 'Polski', tr: 'Türkçe', zh: '简体中文', 'zh-hant': '繁體中文' },
     units: { auto: 'Wie im Spiel', metric: 'Metrisch (km/h, km, °C, l, t)', us: 'Imperial US (mph, mi, °F, gal, lb)', uk: 'Imperial UK (mph, mi, °C, gal, lb)' },
     clock: { auto: 'Wie im Spiel', 24: '24 Stunden', 12: '12 Stunden (AM/PM)' },
+    keyboard: { auto: 'Wie die App-Sprache', de: 'Deutsch', en: 'English', pl: 'Polski', tr: 'Türkçe' },
     appearance: { auto: 'Nach Uhrzeit', lights: 'Nach Scheinwerfer', light: 'Hell', dark: 'Dunkel' },
     mapTheme: { system: 'Wie Darstellung', light: 'Hell', dark: 'Dunkel', auto: 'Nach Uhrzeit', lights: 'Nach Scheinwerfer' },
     volumeVoice: { 0: 'Aus', 10: '10 %', 20: '20 %', 30: '30 %', 40: '40 %', 50: '50 %', 60: '60 %', 70: '70 %', 80: '80 %', 90: '90 %', 100: '100 %' },
@@ -715,7 +716,7 @@
   }
   const TITLES = {
     mirrorTarget: 'Zeigen im', mapNextLimitStyle: 'Position', clusterDesign: 'Design', clusterAccent: 'Farbe', clusterBackground: 'Hintergrund', clusterTint: 'Hintergrundfarbe', clusterGauge: 'Instrumente', clusterBootStyle: 'Begrüßung', clusterCenter: 'Mitte', clusterFps: 'Bildrate', clusterArrows: 'Blinkerpfeile', clusterBlinkers: 'Blinker im Display', clusterWidgetMode: 'Wechsel', clusterDialRight: 'Rechts unten', clusterInfoStyle: 'Stil der Leiste', clusterFocus: 'Größer anzeigen',
-    displayFormat: 'Displayformat', language: 'Sprache', units: 'Einheiten', clock: 'Uhrzeit', appearance: 'Darstellung', appearanceAuto: 'Automatisch', radarTolerance: 'Tempo-Warnung', gradeMin: 'Steigungen', glass: 'Liquid Glass', iconTheme: 'Symbol-Set', iconStyle: 'Symbolstil', textScale: 'Textgröße', gamma: 'Bildkorrektur', mapTheme: 'Farbschema', volumeVoice: 'Sprachansagen', volumeAnnounce: 'Durchsagen im Bus', volumeAlerts: 'Warntöne', volumeSiri: 'Sprachbefehl-Töne', volumeVideo: 'Video', volumeRadio: 'Radio', gammaValue: 'Kontrast (Gamma)', whiteLevel: 'Weißpunkt',
+    displayFormat: 'Displayformat', keyboard: 'Tastatur', language: 'Sprache', units: 'Einheiten', clock: 'Uhrzeit', appearance: 'Darstellung', appearanceAuto: 'Automatisch', glassTint: 'Tönung', radarTolerance: 'Tempo-Warnung', gradeMin: 'Steigungen', glass: 'Liquid Glass', iconTheme: 'Symbol-Set', iconStyle: 'Symbolstil', textScale: 'Textgröße', gamma: 'Bildkorrektur', mapTheme: 'Farbschema', volumeVoice: 'Sprachansagen', volumeAnnounce: 'Durchsagen im Bus', volumeAlerts: 'Warntöne', volumeSiri: 'Sprachbefehl-Töne', volumeVideo: 'Video', volumeRadio: 'Radio', gammaValue: 'Kontrast (Gamma)', whiteLevel: 'Weißpunkt',
     sidebar: 'Position', sidebarCount: 'Anzahl Apps', phoneBattery: 'Handy-Akku', logoStore: 'Logos', phoneSignal: 'Mobilfunk', musicArt: 'Musik-Ansicht', dispatcher: 'Disponent', mirrorView: 'Spiegel', mirrorFps: 'Bildrate', voiceName: 'Stimme', voiceLang: 'Sprache der Ansagen', voiceZh: 'Chinesische Stimme', sidebarMode: 'Apps in der Seitenleiste', iconSize: 'Symbolgröße', startScreen: 'Startbildschirm',
     mapStyle: 'Kartenstil', mapFps: 'Bildrate der Karte', mapTruckSize: 'Truck-Symbol', 'overlays.banner': 'Abbiegehinweis', 'overlays.eta': 'Ankunftszeit', 'overlays.speed': 'Tempo-Anzeige',
     'overlays.compass': 'Kompass', 'dashboard.0': 'Großes Widget', 'dashboard.1': 'Widget oben', 'dashboard.2': 'Widget unten',
@@ -725,7 +726,7 @@
     voiceZh: 'Empfohlen: Xiaoyu. Mit Spracherkennung geprüft – sie wird am besten verstanden. Die Windows-Stimme braucht das chinesische Sprachpaket von Windows.',
     voiceLang: 'Navi, Disponent, Blitzer und Durchsagen kommen in dieser Sprache – auch wenn die Oberfläche eine andere hat. Antworten des AI-Sprachassistenten bleiben in der Sprache, in der du fragst.',
     voiceName: 'Empfohlen: Olivia. Für sie ist die Aussprache gemacht und mit Spracherkennung geprüft – Zahlen, Kilometer, Geld, Städte und Firmen klingen bei ihr am natürlichsten. Die anderen AI-Stimmen nutzen dieselben Regeln, sprechen aber nicht alles so sauber.',
-    glass: 'Normal passt sich dem Hintergrund an. Klar ist durchsichtiger und dunkelt dafür ab (gut über Fotos). Sparsam spart über der Karte und im Dashboard Rechenzeit. Weniger Transparenz macht alles deckend.',
+    glass: 'Wie bei iOS: nach links klarer und durchsichtiger, nach rechts stärker getönt und besser lesbar. In der Mitte die Standard-Einstellung. „Unschärfe reduzieren“ schaltet auch die Lichtbrechung an den Glaskanten aus und spart über der Karte und im Dashboard Rechenzeit.',
     iconTheme: 'Wie die echten Apps. Nachbauten – die Original-Icons kannst du als eigenes Bild festlegen.',
     gamma: 'Das Spiel lässt den Bildschirm im Truck leuchten und legt Bloom darüber – er wirkt überbelichtet. „Ausgewogen“ dunkelt die Mitteltöne etwas ab und dimmt Weiß, damit helle Flächen nicht überstrahlen. „Stark“ macht Farben dunkel und satt, Weiß strahlt aber weiter. Gilt nur im Truck, nicht im Editor.',
     sidebarMode: 'Zuletzt benutzt: oben die letzte Navi-App, in der Mitte die letzte Audio-App, unten die zuletzt geöffnete andere App.',
@@ -882,6 +883,28 @@
       + `<input type="range" class="vol-range" min="0" max="100" step="1" value="${v}" data-focus data-volume-range="${key}" style="--v:${v}%">`
       + `<em class="vol-val">${v} %</em></div>`;
   };
+  // Vorschau für den Liquid-Glass-Regler (wie iOS 27): eigenes Hintergrundbild, darauf echter Inhalt (kleine Karte mit Route,
+  // buntes Album-Cover) und darüber CabPlay-Bedienelemente aus Glas – Seitenleiste, Abbiegehinweis, „Jetzt läuft“, Knöpfe.
+  // So sieht man beim Ziehen, wie klar oder getönt das Glas über Karte und Bildern wirkt (applyGlassTint, live).
+  function glassPreviewHtml() {
+    const map = `<svg class="gp-map" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <rect width="400" height="220" class="gp-land"/>
+      <path class="gp-park" d="M250 20h90v60h-90zM30 150h70v50H30z"/>
+      <path class="gp-water" d="M0 190c60-20 120 10 190-8s110-30 210-10v48H0z"/>
+      <g class="gp-road"><path d="M-10 70H410M120-10V230M300-10V230M-10 150C90 130 200 170 410 120"/></g>
+      <g class="gp-road gp-minor"><path d="M40-10V230M210-10V230M-10 30H410M-10 110H410"/></g>
+      <path class="gp-route" d="M120 230V150C150 140 170 120 210 110H300V-10"/>
+      <circle cx="120" cy="190" r="9" class="gp-pos"/>
+    </svg>`;
+    return `<div class="glass-preview" aria-hidden="true">
+      ${map}
+      <div class="gp-cover"></div>
+      <div class="glass gp-side"><i style="--c:#34c759"></i><i style="--c:#0a84ff"></i><i style="--c:#ff9f0a"></i><i style="--c:#ff375f"></i></div>
+      <div class="glass gp-turn">${ICONS.turnRight || ICONS['turn-turn'] || ''}<b>300 m</b></div>
+      <div class="glass gp-now"><span class="gp-art"></span><span class="gp-lines"><i></i><i></i></span><span class="gp-play">${ICONS.play || ''}</span></div>
+      <div class="gp-buttons"><span class="glass gp-btn">${ICONS.search || ''}</span><span class="glass gp-btn">${ICONS.music || ''}</span><span class="glass gp-btn">${ICONS.phone || ''}</span></div>
+    </div>`;
+  }
   const groupTitle = (t) => `<p class="group-title">${t}</p>`;
   const group = (rows, note = '') => `<div class="group">${rows.join('')}</div>${note ? `<p class="group-note">${note}</p>` : ''}`;
   const link = (page, icon, color, label, value = '') => srow({ icon, color, label, value: escape(value), attrs: `data-page="${page}"` });
@@ -1078,7 +1101,10 @@
           body: `<p class="group-title">Darstellung</p><div class="group ap-group">${tile('light', 'Hell')}${tile('dark', 'Dunkel')}</div>`
             + group([choiceRow('appearanceAuto', 'appearance', 'indigo')], NOTES.appearanceAuto)
             + group([toggleRow('nightDim', 'sun', 'indigo', 'Nachts dunkler')], 'Dimmt das Display wie ein echtes Auto, solange es im Spiel Nacht ist oder das Licht brennt.')
-            + group([choiceRow('glass', 'glass', 'blue', 'Liquid Glass'), choiceRow('textScale', 'textsize', 'gray')], NOTES.glass)
+            + `<p class="group-title">Liquid Glass</p><div class="group glass-preview-group">${glassPreviewHtml()}`
+            + `${volumeRow('glassTint', 'glass', 'blue').replace('<input', '<span class="glass-end">Klar</span><input').replace('<em class="vol-val">', '<span class="glass-end">Getönt</span><em class="vol-val" hidden>')}`
+            + `${toggleRow('glassReduce', 'sliders', 'gray', 'Unschärfe reduzieren')}</div><p class="group-note">${NOTES.glass}</p>`
+            + group([choiceRow('textScale', 'textsize', 'gray')])
             + group([link('truck-display', 'display', 'orange', 'Display im Truck', OPTIONS.gamma[settings.gamma] ? '' : '')], 'Format, sichtbarer Bereich und Bildkorrektur des Navi-Displays im Cockpit.'),
         };
       }
@@ -1273,6 +1299,35 @@
               ...(v.pip ? [srow({ icon: 'grid9', color: 'indigo', label: 'Größe', value: { s: 'Klein', m: 'Mittel', l: 'Groß' }[v.pipSize], chevron: false, attrs: 'data-action="video-pip-size-next"' })] : []),
             ], 'Wechselst du in eine andere App, läuft das Video klein in einer Ecke weiter. Ziehen schiebt es in eine andere Ecke, Antippen öffnet die Video-App, ✕ beendet es. Die Größe lässt sich auch im Fenster umschalten.')
             + (rows.length ? `<p class="group-title">Gespeichert – antippen zum Entfernen</p>` + group(rows) : ''),
+        };
+      }
+      // ---- App „Browser“ (08c): Bild beim Fahren, Zoom, Favoriten, Daten löschen
+      case 'browser': {
+        const b = settings.browser;
+        const favs = b.favorites.map((p, i) => srow({ icon: 'star', color: 'yellow', label: escape(p.title || p.url), value: escape(bwHost(p.url)), chevron: false, attrs: `data-browser-fav-remove="${i}"`, cls: 'removable' }));
+        const add = role === 'editor' && api
+          ? group([`<div class="row input-row">${badge('plus', 'blue')}<input class="row-input" data-input="browser-link" placeholder="Adresse, z. B. bilibili.com" spellcheck="false"><button class="pill-button" data-focus data-action="browser-add">Hinzufügen</button></div>`],
+            'Neue Favoriten erscheinen auf der Startseite des Browsers im Truck.')
+          : '';
+        const armed = bwClearArmed && performance.now() - bwClearArmed < 4000;
+        return {
+          title: 'Browser',
+          body: group([srow({ icon: 'truck', color: 'orange', label: 'Bild beim Fahren zeigen', sw: b.driving, attrs: 'data-action="browser-driving"' })],
+            'Aus: beim Fahren bleibt nur der Ton, die Seite erscheint erst im Stand wieder.')
+            + group([srow({ icon: 'maps', color: 'blue', label: 'Vollständige Adresse anzeigen', sw: !!b.fullUrl, attrs: 'data-action="browser-fullurl"' })],
+              'Aus: in der Leiste steht nur der Name der Seite (wie Safari). Beim Antippen erscheint immer die ganze Adresse.')
+            + group([srow({ icon: 'cancelled', color: 'red', label: 'Werbung blockieren', sw: b.adblock !== false, attrs: 'data-action="browser-adblock"' })],
+              'Blockiert Werbung, Tracker und viele Cookie-Hinweise mit den Filterlisten von Ghostery (alle 3 Tage aktualisiert). Ohne Internet greift eine eingebaute Liste. Bezahlschranken („Werbung oder Abo“) bleiben.')
+            + group([srow({ icon: 'cancelled', color: 'orange', label: 'Pop-ups blockieren', sw: b.popups !== false, attrs: 'data-action="browser-popups"' })],
+              'Fenster, die eine Seite ohne dein Tippen öffnet, werden blockiert – unten erscheint kurz „Pop-up blockiert“ mit „Öffnen“. Links in neuem Tab gehen weiter.')
+            + group([srow({ icon: 'display', color: 'gray', label: 'Auch im PC-Fenster (zum Testen)', sw: !!b.editor, attrs: 'data-action="browser-editor"' })],
+              'Zeigt den Browser zusätzlich im CabPlay-Fenster am PC. Gedacht zum Ausprobieren – Seiten und Ton laufen dann im Truck und am PC getrennt.')
+            + group([srow({ icon: 'textsize', color: 'blue', label: 'Zoom ab Werk', value: `${b.zoom} %`, chevron: false, attrs: 'data-action="browser-zoom-next"' })],
+              'Größe neuer Seiten. Je Seite lässt sich der Zoom im Seitenmenü des Browsers ändern, er wird gemerkt.')
+            + add
+            + (favs.length ? `<p class="group-title">Favoriten – antippen zum Entfernen</p>` + group(favs) : '')
+            + group([srow({ icon: 'cancelled', color: 'red', label: armed ? 'Wirklich Browserdaten löschen? Nochmal tippen' : 'Browserdaten löschen', chevron: false, attrs: 'data-action="browser-clear"' })],
+              'Anmeldungen, Cookies, Verlauf, offene Tabs und gespeicherte Daten der Webseiten. Favoriten und Einstellungen bleiben. Der Browser hat einen eigenen Speicher – App und Video-App sind nicht betroffen.'),
         };
       }
       // ---- Spiegelkamera (Blinker-Kamera): Navi und Kombiinstrument an einer Stelle
@@ -1629,6 +1684,7 @@
             choiceRow('language', 'message', 'blue'),
             choiceRow('units', 'truck', 'orange'),
             choiceRow('clock', 'clock', 'gray'),
+            link('keyboard', 'keyboard', 'gray', 'Tastatur'),
             link('hotkeys', 'keyboard', 'graphite', 'Tastenkürzel'),
           ])
             + group([choiceRow('logoStore', 'layers', 'gray')], 'Vereinswappen und Lkw-Marken. Gespeichert werden sie nach 30 Tagen ohne Anzeige wieder gelöscht (höchstens 40 MB). Nur laden: nichts bleibt auf dem PC, ohne Internet fehlen die Logos.')
@@ -1644,6 +1700,19 @@
               link('reset-menu', 'reset', 'gray', 'Zurücksetzen'),
               ...(api ? [link('uninstall', 'cancelled', 'red', 'CabPlay deinstallieren')] : []),
             ]),
+        };
+      // ---- Tastatur (wie iOS: Allgemein › Tastatur): Sprache, Wortvorschläge, Autokorrektur
+      case 'keyboard':
+        return {
+          title: 'Tastatur',
+          body: group([choiceRow('keyboard', 'message', 'blue', 'Sprache')], 'Mit der Weltkugel auf der Tastatur wechselst du direkt. Chinesisch tippt mit der englischen Tastatur.')
+            + group([
+              toggleRow('kbdSuggest', 'textsize', 'blue', 'Wortvorschläge'),
+              toggleRow('kbdAutocorrect', 'check', 'green', 'Autokorrektur'),
+              toggleRow('kbdAutoCap', 'textsize', 'orange', 'Auto-Großschreibung'),
+              toggleRow('kbdPeriod', 'message', 'gray', 'Kurzbefehl „.“'),
+            ], 'Vorschläge erscheinen über der Tastatur. Die Autokorrektur verbessert nur eindeutige Tippfehler beim Leerzeichen – antippen des Wortes in Anführungszeichen lässt es, wie du es geschrieben hast. Wörter, die du öfter tippst, lernt CabPlay auf diesem PC (nicht beim privaten Surfen, nie aus Passwortfeldern). Auto-Großschreibung: am Satzanfang groß. Kurzbefehl „.“: zweimal Leertaste setzt Punkt und Leerzeichen.')
+            + group([srow({ label: '<span class="danger">Gelernte Wörter löschen</span>', attrs: 'data-action="kbd-forget"', chevron: false })]),
         };
       // ---- Zurücksetzen (wie iOS „Übertragen/Zurücksetzen“): einzelne Bereiche oder alles
       case 'reset-menu':
@@ -1802,8 +1871,9 @@
         const status = connection === 'demo' ? 'Demo' : connection ? 'Mit dem Spiel verbunden' : 'Nicht verbunden';
         return {
           title: 'Einstellungen',
-          body: group([srow({ icon: 'search', color: 'gray', label: 'Suchen', attrs: 'data-action="settings-search"' })])
-            + `<button class="group profile" data-focus data-page="about">
+          // Suchen: schwebende Glas-Kapsel unten (wie iOS 26/27), siehe settingsScreen
+          search: true,
+          body: `<button class="group profile" data-focus data-page="about">
               <span class="profile-icon">${ICONS.carplay}</span>
               <span class="profile-text"><b>CabPlay</b><small>${escape(status)}${appVersion ? ` · Version ${escape(appVersion)}` : ''}</small></span>
               <span class="row-chevron">${ICONS.chevron}</span>
@@ -1827,6 +1897,7 @@
             + `<p class="group-title">Apps</p>` + group([
               appRow('maps', 'maps', catalog.MAP_STYLES[settings.mapStyle]),
               appRow('assist', 'cluster-assist'), // App „Assistenz“: dieselben Einstellungen wie die Fahrassistenz im Kombiinstrument
+              appRow('browser', 'browser', settings.browser.favorites.length ? `${settings.browser.favorites.length} Favoriten` : ''),
               appRow('music', 'music'),
               appRow('radar', 'radar', settings.radar ? 'Ein' : 'Aus'),
               appRow('video', 'video'),
@@ -1847,7 +1918,8 @@
     const back = settingsStack.length > 1 ? `<button class="back glass" data-back data-focus aria-label="Zurück">${ICONS.back}</button>` : '';
     return `<div class="settings card surface" data-scroll-host>
       <div class="settings-head">${back}<h1>${escape(page.title)}</h1></div>
-      <div class="settings-body" data-scroll-area>${page.body}</div>
+      <div class="settings-body${page.search ? ' has-search' : ''}" data-scroll-area>${page.body}</div>
+      ${page.search ? `<button class="glass settings-search-pill" data-focus data-action="settings-search"><span class="settings-search-icon">${ICONS.search}</span><span>${CarI18n.translate('Suchen')}</span></button>` : ''}
       <div class="scroll-arrows"><button class="glass" data-focus data-scroll="-1" aria-label="Nach oben">${ICONS['chevron-up']}</button><button class="glass" data-focus data-scroll="1" aria-label="Nach unten">${ICONS['chevron-down']}</button></div>
     </div>`;
   }
@@ -1894,9 +1966,13 @@
         if (d.page && !seen.has(d.page) && d.page !== 'search') queue.push({ id: d.page, chain: [...chain, d.page], titles: here });
       }
     }
+    // Die Seiten entstehen auf Deutsch, übersetzt wird erst beim Anzeigen – daher auch die Übersetzung in den Index
+    // (sonst fand man auf Englisch, Polnisch … mit Wörtern der eigenen Sprache nichts: „keyb“ ≠ „Tastatur“).
+    // Bewertet wird nach dem Namen in der Sprache der Oberfläche.
+    const tr = (t) => (CarI18n.lang === 'de' || !t ? '' : CarI18n.translate(t));
     for (const e of entries) {
-      e.nLabel = searchNorm(e.label);
-      e.nAll = searchNorm(`${e.label} ${e.value} ${e.titles.join(' ')} ${e.note}`);
+      e.nLabel = searchNorm(tr(e.label) || e.label);
+      e.nAll = searchNorm(`${e.label} ${e.value} ${e.titles.join(' ')} ${e.note} ${tr(e.label)} ${tr(e.value)} ${e.titles.map(tr).join(' ')} ${tr(e.note)}`);
     }
     return entries;
   }
@@ -1928,7 +2004,8 @@
     if (!searchHits.length) return '<p class="group-note">Keine Treffer.</p>';
     return group(searchHits.map((e, i) => srow({
       icon: e.icon || 'search', color: 'gray', label: escape(e.label),
-      value: escape(e.titles.length ? e.titles.join(' › ') : 'Einstellungen'),
+      // Teile einzeln übersetzen – der zusammengesetzte Weg („Allgemein › Tastatur“) steht nicht im Wörterbuch
+      value: escape(e.titles.length ? e.titles.map((t) => CarI18n.translate(t)).join(' › ') : CarI18n.translate('Einstellungen')),
       attrs: `data-search-hit="${i}"`,
     })));
   }
@@ -1949,6 +2026,12 @@
     for (const el of stage.querySelectorAll('[data-bind="search-query"]')) el.innerHTML = escape(settingsQuery) || '<span>Einstellungen durchsuchen</span>';
   }
 
+  // Wortvorschlag/Autokorrektur: Ende der Suche ersetzen, nur wenn es wirklich so endet (Höchstlänge 40)
+  function searchReplace(from, to) {
+    if (!settingsQuery.endsWith(from)) return;
+    settingsQuery = (settingsQuery.slice(0, settingsQuery.length - from.length) + to).slice(0, 40);
+    updateSearchResults();
+  }
   function searchKey(k) {
     if (k === 'enter') return openSearchHit(0);
     if (k === 'del') settingsQuery = settingsQuery.slice(0, -1);
@@ -1981,46 +2064,91 @@
     searchIndex = null;
     settingsQuery = '';
     searchHits = [];
-    oskTarget = { onKey: searchKey, enter: 'Suchen' };
+    oskTarget = { onKey: searchKey, enter: 'Suchen', replaceWord: searchReplace, autoCap: false }; // Suchfeld: klein wie bei iOS
     oskShift = false;
-    oskNumbers = false;
+    oskCaps = false;
+    oskPage = 'abc';
+    oskWordReset();
     openSettingsPage('search');
     if (role === 'editor') setTimeout(() => stage.querySelector('.screen.active [data-input="settings-search"]')?.focus(), 120);
   }
   // ------------------------------------------------------------ Bildschirmtastatur (Truck-Bildschirm)
-  // Unten angedockt wie bei CarPlay: deutsches QWERTZ mit Umlauten, Umschalt, „123“ für Ziffern und Zeichen,
-  // Leertaste, Löschen und eine blaue Eingabetaste. Wer sie nutzt, gibt onKey(text | 'del' | 'enter') mit.
-  //   oskHtml({ enter: 'Suchen' }) – Markup; oskKey(k) – Tastendruck (data-osk); oskTarget – wohin die Zeichen gehen
+  // Unten angedockt wie bei CarPlay/iPad: deutsches QWERTZ mit Umlauten, Umschalt (zweimal schnell = Feststelltaste), „123“
+  // für Ziffern und Zeichen, „#+=“ für weitere Zeichen, Leertaste, Löschen (gedrückt halten = wiederholt) und eine blaue
+  // Eingabetaste. Beim Drücken zeigt die Taste ihr Zeichen groß darüber (wie iOS). Für Adressen (oskTarget.url) gibt es
+  // „.“, „/“ und „.com“ in der unteren Reihe.
+  //   oskHtml() – Markup; oskKey(k) – Tastendruck (data-osk); oskTarget – { onKey(text | 'del' | 'enter'), enter, url }
   let oskShift = false;
-  let oskNumbers = false;
-  let oskTarget = null; // { onKey(k), enter }
+  let oskCaps = false;
+  let oskShiftAt = 0;
+  let oskPage = 'abc'; // abc | 123 | sym
+  let oskTarget = null; // { onKey(k), enter, kind: 'text' | 'url' | 'email', numbers }
 
-  const OSK_LETTERS = ['qwertzuiopü', 'asdfghjklöä', 'yxcvbnm'];
+  // Tastaturen je Sprache (wie iOS): Buchstabenreihen, Währung auf der Zifferntafel, Name auf der Leertaste und
+  // Sonderzeichen beim Gedrückthalten (die der Sprache zuerst). Chinesisch tippt lateinisch (Pinyin-Umwandlung gibt es nicht).
+  const OSK_LAYOUTS = {
+    de: { rows: ['qwertzuiopü', 'asdfghjklöä', 'yxcvbnm'], cur: '€', name: 'Deutsch', alt: { s: 'ß' } },
+    en: { rows: ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'], cur: '$', name: 'English', alt: {} },
+    pl: { rows: ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'], cur: 'zł', name: 'Polski', alt: { a: 'ą', c: 'ć', e: 'ę', l: 'ł', n: 'ń', o: 'ó', s: 'ś', z: 'żź' } },
+    tr: { rows: ['qwertyuıopğü', 'asdfghjklşi', 'zxcvbnmöç'], cur: '₺', name: 'Türkçe', alt: { c: 'ç', g: 'ğ', o: 'ö', s: 'ş', u: 'ü' } },
+  };
+  const OSK_ALT = { a: 'àáâäæãåā', c: 'çćč', e: 'éèêëēė', i: 'îïíīì', l: 'ł', n: 'ñń', o: 'ôöòóœøōõ', s: 'ßśšş', u: 'ûüùúū', y: 'ÿ', z: 'žźż', g: 'ğ' };
+  // gewählte Tastatur (Weltkugel), sonst die der App-Sprache
+  const oskLayoutId = () => {
+    const pick = settings?.keyboard;
+    if (OSK_LAYOUTS[pick]) return pick;
+    return OSK_LAYOUTS[CarI18n.lang] ? CarI18n.lang : CarI18n.chinese ? 'en' : 'de';
+  };
+  const oskLayout = () => OSK_LAYOUTS[oskLayoutId()];
+  const oskUp = (c) => (c === 'ß' ? c : oskLayoutId() === 'tr' ? c.toLocaleUpperCase('tr') : c.toUpperCase());
+  function oskAlts(base) {
+    const lower = base.toLocaleLowerCase(oskLayoutId() === 'tr' ? 'tr' : undefined);
+    const list = [...new Set([...(oskLayout().alt[lower] || ''), ...(OSK_ALT[lower] || '')])].filter((c) => c !== lower);
+    return oskUpper() ? [...new Set(list.map(oskUp))] : list;
+  }
   const OSK_NUMBERS = ['1234567890', '-/:;()€&@"', ".,?!'"];
+  const OSK_SYMBOLS = ['[]{}#%^*+=', '_\\|~<>$£¥•', ".,?!'"];
   const OSK_ICON = {
     shift: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 4 4 12.5h4.5V20h7v-7.5H20z"/></svg>',
     shiftOn: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4 4 12.5h4.5V20h7v-7.5H20z"/></svg>',
+    caps: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 4 11.5h4.5V17h7v-5.5H20z"/><rect x="8.5" y="19" width="7" height="2" rx="0.6"/></svg>',
+    // Tastatur ausblenden (wie iPad: Tastatur mit Pfeil nach unten)
+    hide: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3.5" width="18" height="11" rx="2"/><path d="M6.5 7h1M9.5 7h1M12.5 7h1M15.5 7h2M7 11h10"/><path d="m9 18 3 3 3-3"/></svg>',
+    globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c-2.6 2.4-3.8 5.2-3.8 8.5s1.2 6.1 3.8 8.5c2.6-2.4 3.8-5.2 3.8-8.5S14.6 5.9 12 3.5z"/></svg>',
     del: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7z"/><path d="m12 9.5 5 5m0-5-5 5"/></svg>',
   };
+  const oskUpper = () => oskShift || oskCaps;
 
   function oskHtml() {
     const enter = oskTarget?.enter || 'Fertig';
-    const rows = oskNumbers ? OSK_NUMBERS : OSK_LETTERS;
+    const kind = oskTarget?.kind || (oskTarget?.url ? 'url' : 'text');
+    const lay = oskLayout();
+    const rows = oskPage === 'abc' ? lay.rows : oskPage === '123' ? OSK_NUMBERS.map((r, i) => (i === 1 ? r.replace('€', '\u0000') : r)) : OSK_SYMBOLS;
     const key = (k) => {
-      const shown = oskShift && !oskNumbers ? k.toUpperCase() : k;
+      if (k === '\u0000') k = lay.cur; // Währung der Sprache
+      const shown = oskUpper() && oskPage === 'abc' ? oskUp(k) : k;
       return `<button class="osk-key" data-osk="${escape(shown)}">${escape(shown)}</button>`;
     };
     const row = (r) => [...r].map(key).join('');
-    const left = oskNumbers ? '<span class="osk-gap"></span>'
-      : `<button class="osk-key osk-fn ${oskShift ? 'on' : ''}" data-osk="shift" aria-label="Umschalt">${oskShift ? OSK_ICON.shiftOn : OSK_ICON.shift}</button>`;
-    return `<div class="osk" data-bind="osk">
+    const left = oskPage === 'abc'
+      ? `<button class="osk-key osk-fn ${oskUpper() ? 'on' : ''}" data-osk="shift" aria-label="Umschalt">${oskCaps ? OSK_ICON.caps : oskShift ? OSK_ICON.shiftOn : OSK_ICON.shift}</button>`
+      : `<button class="osk-key osk-fn" data-osk="sym">${oskPage === '123' ? '#+=' : '123'}</button>`;
+    // untere Reihe wie iOS je Feld: Adresse „.“ „/“ „.com“, E-Mail „@“ „.“, sonst „.“ „@“ – jeweils vorne neben „123“
+    const k = (c, cls = '') => `<button class="osk-key osk-sym${cls}" data-osk="${c}">${c}</button>`;
+    const front = kind === 'url' ? k('.') + k('/') : kind === 'email' ? k('@') + k('.') : k('.') + k('@');
+    const back = kind === 'url' ? '<button class="osk-key osk-fn osk-com" data-osk=".com">.com</button>' : '';
+    const globe = `<button class="osk-key osk-fn osk-globe" data-osk="globe" aria-label="Nächste Tastatur">${OSK_ICON.globe}</button>`;
+    const bottom = `${globe}${front}<button class="osk-key osk-space" data-osk=" "><span>${lay.name}</span></button>${back}`;
+    const qt = qtOn() ? '<div class="osk-qt" data-osk-qt></div>' : ''; // Wortvorschläge (02c), Inhalt per oskQtUpdate
+    return `<div class="osk osk-${kind}${qt ? ' has-qt' : ''}" data-bind="osk">${qt}
       <div class="osk-row">${row(rows[0])}</div>
       <div class="osk-row">${row(rows[1])}</div>
-      <div class="osk-row">${left}${row(rows[2])}<button class="osk-key osk-fn" data-osk="del" aria-label="Löschen">${OSK_ICON.del}</button></div>
+      <div class="osk-row">${left}${row(rows[2])}<button class="osk-key osk-fn osk-del" data-osk="del" aria-label="Löschen">${OSK_ICON.del}</button></div>
       <div class="osk-row">
-        <button class="osk-key osk-fn osk-mode" data-osk="mode">${oskNumbers ? 'ABC' : '123'}</button>
-        <button class="osk-key osk-space" data-osk=" "><span>DE</span></button>
-        <button class="osk-key osk-enter" data-osk="enter">${escape(enter)}</button>
+        <button class="osk-key osk-fn osk-mode" data-osk="mode">${oskPage === 'abc' ? '123' : 'ABC'}</button>
+        ${bottom}
+        <button class="osk-key osk-enter" data-osk="enter">${escape(CarI18n.translate(enter))}</button>
+        ${oskTarget?.onHide ? `<button class="osk-key osk-fn osk-hide" data-osk="hide" aria-label="Tastatur ausblenden">${OSK_ICON.hide}</button>` : ''}
       </div>
     </div>`;
   }
@@ -2029,23 +2157,399 @@
     const tpl = document.createElement('template');
     tpl.innerHTML = oskHtml().trim();
     for (const el of stage.querySelectorAll('[data-bind="osk"]')) el.replaceWith(tpl.content.firstElementChild.cloneNode(true));
+    oskQtUpdate();
   }
 
+  // abschließenden Klick eines Gedrückthaltens (Löschen wiederholt, Sonderzeichen gewählt) nicht zusätzlich zählen. Die Sperre
+  // fällt beim nächsten Drücken weg – der Klick eines Drucks kommt immer vor dem nächsten Drücken, auch wenn er (Eingabe aus
+  // dem Spiel) erst etwas später eintrifft; kommt er gar nicht (neben der Taste losgelassen), verschluckt sie so nichts
+  let oskSkip = false;
   function oskKey(k) {
     if (k === 'shift') {
-      oskShift = !oskShift;
+      // zweimal schnell = Feststelltaste (wie iOS), nochmal = aus
+      const now = performance.now();
+      if (oskCaps) { oskCaps = false; oskShift = false; }
+      else if (oskShift && now - oskShiftAt < 400) { oskCaps = true; oskShift = false; }
+      else oskShift = !oskShift;
+      oskShiftAt = now;
       return oskRefresh();
     }
     if (k === 'mode') {
-      oskNumbers = !oskNumbers;
+      oskPage = oskPage === 'abc' ? '123' : 'abc';
       return oskRefresh();
     }
+    if (k === 'sym') {
+      oskPage = oskPage === '123' ? 'sym' : '123';
+      return oskRefresh();
+    }
+    if (k === 'globe') {
+      // nächste Tastatur (Deutsch → English → Polski → Türkçe), wird gespeichert
+      const ids = Object.keys(OSK_LAYOUTS);
+      const next = ids[(ids.indexOf(oskLayoutId()) + 1) % ids.length];
+      quietSetting((s) => (s.keyboard = next));
+      oskPage = 'abc';
+      oskWord = ''; // anderer Wortschatz
+      qtUndo = null;
+      return oskRefresh();
+    }
+    if (k === 'hide') return oskTarget?.onHide?.();
+    if (oskSkip) { oskSkip = false; return; } // Klick nach Gedrückthalten (s. o.)
+    if (k.startsWith('pick:')) return qtPick(Number(k.slice(5))); // Wortvorschlag (02c)
+    const words = qtOn();
+    if (words) qtBefore(k); // Wort verfolgen, am Wortende ggf. korrigieren (vor dem Zeichen)
     oskTarget?.onKey(k);
-    // Großbuchstabe gilt nur für den nächsten Buchstaben
+    // Großbuchstabe gilt nur für den nächsten Buchstaben (Feststelltaste bleibt)
     if (oskShift && k.length === 1 && k !== ' ') {
       oskShift = false;
       oskRefresh();
     }
+    // nach einem Leerzeichen oder Satzende zurück zu den Buchstaben (wie iOS)
+    if (oskPage !== 'abc' && (k === ' ' || k === 'enter')) {
+      oskPage = 'abc';
+      oskRefresh();
+    }
+    if (words) oskQtUpdate();
+    oskSentence(k);
+  }
+  // Satz-Automatik (nur normale Textfelder, wie iOS): zweimal Leertaste nach Wort/Zahl = „. “ (geprüft ersetzt, s. 02c), danach
+  // und nach „. “ „! “ „? “ automatisch groß. oskTail: die letzten getippten Zeichen (nach Feldwechsel leer = unbekannt)
+  let oskTail = '';
+  function oskSentence(k) {
+    const t = oskTarget;
+    if (!t || t.words === false || (t.kind || 'text') !== 'text') { oskTail = ''; return; }
+    if (k === 'del') { oskTail = oskTail.slice(0, -1); return; }
+    if (k === 'enter') { oskTail = ''; return; }
+    if (k.length !== 1 && !k.startsWith('pick:')) { oskTail = ''; return; }
+    oskTail = (oskTail + k).slice(-4);
+    if (k !== ' ') return;
+    if (settings.kbdPeriod !== false && /[\p{L}\p{N}]  $/u.test(oskTail)) {
+      oskReplace('  ', '. ');
+      oskTail = oskTail.slice(0, -2) + '. ';
+    }
+    if (t.autoCap !== false && settings.kbdAutoCap !== false && /[.!?] $/.test(oskTail) && !oskShift && !oskCaps) {
+      oskShift = true;
+      oskRefresh();
+    }
+  }
+
+  // Tasten sichtbar drücken (Vorschau über der Taste), Löschen gedrückt halten = wiederholt, Buchstaben gedrückt
+  // halten = Sonderzeichen zur Auswahl (wie iOS: Finger hinüberziehen, loslassen setzt das markierte Zeichen). Der
+  // Grundbuchstabe steht vorne und ist vorgewählt – langsames Antippen (im Spiel häufig) tippt also nie ein Sonderzeichen.
+  let oskHold = 0;
+  let oskHoldTimer = 0;
+  let oskAlt = null; // { box, list, i }
+  const oskAltClose = () => { oskAlt?.box.parentElement?.classList.remove('alting'); oskAlt?.box.remove(); oskAlt = null; };
+  // Halten beenden (Zeitgeber, Auswahl); das Drück-Aussehen nimmt oskUnpress separat weg (verzögert, je Taste)
+  const oskStopHold = () => { clearTimeout(oskHoldTimer); clearInterval(oskHold); oskHold = 0; oskAltClose(); };
+  const oskUnpress = (k) => (k ? [k] : document.querySelectorAll('.osk-key.pressed')).forEach((x) => x.classList.remove('pressed'));
+  function oskAltOpen(k) {
+    const alts = oskAlts(k.dataset.osk);
+    if (!alts.length) return;
+    const list = [k.dataset.osk, ...alts];
+    const box = document.createElement('div');
+    box.className = 'osk-alts';
+    box.innerHTML = list.map((c, i) => `<span class="${i ? '' : 'on'}">${escape(c)}</span>`).join('');
+    k.appendChild(box);
+    k.classList.add('alting');
+    // nicht über den Rand der Tastatur hinaus (rechte Tasten öffnen nach links)
+    const osk = k.closest('.osk')?.getBoundingClientRect();
+    const r = box.getBoundingClientRect();
+    if (osk && r.right > osk.right - 4) box.style.translate = `${Math.round(osk.right - 4 - r.right)}px 0`;
+    oskAlt = { box, list, i: 0 };
+  }
+  function oskAltMove(x) {
+    if (!oskAlt) return;
+    const spans = [...oskAlt.box.children];
+    let i = spans.findIndex((sp) => { const r = sp.getBoundingClientRect(); return x >= r.left && x < r.right; });
+    if (i < 0) i = x < spans[0].getBoundingClientRect().left ? 0 : spans.length - 1;
+    if (i === oskAlt.i) return;
+    oskAlt.i = i;
+    spans.forEach((sp, j) => sp.classList.toggle('on', j === i));
+  }
+  const oskDelOne = () => { if (qtOn()) qtBefore('del'); oskTarget?.onKey('del'); oskQtUpdate(); };
+  let oskPressed = null;
+  let oskDownAt = 0;
+  document.addEventListener('pointerdown', (e) => {
+    oskSkip = false; // neuer Druck: der Klick des vorigen kommt nicht mehr
+    const k = e.target?.closest?.('.osk-key');
+    if (!k) return;
+    oskStopHold();
+    oskUnpress();
+    oskPressed = k;
+    oskDownAt = performance.now();
+    k.classList.add('pressed');
+    if (k.dataset.osk === 'del') {
+      oskHoldTimer = setTimeout(() => {
+        oskSkip = true; // Klick beim Loslassen nicht zählen – dafür sofort einmal löschen (sonst ging ein Loslassen kurz danach verloren)
+        oskDelOne();
+        oskHold = setInterval(oskDelOne, 90);
+      }, 450);
+    } else if (!k.classList.contains('osk-fn') && oskPage === 'abc' && k.dataset.osk.length === 1) {
+      oskHoldTimer = setTimeout(() => oskAltOpen(k), 420);
+    }
+  }, true);
+  document.addEventListener('pointermove', (e) => oskAltMove(e.clientX), true);
+  document.addEventListener('pointerup', (e) => {
+    const k = oskPressed;
+    oskPressed = null;
+    if (oskAlt) {
+      // Sonderzeichen gewählt (oder der vorgewählte Grundbuchstabe): setzen, den folgenden Klick nicht zusätzlich zählen
+      oskAltMove(e.clientX);
+      const c = oskAlt.list[oskAlt.i];
+      oskStopHold();
+      oskUnpress(k);
+      oskKey(c);
+      oskSkip = true;
+      return;
+    }
+    oskStopHold(); // Zeitgeber sofort stoppen (Löschen läuft nicht nach) …
+    // … gedrückt aber mindestens 120 ms sichtbar (auch bei schnellem Antippen aus dem Spiel) – nur diese Taste, damit das
+    // verzögerte Zurücksetzen nicht das Halten der nächsten Taste abbricht
+    if (k) setTimeout(() => { if (oskPressed !== k) oskUnpress(k); }, Math.max(60, 120 - (performance.now() - oskDownAt)));
+  }, true);
+  document.addEventListener('pointercancel', () => { oskPressed = null; oskStopHold(); oskUnpress(); }, true);
+  // ------------------------------------------------------------ Wortvorschläge und Autokorrektur (wie QuickType bei iOS)
+  // Über der Bildschirmtastatur drei Vorschläge für das Wort, das gerade getippt wird; Antippen setzt das Wort samt
+  // Leerzeichen. Autokorrektur nur bei sicheren Fällen (ein Tippfehler: Nachbartaste, Umlaut/Akzent vergessen, Buchstabe
+  // vertauscht, zu viel oder zu wenig) und nur zu Wörtern, die oft vorkommen – dann steht der Vorschlag hervorgehoben in der
+  // Mitte und links das Getippte in Anführungszeichen (Antippen = so lassen). Nach einer Korrektur bietet die Leiste das
+  // Original zum Zurücknehmen an.
+  // Wortschatz je Tastatursprache ohne Download: häufige Wörter (unten), alle Texte der App in dieser Sprache (Übersetzungen),
+  // Titel der Favoriten/zuletzt besuchten Seiten und selbst getippte Wörter (lokal gespeichert, ab dem zweiten Mal; nicht im
+  // privaten Surfen und nie aus Passwortfeldern). Einstellungen › Allgemein › Tastatur: an/aus, Gelerntes löschen.
+  const QT_BASE = {
+    de: 'der die und in den von zu das mit sich des auf für ist im dem nicht ein eine als auch es an werden aus er hat dass sie nach wird bei einer um am sind noch wie einem über einen so zum war haben nur oder aber vor zur bis mehr durch man sein wurde hier heute morgen gestern gut danke bitte ja nein vielleicht wann wo warum was wer welche Wetter Nachrichten Musik Video Spiel Karte Straße Stadt Autobahn Rastplatz Tankstelle Fahrer Lkw Auftrag Ladung Firma hallo tschüss Uhr Zeit Woche Tag Nacht Minuten Stunden Kilometer schnell langsam neu alt groß klein ich du wir ihr mein dein unser kann muss will soll gibt geht kommt fahren machen sagen suchen finden spielen hören sehen Deutschland Österreich Schweiz Berlin Hamburg München Köln Frankfurt Euro Preis kaufen Rezept Fußball Bundesliga Ergebnisse Tabelle Spielplan Livestream Stau Verkehr Unfall Polizei Wochenende Montag Dienstag Mittwoch Donnerstag Freitag Samstag Sonntag',
+    en: 'the be to of and a in that have it for not on with he as you do at this but his by from they we say her she or an will my one all would there their what so up out if about who get which go me when make can like time no just him know take people into year your good some could them see other than then now look only come its over think also back after use two how our work first well way even new want because any these give day most us is are was were has had been weather news music video game map road city highway rest stop gas station driver truck job cargo company hello thanks please yes maybe where why today tomorrow yesterday minutes hours miles fast slow big small search find play watch listen live stream score scores football soccer recipe price buy traffic accident weekend Monday Tuesday Wednesday Thursday Friday Saturday Sunday',
+    pl: 'i w nie na się z do to że jest jak co o za od po tak ale ja ty my wy on ona oni czy dla już tylko jeszcze może być mam masz ma mamy są był była było będzie gdzie kiedy dlaczego dzień dobry dziękuję proszę dzisiaj jutro wczoraj pogoda wiadomości muzyka wideo gra mapa droga miasto autostrada parking stacja paliwa kierowca ciężarówka zlecenie ładunek firma cześć czas tydzień noc minut godzin kilometrów szybko wolno nowy stary duży mały mój twój nasz szukaj znajdź grać słuchać oglądać Polska Warszawa Kraków Wrocław Poznań Gdańsk złotych cena kupić przepis piłka nożna wyniki tabela korek wypadek policja weekend poniedziałek wtorek środa czwartek piątek sobota niedziela',
+    tr: 've bir bu da de için ile ne ben sen o biz siz onlar var yok gibi daha çok en ama mı mi mu mü değil olarak sonra kadar her şey nasıl neden nerede zaman bugün yarın dün merhaba teşekkürler lütfen evet hayır belki hava durumu haberler müzik video oyun harita yol şehir otoyol dinlenme tesisi benzin istasyonu şoför kamyon iş yük şirket saat hafta gün gece dakika kilometre hızlı yavaş yeni eski büyük küçük benim senin bizim ara bul oyna dinle izle Türkiye İstanbul Ankara İzmir Bursa Antalya lira fiyat satın tarif futbol maç sonuçları puan trafik kaza polis hafta sonu pazartesi salı çarşamba perşembe cuma cumartesi pazar',
+  };
+  const QT_I18N = { en: 'CarI18nEn', pl: 'CarI18nPl', tr: 'CarI18nTr' };
+  const QT_QUOTES = { de: ['„', '“'], en: ['“', '”'], pl: ['„', '”'], tr: ['“', '”'] };
+  const QT_WORD_RE = /[\p{L}][\p{L}\p{M}'’-]*/gu;
+  const QT_STORE = 'cabplay.words'; // { de: { wort: [Form, Anzahl] }, … } – nur auf diesem PC
+  let qtLex = null; // { id, map: Map(klein → { w, n }) }
+  let oskWord = ''; // Wort, das gerade getippt wird (seit dem letzten Leerzeichen/Satzzeichen)
+  let qtUndo = null; // { orig, fixed, sep } – zuletzt korrigiert, zurücknehmbar bis zur nächsten Taste
+  let qtCells = []; // [{ text, kind: 'word' | 'keep' | 'undo', main }]
+  let oskWordLost = false; // über ein Leerzeichen zurückgelöscht: Wortanfang unbekannt – bis zum nächsten Wortende nichts vorschlagen/ersetzen
+
+  const qtLoc = (id) => (id === 'tr' ? 'tr' : id === 'pl' ? 'pl' : id === 'en' ? 'en' : 'de');
+  const qtLower = (s, id) => s.toLocaleLowerCase(qtLoc(id));
+  function qtLearned() {
+    try { const v = JSON.parse(localStorage.getItem(QT_STORE) || '{}'); return v && typeof v === 'object' ? v : {}; } catch { return {}; }
+  }
+  function qtSaveLearned(all) {
+    try { localStorage.setItem(QT_STORE, JSON.stringify(all)); } catch { /* voll/gesperrt: dann eben nicht */ }
+  }
+  function qtForget() {
+    try { localStorage.removeItem(QT_STORE); } catch { /* egal */ }
+    qtLex = null;
+  }
+  function qtLexicon() {
+    const id = oskLayoutId();
+    if (qtLex?.id === id) return qtLex.map;
+    const map = new Map();
+    const add = (word, n, form = true) => {
+      const k = qtLower(word, id);
+      const e = map.get(k);
+      if (e) { e.n += n; if (form && n > (e.fn || 0)) { e.fn = n; e.w = word; } } else map.set(k, { w: word, n, fn: n });
+    };
+    QT_BASE[id].split(' ').forEach((w, i) => add(w, 60 - i * 0.2));
+    // Texte der App in dieser Sprache: Deutsch sind die Schlüssel, sonst die Übersetzungen
+    try {
+      const src = id === 'de' ? Object.keys(window.CarI18nEn((t) => t).EXACT) : Object.values(window[QT_I18N[id]]((t) => t).EXACT);
+      for (const s of src) for (const w of String(s).match(QT_WORD_RE) || []) if (w.length > 1) add(w, 1);
+    } catch { /* ohne Wörterbuch nur die Grundliste */ }
+    for (const p of [...(settings.browser?.favorites || []), ...(settings.browser?.recent || [])]) for (const w of String(p.title || '').match(QT_WORD_RE) || []) if (w.length > 2) add(w, 2);
+    const mine = qtLearned()[id];
+    // gespeicherte Daten können kaputt sein (von Hand geändert) – dann diese Einträge überspringen statt die Tastatur lahmzulegen
+    for (const [k, v] of Object.entries(mine && typeof mine === 'object' ? mine : {})) {
+      if (Array.isArray(v) && typeof v[0] === 'string' && Number(v[1]) >= 2 && qtLower(v[0], id) === k) add(v[0], Number(v[1]) * 4, false);
+    }
+    qtLex = { id, map };
+    return map;
+  }
+  // Wort merken (ab dem zweiten Mal im Wortschatz); boost: zurückgenommene Korrektur zählt sofort
+  function qtLearn(word, boost = 1) {
+    if (!oskTarget || oskTarget.learn === false || !/^[\p{L}][\p{L}\p{M}'’-]{1,30}$/u.test(word)) return;
+    const id = oskLayoutId();
+    const all = qtLearned();
+    const mine = all[id] && typeof all[id] === 'object' ? all[id] : {};
+    const k = qtLower(word, id);
+    const n = Math.min(99, (Array.isArray(mine[k]) ? Number(mine[k][1]) || 0 : 0) + boost);
+    mine[k] = [word, n];
+    // höchstens 3000 Wörter je Sprache: die seltensten fallen raus
+    const keys = Object.keys(mine);
+    if (keys.length > 3000) keys.sort((a, b) => mine[a][1] - mine[b][1]).slice(0, keys.length - 3000).forEach((x) => delete mine[x]);
+    all[id] = mine;
+    qtSaveLearned(all);
+    if (n >= 2 && qtLex?.id === id) {
+      const e = qtLex.map.get(k);
+      if (e) e.n += boost * 4; else qtLex.map.set(k, { w: word, n: n * 4, fn: 0 });
+    }
+  }
+  // Schreibweise wie getippt: ganz groß, erster Buchstabe groß, sonst wie im Wortschatz (deutsche Nomen groß)
+  function qtCase(typed, w) {
+    const id = oskLayoutId();
+    if (typed.length > 1 && typed === typed.toLocaleUpperCase(qtLoc(id)) && typed !== qtLower(typed, id)) return w.toLocaleUpperCase(qtLoc(id));
+    if (typed[0] && typed[0] !== qtLower(typed[0], id)) return w[0].toLocaleUpperCase(qtLoc(id)) + w.slice(1);
+    return w;
+  }
+  // Tastennachbarn der aktuellen Tastatur (versetzte Reihen wie auf dem Gerät) und vergessene Umlaute/Akzente
+  const QT_SAME = ['aäàáâąã', 'oöòóôõ', 'uüùúû', 'sßśşš', 'eéèêëę', 'cçćč', 'nñń', 'lł', 'zżźž', 'gğ', 'iıíîï'];
+  function qtNear(a, b) {
+    if (QT_SAME.some((g) => g.includes(a) && g.includes(b))) return true;
+    const rows = oskLayout().rows;
+    const pos = (c) => { for (let r = 0; r < rows.length; r++) { const i = rows[r].indexOf(c); if (i >= 0) return [r, i]; } return null; };
+    const pa = pos(a), pb = pos(b);
+    if (!pa || !pb) return false;
+    const dr = pb[0] - pa[0], di = pb[1] - pa[1];
+    return (dr === 0 && Math.abs(di) === 1) || (dr === -1 && (di === 0 || di === 1)) || (dr === 1 && (di === 0 || di === -1));
+  }
+  // typische Endbuchstaben gebeugter Formen je Sprache – dort kein Tausch des letzten Buchstabens („seht“ ist nicht „sehr“)
+  const QT_ENDINGS = { de: 'enrstm', en: 'sdeyrn', pl: 'aeiouyąęćłmhw', tr: 'aeıioöuüklmnr' };
+  // genau ein typischer Tippfehler zwischen t (getippt, klein) und w (Wortschatz, klein)? Vorsichtig, weil der Wortschatz
+  // klein ist und viele richtige Formen fehlen (gemessen mit tools-freiem Prüfstand 22.11.): nie nur das Wortende ergänzen
+  // oder abschneiden („fahre“ ≠ „fahren“, „bitter“ ≠ „bitte“), nie am ersten Buchstaben einfügen/löschen („kalt“ ≠ „alt“),
+  // überzählige Buchstaben nur, wenn doppelt oder Nachbartaste („gehst“ ≠ „geht“)
+  // Ergebnis: 0 = kein Tippfehler, 1 = sicher (Autokorrektur), 2 = nur als Vorschlag zeigen (Umlaut/Akzent bei längeren
+  // Wörtern – „fahre“/„Fähre“, „fährt“/„Fahrt“ sind beide richtig; Endbuchstabe zwischen Endungen – „seht“/„sehr“)
+  function qtOneSlip(t, w, id) {
+    if (t === w) return 0;
+    if (t.length === w.length) {
+      const d = [];
+      for (let i = 0; i < t.length; i++) if (t[i] !== w[i]) d.push(i);
+      if (d.length === 1) {
+        const i = d[0];
+        const end = QT_ENDINGS[id] || '';
+        if (QT_SAME.some((g) => g.includes(t[i]) && g.includes(w[i]))) return /[a-z]/.test(t[i]) && t.length <= 4 ? 1 : 2; // vergessener Umlaut/Akzent
+        if (!qtNear(t[i], w[i])) return 0;
+        return i === t.length - 1 && end.includes(t[i]) && end.includes(w[i]) ? 2 : 1;
+      }
+      return d.length === 2 && d[1] === d[0] + 1 && t[d[0]] === w[d[1]] && t[d[1]] === w[d[0]] ? 1 : 0; // vertauscht
+    }
+    if (t.length + 1 === w.length) { // Buchstabe vergessen
+      if (w.startsWith(t)) return 0;
+      for (let i = 1; i < w.length; i++) if (w.slice(0, i) + w.slice(i + 1) === t) return 1;
+      return 0;
+    }
+    if (t.length === w.length + 1) { // Buchstabe zu viel
+      if (t.startsWith(w)) return 0;
+      for (let i = 1; i < t.length; i++) {
+        if (t.slice(0, i) + t.slice(i + 1) !== w) continue;
+        const c = t[i], prev = t[i - 1], next = t[i + 1];
+        if (c === prev || c === next || qtNear(c, prev) || (next && qtNear(c, next))) return 1;
+      }
+    }
+    return 0;
+  }
+  // bester Tippfehler-Kandidat: { w, auto } – auto: beim Leerzeichen ersetzen, sonst nur als Vorschlag
+  function qtCorrection(word) {
+    const id = oskLayoutId();
+    const t = qtLower(word, id);
+    if (t.length < 3 || /[\d]/.test(t) || /[\p{Lu}]/u.test(word.slice(1))) return null; // Abkürzungen, Zahlen, CamelCase nie
+    const map = qtLexicon();
+    if (map.has(t)) return null;
+    let best = null, bestQ = 0;
+    for (const [k, e] of map) {
+      if (e.n < 3 || Math.abs(k.length - t.length) > 1 || (k.length < t.length && t.length < 4)) continue;
+      const q = qtOneSlip(t, k, id);
+      if (!q) continue;
+      // sichere vor unsicheren, dann die häufigsten
+      if (!best || (q === 1 && bestQ !== 1) || (q === bestQ && e.n > best.n)) { best = e; bestQ = q; }
+    }
+    return best ? { w: qtCase(word, best.w), auto: bestQ === 1 } : null;
+  }
+  function qtCompletions(word, skip) {
+    const id = oskLayoutId();
+    const t = qtLower(word, id);
+    const out = [];
+    for (const [k, e] of qtLexicon()) if (k.startsWith(t) && k !== qtLower(skip || '', id)) out.push(e);
+    return out.sort((a, b) => b.n - a.n || a.w.length - b.w.length).slice(0, 3).map((e) => qtCase(word, e.w));
+  }
+  const qtOn = () => !!oskTarget && oskTarget.words !== false && (oskTarget.kind || 'text') === 'text' && settings.kbdSuggest !== false;
+  const qtQuote = (w) => { const [a, b] = QT_QUOTES[oskLayoutId()]; return `${a}${w}${b}`; };
+
+  // Leiste neu füllen (alle sichtbaren Tastaturen); die Tastatur selbst wird dafür nicht neu gezeichnet
+  function oskQtUpdate() {
+    qtCells = [];
+    if (qtOn() && !oskWordLost) {
+      if (qtUndo && !oskWord) qtCells = [{ text: qtUndo.orig, kind: 'undo' }];
+      else if (oskWord) {
+        const c = qtCorrection(oskWord);
+        const auto = c?.auto && settings.kbdAutocorrect !== false;
+        // links immer das Getippte (so lassen), dann Korrektur (hervorgehoben, ersetzt beim Leerzeichen) bzw. als einfacher
+        // Vorschlag, dahinter die häufigsten passenden Wörter
+        const comp = qtCompletions(oskWord, oskWord).filter((w) => w !== c?.w);
+        qtCells = [{ text: oskWord, kind: 'keep' }, ...(c ? [{ text: c.w, kind: 'word', main: auto }] : []), ...comp.map((w) => ({ text: w, kind: 'word' }))].slice(0, 3);
+      }
+    }
+    const html = qtCells.map((c, i) => `<button class="osk-qt-b${c.main ? ' main' : ''}" data-osk="pick:${i}">${escape(c.kind === 'keep' || c.kind === 'undo' ? qtQuote(c.text) : c.text)}</button>`).join('');
+    for (const el of document.querySelectorAll('[data-osk-qt]')) if (el.innerHTML !== html) el.innerHTML = html;
+  }
+  function oskWordReset() {
+    oskWord = '';
+    oskTail = ''; // Feld/Cursor gewechselt: Satzende unbekannt
+    oskWordLost = false;
+    qtUndo = null;
+    oskQtUpdate();
+  }
+  const oskSend = (k) => oskTarget?.onKey(k);
+  // Text vor dem Cursor ersetzen: das Ziel prüft selbst, ob dort wirklich „from“ steht (Cursor versetzt, Seite hat den Text
+  // geändert, Höchstlänge …) und lässt sonst alles, wie es ist. Ziele ohne eigene Prüfung: Zeichen löschen und neu tippen.
+  function oskReplace(from, to) {
+    if (oskTarget?.replaceWord) return oskTarget.replaceWord(from, to);
+    for (let i = 0; i < from.length; i++) oskSend('del');
+    oskSend(to);
+  }
+  // Vorschlag angetippt
+  function qtPick(i) {
+    const c = qtCells[i];
+    if (!c) return;
+    if (c.kind === 'undo' && qtUndo) {
+      oskReplace(qtUndo.fixed + qtUndo.sep, qtUndo.orig + qtUndo.sep);
+      qtLearn(qtUndo.orig, 3);
+    } else if (c.kind === 'keep') {
+      oskSend(' ');
+      qtLearn(oskWord, 3);
+    } else {
+      oskReplace(oskWord, `${c.text} `);
+      qtLearn(c.text);
+    }
+    oskTail = (c.kind === 'undo' ? (qtUndo ? qtUndo.orig + qtUndo.sep : '') : c.kind === 'keep' ? oskWord + ' ' : c.text + ' ').slice(-4); // Satz-Automatik (02b)
+    oskWord = '';
+    qtUndo = null;
+    oskQtUpdate();
+  }
+  // Wortende (Leerzeichen, Satzzeichen, Eingabe): Autokorrektur vor dem Zeichen, Wort merken
+  function qtCommit(k) {
+    const word = oskWord;
+    const lost = oskWordLost;
+    oskWord = '';
+    oskWordLost = false;
+    qtUndo = null;
+    if (!word || lost || !qtOn()) return;
+    const c = settings.kbdAutocorrect !== false ? qtCorrection(word) : null;
+    const fix = c?.auto ? c.w : null;
+    if (fix) {
+      oskReplace(word, fix);
+      if (k !== 'enter') qtUndo = { orig: word, fixed: fix, sep: k };
+      qtLearn(fix);
+    } else qtLearn(word);
+  }
+  // Wortverfolgung für oskKey (02b): vor dem Senden des Zeichens aufrufen
+  function qtBefore(k) {
+    if (k === 'del') {
+      if (oskWord) oskWord = oskWord.slice(0, -1);
+      else oskWordLost = true; // ins vorige Wort hinein – dessen Anfang kennen wir nicht
+      qtUndo = null;
+      return;
+    }
+    if (/^[\p{L}\p{M}\d'’-]$/u.test(k)) { oskWord += k; qtUndo = null; return; }
+    if (k === ' ' || k === 'enter' || /^[.,!?;:]$/.test(k)) return qtCommit(k);
+    oskWord = ''; // „/“, „@“, „.com“ … beenden das Wort ohne Korrektur
+    oskWordLost = false;
+    qtUndo = null;
   }
   // ------------------------------------------------------------------ Bildschirme
   function screensHtml() {
@@ -2357,6 +2861,7 @@
           </div>
         </div>
       </div></section>
+      <section class="screen browser-screen" data-screen="browser"><div class="card browser-slot" data-browser-slot>${canBrowse() ? '' : bwNoteHtml()}</div></section>
       <section class="screen" data-screen="settings">${settingsScreen()}</section>`;
   }
 
@@ -2414,6 +2919,17 @@
     }
   }
 
+  // Liquid Glass wie iOS 27 (Regler 0 Ultraklar … 50 Normal … 100 Voll getönt): Anteile für die Mischung im CSS (.glass in
+  // 01-grundlagen.css). 0–50: von klar zur heutigen Normal-Tönung, 50–100: weiter bis zur deckenden Tönung. Unschärfe wächst bis
+  // zur Mitte, darunter wird die Schrift mit einem Schatten lesbar gehalten. Beim Ziehen des Reglers live (10-bedienung).
+  function applyGlassTint(value) {
+    const t = Math.max(0, Math.min(100, Number(value))) / 100;
+    const root = document.body.style;
+    root.setProperty('--gt-lo', `${Math.round(Math.min(1, t / 0.5) * 100)}%`);
+    root.setProperty('--gt-hi', `${Math.round(Math.max(0, (t - 0.5) / 0.5) * 100)}%`);
+    root.setProperty('--gt-blur', String(Math.round(Math.min(1, t / 0.5) * 100) / 100));
+    document.body.classList.toggle('glass-clear', t < 0.35);
+  }
   function render() {
     // Sprache (?lang=en nur zum Testen). Zurück auf Deutsch: kurz neu laden, damit auch feste Texte wieder deutsch sind
     const wasEnglish = CarI18n.lang === 'en';
@@ -2424,7 +2940,8 @@
     const body = document.body;
     body.classList.toggle('icons-large', settings.iconSize === 'large');
     body.classList.toggle('no-labels', !settings.showLabels);
-    body.dataset.glass = params.get('glass') || settings.glass; // --glass=… nur zum Testen
+    body.dataset.glass = params.get('glass') || (settings.glassReduce ? 'reduced' : 'full'); // --glass=… nur zum Testen
+    applyGlassTint(settings.glassTint);
     body.dataset.icons = params.get('icons') || settings.iconStyle;
     body.dataset.mapstyle = params.get('mapstyle') || settings.mapStyle;
     document.documentElement.dataset.scale = settings.textScale;
@@ -2503,6 +3020,7 @@
     if (id !== 'ultra') ultraSection?.querySelector('.cl-frame')?.remove();
     if (id !== 'settings') stage.querySelector('.screen[data-screen="settings"] .cl-frame')?.remove(); // Vorschau unter Einstellungen › Kombiinstrument ebenso
     syncAssistScene(id); // App „Assistenz“: Straßenszene nur, solange offen (10c)
+    syncBrowser(id); // App „Browser“: Layer über den Platzhalter legen bzw. verbergen (08c)
     if (id === 'home' || id === 'dashboard') lastHub = id;
     if (id === 'phone') renderPhone();
     if (id === 'chat') renderChatApp();
@@ -2565,7 +3083,7 @@
   function restoreSettingsScroll(top) {
     settingsShown = settingsStack.join('/');
     const area = top && stage.querySelector('[data-screen="settings"] .settings-body');
-    if (area) area.scrollTop = top;
+    if (area) { area.scrollTop = top; barSync(area); } // Kopfleiste gleich passend (03d), kein kurzes Aufspringen
   }
 
   function rerenderSettings(focusSelector) {
@@ -2652,6 +3170,814 @@
     }
   }
 
+  // ------------------------------------------------------------------ Liquid Glass: Lichtbrechung und Lichtkante (wie iOS 27)
+  // Echtes Liquid Glass bricht den Hintergrund an den Kanten wie eine Linse: Linien hinter dem Glas biegen sich am Rand.
+  // Chromium kann das mit einem SVG-Filter in backdrop-filter (feDisplacementMap): eine Verschiebungskarte je Glasform
+  // (Breite × Höhe × Eckenradius × Art) sagt jedem Bildpunkt, von wo er den Hintergrund holt. Dazu je Form ein Bild der
+  // Lichtkante. Beides entsteht einmal je Form auf einem Canvas und wird wiederverwendet.
+  // Rechnung und Filterkette 1:1 nach kube.io (github.com/kube/kube.io, Artikel „Liquid Glass in the Browser“,
+  // lib/displacementMap.ts, lib/specular.ts, components/Filter.tsx – am 22.11. gelesen und mit den Live-Filtern verglichen).
+  // CSS: .glass nimmt var(--lens) nach der Unschärfe und var(--spec) als Lichtkante (01-grundlagen.css, 03-ios-stil.css).
+  // Brechung aus bei „Unschärfe reduzieren“ (spart Rechenzeit), bei ?lens=0 (Vergleich/Messung) und für sehr große
+  // Flächen; ?lensmax=<px²> setzt die Flächengrenze zum Messen (tools/ui-perf.js --query=lensmax=30000); ?spec=0 ohne Lichtkante.
+  // Glas-Elemente und App-Symbole (Lichtkante wie die Icons in iOS 26/27; Brechung nur bei Symbolen mit Glas, „Klar“)
+  const LENS_SEL = '.glass, .icon:not(.custom):not(.cal-icon), .badge';
+  const LENS_MAX_FILTERS = 64; // verschiedene Formen gleichzeitig (Knöpfe, Leisten, Widgets …)
+  const LENS_MAX_AREA = 900 * 560; // größere Flächen (ganze Bildschirme) ohne Brechung – kaum sichtbar, aber teuer
+  // Bewegt sich etwas hinter dem Glas (Karte, Video, Webseite), wird der Filter in jedem Bild neu gerechnet: dann nur kleine
+  // Flächen (Knöpfe, Kapseln, Meldungen). Gemessen 22.11. (tools/ui-perf.js): bis 30 000 px² kaum messbar, mit Seitenleiste und
+  // Widgets über der Karte rund 9 % eines Kerns mehr
+  const LENS_MAX_AREA_BUSY = 30000;
+  const lensFilters = new Map(); // Form → Filter-ID
+  const specImages = new Map(); // Form → Lichtkante (data:-Bild)
+  const lensProfiles = new Map(); // Glas-Parameter → Versatz je Abstand zur Kante
+  const SPEC_MAX = 96;
+  const SHAPES_PER_FRAME = 6; // neue Formen je Bild (eine große Karte braucht einige ms) – Rest im nächsten Bild
+  let lensDefs = null;
+  let lensQueued = false;
+
+  // Oberflächen der Wölbung (x = 0 an der Kante … 1 innen), wie kube.io lib/surfaceEquations.ts
+  const SURFACE = {
+    convex: (x) => Math.pow(1 - Math.pow(1 - x, 4), 1 / 4), // Squircle – Apples übliche Form
+    lip: (x) => { // Schalter: außen gewölbt, innen leicht eingesenkt (der Knopf zeigt die Spur verkleinert)
+      const convex = Math.pow(1 - Math.pow(1 - x * 2, 4), 1 / 4); // wie kube.io (nicht begrenzt)
+      const concave = 1 - Math.sqrt(1 - (1 - x) ** 2) + 0.1;
+      const s = 6 * x ** 5 - 15 * x ** 4 + 10 * x ** 3;
+      return convex * (1 - s) + concave * s;
+    },
+  };
+  // Glas je Bauteil (Werte aus kube.io, umgerechnet auf die Höhe): Wölbung/Dicke in Anteilen der kurzen Seite,
+  // ratio = Anteil des größten Versatzes (scaleRatio), sat = Sättigung der farbigen Lichtkante
+  const LENS_KIND = {
+    // wie die realistische Oberfläche bei kube.io (MixedUI, Player 640×63): Wölbung 29, Dicke 90, n 1,3, volle Stärke,
+    // Sättigung 6 – fast die halbe Höhe ist gewölbt, das Glas ist dick, die Brechung sitzt dicht an der Kante
+    glass: { surface: 'convex', bezel: 29 / 63, thick: 90 / 63, maxBezel: 30, n: 1.3, ratio: 1, sat: 6 },
+    // Schalter-Knopf 146×92: Wölbung 19, Dicke 47, Lippe, gedrückt 0,9, Sättigung 6
+    switch: { surface: 'lip', bezel: 19 / 92, thick: 47 / 92, maxBezel: 40, n: 1.5, ratio: 0.9, sat: 6, zoom: 0.06 },
+    // App-Symbol im Stil „Klar“: wie Glas, Wölbung ein Viertel der Kante
+    icon: { surface: 'convex', bezel: 0.25, thick: 0.75, maxBezel: 24, n: 1.3, ratio: 0.8, sat: 5 },
+    // gleitende Auswahl in Leisten (03c): wie Glas, aber schwächer – sonst holt die Kante die Beschriftung sichtbar über
+    // und unter die Leiste
+    seg: { surface: 'convex', bezel: 29 / 63, thick: 90 / 63, maxBezel: 24, n: 1.3, ratio: 0.5, sat: 6, zoom: 0.1 },
+    // Regler-Knopf 90×60: Wölbung 16, Dicke 80, n 1,45, gezogen 0,9, Sättigung 7
+    range: { surface: 'convex', bezel: 16 / 60, thick: 80 / 60, maxBezel: 40, n: 1.45, ratio: 0.9, sat: 7, zoom: 0.14 },
+    // zoom: Vergrößerung des Inhalts darunter (kube.io Lupe: zweite, lineare Verschiebungskarte vor der Kantenbrechung) –
+    // wie bei iOS wirkt unter gehobenen Knöpfen und der gleitenden Auswahl alles ein Stück größer
+  };
+
+  // Versatz je Abstand zur Kante (kube.io calculateDisplacementMap): senkrechter Strahl trifft die gewölbte Oberfläche,
+  // wird gebrochen (Brechzahl n) und läuft durch die restliche Höhe (Wölbung + Glasdicke) bis zum Boden – wie weit er dabei
+  // seitlich wandert, ist der Versatz. Ergebnis mit Vorzeichen (Lippe: innen nach außen), 128 Stützstellen
+  function lensProfile(thickness, bezel, surface, n) {
+    const key = `${thickness.toFixed(1)}/${bezel.toFixed(1)}/${surface}/${n}`;
+    if (lensProfiles.has(key)) return lensProfiles.get(key);
+    const fn = SURFACE[surface];
+    const eta = 1 / n;
+    const out = new Float32Array(128);
+    let max = 0;
+    for (let i = 0; i < 128; i++) {
+      const x = i / 128;
+      const y = fn(x);
+      const dx = x < 1 ? 0.0001 : -0.0001;
+      const deriv = (fn(x + dx) - y) / dx;
+      const mag = Math.sqrt(deriv * deriv + 1);
+      const nx = -deriv / mag, ny = -1 / mag;
+      const k = 1 - eta * eta * (1 - ny * ny);
+      if (k < 0) continue; // Totalreflexion
+      const ks = Math.sqrt(k);
+      const rx = -(eta * ny + ks) * nx, ry = eta - (eta * ny + ks) * ny;
+      out[i] = rx * ((y * bezel + thickness) / ry);
+      max = Math.max(max, Math.abs(out[i]));
+    }
+    const prof = { out, max: max || 1 };
+    lensProfiles.set(key, prof);
+    return prof;
+  }
+
+  // Form des Glases als vorzeichenbehafteter Abstand zum Rand (< 0 innen) – abgerundetes Rechteck mit Radius rr
+  const glassSdf = (w, h, px, py, rr) => {
+    const qx = Math.abs(px) - (w / 2 - rr), qy = Math.abs(py) - (h / 2 - rr);
+    return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - rr;
+  };
+  // Richtung der Kante (nach außen) aus einer weicheren Form (Radius ≥ Wölbung) – sonst knickt das Bild in den Ecken
+  function glassNormal(w, h, px, py, R) {
+    const gx = glassSdf(w, h, px + 1, py, R) - glassSdf(w, h, px - 1, py, R);
+    const gy = glassSdf(w, h, px, py + 1, R) - glassSdf(w, h, px, py - 1, R);
+    const l = Math.hypot(gx, gy) || 1;
+    return [gx / l, gy / l];
+  }
+  const lensGeometry = (w, h, kind) => {
+    const g = LENS_KIND[kind] || LENS_KIND.glass;
+    const short = Math.min(w, h);
+    const bezel = Math.max(4, Math.min(g.maxBezel, short * g.bezel));
+    return { g, bezel, thickness: bezel * (g.thick / g.bezel) };
+  };
+
+  // Verschiebungskarte (R = waagerecht, G = senkrecht, 128 = keine Verschiebung), normiert auf den größten Versatz;
+  // äußerstes Pixel geglättet wie bei kube.io
+  function lensMap(w, h, r, bezel, prof) {
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext('2d');
+    const img = ctx.createImageData(w, h);
+    const d = img.data;
+    new Uint32Array(d.buffer).fill(0xff008080); // neutral: R = G = 128, A = 255
+    const R = Math.min(Math.max(r, bezel), w / 2, h / 2);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const px = x + 0.5 - w / 2, py = y + 0.5 - h / 2;
+        const inside = -glassSdf(w, h, px, py, r); // Abstand zur Kante (px)
+        if (inside >= bezel || inside < -1) continue;
+        const m = prof.out[Math.min(127, Math.max(0, (inside / bezel) * 128) | 0)] / prof.max;
+        const aa = inside >= 0 ? 1 : 1 + inside;
+        const [nx, ny] = glassNormal(w, h, px, py, R);
+        const i = (y * w + x) * 4;
+        d[i] = Math.round(128 - nx * m * 127 * aa); // nach innen holen
+        d[i + 1] = Math.round(128 - ny * m * 127 * aa);
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    return c.toDataURL();
+  }
+
+  // Lichtkante je Form (kube.io lib/specular.ts): nur die äußersten ~2 px, Stärke |n·L| × Halbkreis-Profil, Deckkraft
+  // quadratisch – hell, wo die Kante zum Licht (oben links) bzw. davon weg (unten rechts) zeigt, an den Seiten kaum.
+  // Weißes Bild mit Deckkraft; im Filter Maske für die farbige Kante, im CSS (::before) der weiße Glanz
+  function specMap(w, h, r) {
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext('2d');
+    const img = ctx.createImageData(w, h);
+    const d = img.data;
+    const R = Math.min(Math.max(r, 6), w / 2, h / 2);
+    const lx = -0.5, ly = -0.866; // Licht von oben, leicht links (kube.io: 60° zur Waagerechten)
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const px = x + 0.5 - w / 2, py = y + 0.5 - h / 2;
+        const inside = -glassSdf(w, h, px, py, r);
+        if (inside >= 2 || inside < -1) continue;
+        const aa = inside >= 0 ? 1 : 1 + inside;
+        const t = 1 - Math.max(0, inside);
+        const [nx, ny] = glassNormal(w, h, px, py, R);
+        const dot = nx * lx + ny * ly;
+        const coef = Math.abs(dot) * (dot > 0 ? 1 : 0.7) * Math.sqrt(Math.max(0, 1 - t * t)); // abgewandte Seite schwächer (wie iOS)
+        const i = (y * w + x) * 4;
+        d[i] = 255; d[i + 1] = 255; d[i + 2] = 255;
+        d[i + 3] = Math.round(255 * Math.min(1, Math.pow(coef, 2.6) * 1.15 * aa + 0.05 * aa * Math.sqrt(Math.max(0, 1 - t * t)))); // steiler als kube (Seiten dunkler wie iOS) + Hauch Grundlinie
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    return c.toDataURL();
+  }
+
+  // Vergrößerungskarte (kube.io calculateMagnifyingDisplacementMap): Verschiebung wächst linear von der Mitte nach außen,
+  // jeder Punkt holt den Hintergrund etwas weiter innen – der Inhalt erscheint vergrößert. Stärke über scale im Filter
+  const magnifyMaps = new Map();
+  function magnifyMap(w, h) {
+    const key = `${w}x${h}`;
+    if (magnifyMaps.has(key)) return magnifyMaps.get(key);
+    if (magnifyMaps.size >= 32) magnifyMaps.clear(); // Obergrenze (Größen wechseln mit Leisten und Textgröße)
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext('2d');
+    const img = ctx.createImageData(w, h);
+    const d = img.data;
+    const ratio = Math.max(w / 2, h / 2);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = (y * w + x) * 4;
+        d[i] = 128 - ((x + 0.5 - w / 2) / ratio) * 127;
+        d[i + 1] = 128 - ((y + 0.5 - h / 2) / ratio) * 127;
+        d[i + 2] = 0;
+        d[i + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    const url = c.toDataURL();
+    magnifyMaps.set(key, url);
+    return url;
+  }
+
+  function lensDefsEl() {
+    if (lensDefs) return lensDefs;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '0');
+    svg.setAttribute('height', '0');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.style.cssText = 'position:absolute;width:0;height:0;pointer-events:none';
+    lensDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    svg.appendChild(lensDefs);
+    document.body.appendChild(svg);
+    return lensDefs;
+  }
+  // Filter-Speicher voll (viele Größen, z. B. nach Wechsel von Textgröße/Displayformat): Filter, die keine Glasfläche mehr
+  // benutzt, entfernen. Sind alle in Gebrauch, bleibt es dabei – kein Neuaufbau (sonst ständiges Neu-Anlegen, gemessen 22.11.)
+  let lensIds = 0;
+  function lensPrune() {
+    const used = new Set();
+    for (const el of document.querySelectorAll('[data-lens]')) {
+      const m = /#(glass-lens-\d+)/.exec(el.style.getPropertyValue('--lens'));
+      if (m && el.isConnected && el.offsetWidth > 0) used.add(m[1]); // nur sichtbare (verborgene Bildschirme bleiben im Dokument)
+    }
+    let freed = 0;
+    for (const [key, id] of lensFilters) {
+      if (used.has(id)) continue;
+      lensDefs?.querySelector(`#${id}`)?.remove();
+      lensFilters.delete(key);
+      freed++;
+    }
+    return freed > 0;
+  }
+  function lensFilterFor(w, h, r, kind) {
+    const key = `${w}x${h}r${r}${kind}`;
+    if (lensFilters.has(key)) return lensFilters.get(key);
+    if (lensFilters.size >= LENS_MAX_FILTERS && !lensPrune()) return ''; // voll und alle in Gebrauch: diese Fläche ohne Brechung
+    const id = `glass-lens-${++lensIds}`; // fortlaufend, auch nach einem Neuaufbau eindeutig
+    const { g, bezel, thickness } = lensGeometry(w, h, kind);
+    const prof = lensProfile(thickness, bezel, g.surface, g.n);
+    // Kette wie kube.io: (Unschärfe davor im CSS) → Brechung (scale = größter Versatz × Anteil) → Hintergrund stark
+    // gesättigt nur in der Lichtkante (die Kante leuchtet in den Farben dahinter) → darüber normal
+    lensDefsEl().insertAdjacentHTML('beforeend', `<filter id="${id}" x="0" y="0" width="${w}" height="${h}" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      ${g.zoom ? `<feImage href="${magnifyMap(w, h)}" x="0" y="0" width="${w}" height="${h}" preserveAspectRatio="none" result="zoomMap"/>
+      <feDisplacementMap in="SourceGraphic" in2="zoomMap" scale="${(2 * g.zoom * Math.max(w, h) / 2).toFixed(1)}" xChannelSelector="R" yChannelSelector="G" result="zoomed"/>` : ''}
+      <feImage href="${lensMap(w, h, r, bezel, prof)}" x="0" y="0" width="${w}" height="${h}" preserveAspectRatio="none" result="lens"/>
+      <feDisplacementMap in="${g.zoom ? 'zoomed' : 'SourceGraphic'}" in2="lens" scale="${(prof.max * g.ratio).toFixed(1)}" xChannelSelector="R" yChannelSelector="G" result="bent"/>
+      <feColorMatrix in="bent" type="saturate" values="${g.sat}" result="vivid"/>
+      <feImage href="${specData(w, h, r)}" x="0" y="0" width="${w}" height="${h}" preserveAspectRatio="none" result="rim"/>
+      <feComposite in="vivid" in2="rim" operator="in" result="rimColor"/>
+      <feBlend in="rimColor" in2="bent" mode="normal"/>
+    </filter>`);
+    lensFilters.set(key, id);
+    return id;
+  }
+  // Lichtkante als data:-Bild (für den Filter) bzw. als url(…) für CSS
+  function specData(w, h, r) {
+    const key = `${w}x${h}r${r}`;
+    if (!specImages.has(key)) specImages.set(key, specMap(w, h, r));
+    return specImages.get(key);
+  }
+  function specFor(w, h, r) {
+    const key = `${w}x${h}r${r}`;
+    if (!specImages.has(key) && specImages.size >= SPEC_MAX) specImages.clear(); // voll: alte Bilder vergessen (gesetzte bleiben gültig)
+    return `url("${specData(w, h, r)}")`;
+  }
+
+  function lensApply() {
+    lensQueued = false;
+    const glassMode = document.body.dataset.glass;
+    const on = params.get('lens') !== '0' && glassMode === 'full';
+    const specOn = params.get('spec') !== '0' && glassMode !== 'off'; // Lichtkante auch bei „Unschärfe reduzieren“ (kostet nichts)
+    // ausgeschaltet: entfernen und Form vergessen – beim Wiedereinschalten wird alles neu gesetzt
+    if (!on) for (const el of document.querySelectorAll('[data-lens]')) { el.style.removeProperty('--lens'); delete el.dataset.lens; delete el.dataset.shape; }
+    if (!specOn) for (const el of document.querySelectorAll('[data-spec]')) { el.style.removeProperty('--spec'); delete el.dataset.spec; delete el.dataset.shape; }
+    if (!on && !specOn) return;
+    const busy = !!document.querySelector('.screen.active canvas, .screen.active video, .browser-layer.on, .video-layer:not([hidden])');
+    const maxArea = Number(params.get('lensmax')) || (busy ? LENS_MAX_AREA_BUSY : LENS_MAX_AREA);
+    const mode = `${on ? maxArea : 0}/${specOn ? 1 : 0}`;
+    let budget = SHAPES_PER_FRAME;
+    let lensFull = false; // Filter-Speicher in diesem Durchlauf voll: wartende Flächen zählen nicht als neu (sonst Dauerschleife)
+    for (const el of document.querySelectorAll(LENS_SEL)) {
+      const w = el.offsetWidth, h = el.offsetHeight;
+      if (w < 16 || h < 16) { // unsichtbar oder winzig: Brechung freigeben, beim Wiederzeigen neu bewerten
+        if (el.dataset.lens) { el.style.removeProperty('--lens'); delete el.dataset.lens; }
+        delete el.dataset.shape;
+        continue;
+      }
+      const shape = `${w}x${h}`;
+      if (el.dataset.shape === shape && el.dataset.lensMode === mode) continue;
+      const cs = getComputedStyle(el);
+      const r = Math.round(Math.min(parseFloat(cs.borderTopLeftRadius) || 0, w / 2, h / 2));
+      const isGlass = el.classList.contains('glass');
+      const kind = el.dataset.lensKind || (isGlass ? 'glass' : 'icon');
+      // als Glas gezeichnet? (manche .glass sind je nach Stil bewusst durchsichtig, z. B. der Tacho im Apple-Kartenstil)
+      const visibleGlass = cs.backdropFilter !== 'none' || !/rgba\(.*,\s*0\)$|transparent/.test(cs.backgroundColor);
+      // Symbole: Brechung nur, wenn sie wirklich Glas sind (Stil „Klar“ mit backdrop-filter) – bunte Symbole sind deckend
+      const fits = on && visibleGlass && (isGlass || cs.backdropFilter !== 'none') && (w * h <= maxArea || kind !== 'glass') && w >= 24 && h >= 24;
+      const wantSpec = specOn && visibleGlass;
+      const fresh = (fits && !lensFull && !lensFilters.has(`${w}x${h}r${r}${kind}`)) || (wantSpec && !specImages.has(`${w}x${h}r${r}`));
+      if (fresh && budget-- <= 0) { lensQueue(); break; } // neue Formen auf mehrere Bilder verteilen (kein Ruckeln)
+      if (specOn) {
+        const spec = wantSpec ? specFor(w, h, r) : '';
+        if (spec) { el.style.setProperty('--spec', spec); el.dataset.spec = '1'; }
+        else { el.style.removeProperty('--spec'); delete el.dataset.spec; } // keine alte Form gestreckt zeigen
+      }
+      let waiting = false; // passt, aber kein Filter frei: beim nächsten Durchlauf wieder versuchen
+      if (on) {
+        const id = fits ? lensFilterFor(w, h, r, kind) : '';
+        if (id) { el.style.setProperty('--lens', `url(#${id})`); el.dataset.lens = '1'; }
+        else { el.style.removeProperty('--lens'); delete el.dataset.lens; waiting = fits; if (fits) lensFull = true; }
+      }
+      if (waiting) continue;
+      el.dataset.shape = shape;
+      el.dataset.lensMode = mode;
+    }
+  }
+  // Glas-Effekte bei Berührung (03b Knöpfe, 03c Leisten): nur Hauptzeiger und linke Taste, nicht im Bearbeiten-Modus des
+  // Home-Bildschirms, nicht bei „Animationen reduzieren“ in Windows (prefers-reduced-motion) – dann normale Bedienung
+  const reducedMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  const glassTouchOk = (e) => e.isPrimary !== false && (e.button === 0 || e.button === undefined) && !reducedMotion.matches
+    && document.body.dataset.glass !== 'off' && !(typeof editor !== 'undefined' && editor.editing);
+  // nach Änderungen an der Oberfläche (neue Glasflächen, andere Größen) einmal je Bild nachziehen
+  function lensQueue() {
+    if (lensQueued) return;
+    lensQueued = true;
+    requestAnimationFrame(lensApply);
+  }
+  new MutationObserver(lensQueue).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden', 'data-glass'] });
+  window.addEventListener('resize', lensQueue);
+  // Größe per CSS-Übergang geändert (z. B. Browser-Leiste klein/groß): am Ende neu messen
+  document.addEventListener('transitionend', (e) => {
+    if (e.target?.matches?.(LENS_SEL) && /width|height|padding/.test(e.propertyName)) lensQueue();
+  }, true);
+  // ------------------------------------------------------------------ Liquid Glass: Schalter und Regler (wie iOS 27)
+  // Bei iOS wird der weiße Knopf eines Schalters oder Reglers beim Antippen/Ziehen selbst zur Glaslinse: er wird größer,
+  // durchsichtig, bricht die Spur darunter (farbige Kante, gebogene Linien), gleitet mit und wird beim Loslassen wieder weiß.
+  // Die Knöpfe hier sind ::after (.switch) bzw. der eingebaute Regler-Knopf – darauf lässt sich kein Glas legen. Daher liegt
+  // während der Berührung ein eigenes Glas-Element darüber (.glass-knob, in #shell), der echte Knopf ist so lange unsichtbar
+  // (.knob-out). Brechung und Lichtkante kommen von 03a-glas-linse.js (.glass); die Größe bleibt fest (gehoben), in Ruhe
+  // ist der Knopf per transform verkleinert – so entsteht je Knopfart nur eine Brechungskarte.
+  const KNOB = {
+    // Breite/Höhe gehoben und in Ruhe (rem) – Verhältnis wie kube.io: Schalter in Ruhe 0,65 / gedrückt 0,9 (×1,38),
+    // Regler in Ruhe 0,6 / gezogen 1 (×1,67)
+    switch: { w: 5.8, h: 3.85, restW: 4.2, restH: 2.8 },
+    range: { w: 6.3, h: 4.3, restW: 3.8, restH: 2.6 },
+  };
+  const remPx = () => parseFloat(getComputedStyle(document.documentElement).fontSize) || 10;
+  let knob = null; // { el, kind, target, x, y, raf, done }
+
+  function knobPlace(k, cx, cy) {
+    const s = shell.getBoundingClientRect();
+    const scale = s.width ? shell.offsetWidth / s.width : 1; // Bühne evtl. skaliert
+    const rem = remPx();
+    k.el.style.left = `${(cx - s.left) * scale - (KNOB[k.kind].w * rem) / 2}px`;
+    k.el.style.top = `${(cy - s.top) * scale - (KNOB[k.kind].h * rem) / 2}px`;
+  }
+  function knobCreate(kind, cx, cy) {
+    knobRemove();
+    if (document.body.dataset.glass === 'off') return null; // ohne Glas: normaler Knopf
+    const el = document.createElement('div');
+    const spec = KNOB[kind];
+    el.className = `glass glass-knob knob-${kind}`;
+    el.setAttribute('aria-hidden', 'true');
+    el.style.width = `${spec.w}rem`;
+    el.style.height = `${spec.h}rem`;
+    el.style.setProperty('--rest-x', String(spec.restW / spec.w));
+    el.style.setProperty('--rest-y', String(spec.restH / spec.h));
+    el.dataset.lensKind = kind; // Glas-Parameter des Bauteils (03a: Lippe beim Schalter, n 1,45 beim Regler)
+    shell.appendChild(el);
+    const k = { el, kind, cx, cy };
+    knobPlace(k, cx, cy);
+    void el.offsetWidth; // Ruhezustand zeichnen, dann anheben (Übergang)
+    el.classList.add('lifted');
+    knob = k;
+    return k;
+  }
+  function knobRemove() {
+    if (!knob) return;
+    cancelAnimationFrame(knob.raf);
+    clearTimeout(knob.timer);
+    knob.el.remove();
+    for (const x of document.querySelectorAll('.knob-out')) x.classList.remove('knob-out');
+    knob = null;
+  }
+  // loslassen: an die Endstelle gleiten, wieder weiß und klein werden, dann den echten Knopf zeigen
+  function knobSettle(cx, cy) {
+    const k = knob;
+    if (!k) return;
+    cancelAnimationFrame(k.raf);
+    k.el.classList.add('moving'); // jetzt mit Übergang gleiten (beim Ziehen folgt er ohne Verzögerung)
+    if (cx !== undefined) knobPlace(k, cx, cy);
+    // Federkurven (--spring-snappy, ~0,42 s): erst gleiten, gegen Ende schon wieder weiß und klein werden, dann entfernen
+    k.timer = setTimeout(() => {
+      k.el.classList.remove('lifted');
+      k.timer = setTimeout(() => { if (knob === k) knobRemove(); }, 440);
+    }, 240);
+  }
+
+  // ---- Schalter
+  const switchCenter = (sw) => {
+    const r = sw.getBoundingClientRect();
+    const rem = remPx() * (r.width / (sw.offsetWidth || r.width || 1));
+    const on = sw.classList.contains('on');
+    return [r.left + (on ? 2.8 : 0.2) * rem + 2.1 * rem, r.top + r.height / 2]; // Kapsel 4,2 rem breit
+  };
+  // nur echte Schalter-Bedienungen: der Schalter selbst, eine Zeile mit data-toggle, die Sport-Taste .sx-show – nicht
+  // z. B. der Griff zum Sortieren der Ligen (deren Zeile ist .row, schaltet aber nichts um)
+  function switchFrom(target) {
+    const host = target?.closest?.('.switch, [data-toggle], .sx-show, .row:has(> .switch), .mm-row:has(> .switch)');
+    if (!host || (target.closest('.sx-grip') && !target.closest('.sx-show'))) return null;
+    return host.classList.contains('switch') ? host : host.querySelector(':scope .switch');
+  }
+  document.addEventListener('pointerdown', (e) => {
+    if (!glassTouchOk(e)) return;
+    const sw = switchFrom(e.target);
+    if (!sw || !sw.getBoundingClientRect().width) return;
+    const [cx, cy] = switchCenter(sw);
+    const k = knobCreate('switch', cx, cy);
+    if (!k) return;
+    sw.classList.add('knob-out');
+    k.from = [cx, cy];
+    k.downAt = [e.clientX, e.clientY];
+    k.pointerId = e.pointerId;
+  }, true);
+  const switchRelease = (e) => {
+    const k = knob;
+    if (!k || k.kind !== 'switch' || (e?.pointerId !== undefined && k.pointerId !== undefined && e.pointerId !== k.pointerId)) return;
+    k.downAt = null; // losgelassen: Mausbewegungen danach brechen das Absetzen nicht mehr ab
+    // nach dem Umschalten wird die Zeile oft neu gezeichnet: den Schalter an derselben Stelle wieder suchen
+    setTimeout(() => {
+      if (knob !== k) return;
+      let best = null, bestD = 60;
+      for (const sw of document.querySelectorAll('.switch')) {
+        const r = sw.getBoundingClientRect();
+        if (!r.width) continue;
+        const d = Math.hypot(r.left + r.width / 2 - k.from[0], r.top + r.height / 2 - k.from[1]);
+        if (d < bestD) { bestD = d; best = sw; }
+      }
+      if (!best) return knobSettle();
+      best.classList.add('knob-out');
+      const [cx, cy] = switchCenter(best);
+      knobSettle(cx, cy);
+    }, e?.type === 'pointercancel' ? 0 : 60);
+  };
+  // Finger bewegt sich (Liste wird gescrollt): kein Umschalten – Glas-Knopf sofort weg
+  document.addEventListener('pointermove', (e) => {
+    const k = knob;
+    if (!k || k.kind !== 'switch' || !k.downAt) return;
+    if (Math.hypot(e.clientX - k.downAt[0], e.clientY - k.downAt[1]) > 12) knobRemove();
+  }, true);
+  document.addEventListener('pointerup', switchRelease, true);
+  document.addEventListener('pointercancel', switchRelease, true);
+
+  // ---- Regler (.vol-range): der Glas-Knopf folgt dem Wert, solange gezogen wird
+  const rangeCenter = (el) => {
+    const r = el.getBoundingClientRect();
+    const half = 1.9 * remPx() * (r.width / (el.offsetWidth || r.width || 1)); // halbe Kapsel (3,8 rem)
+    return [r.left + half + (r.width - 2 * half) * (Number(el.value) / 100), r.top + r.height / 2];
+  };
+  document.addEventListener('pointerdown', (e) => {
+    if (!glassTouchOk(e)) return;
+    const el = e.target?.closest?.('input.vol-range');
+    if (!el || !el.getBoundingClientRect().width) return;
+    const key = el.dataset.volumeRange;
+    const k = knobCreate('range', ...rangeCenter(el));
+    if (!k) return;
+    k.key = key;
+    k.pointerId = e.pointerId;
+    const live = () => [...document.querySelectorAll(`input.vol-range[data-volume-range="${key}"]`)].find((x) => x.getBoundingClientRect().width > 0) || null;
+    const follow = () => {
+      const cur = live();
+      if (cur) {
+        if (!cur.classList.contains('knob-out')) cur.classList.add('knob-out'); // nicht jedes Bild neu setzen (weckt sonst 03a)
+        knobPlace(k, ...rangeCenter(cur));
+      }
+      k.raf = requestAnimationFrame(follow);
+    };
+    k.raf = requestAnimationFrame(follow);
+    k.live = live;
+  }, true);
+  const rangeRelease = (e) => {
+    const k = knob;
+    if (!k || k.kind !== 'range' || (e?.pointerId !== undefined && k.pointerId !== undefined && e.pointerId !== k.pointerId)) return;
+    cancelAnimationFrame(k.raf);
+    setTimeout(() => { // Wert gespeichert, evtl. neu gezeichnet
+      if (knob !== k) return;
+      const cur = k.live();
+      if (cur) { cur.classList.add('knob-out'); knobSettle(...rangeCenter(cur)); } else knobSettle();
+    }, 40);
+  };
+  document.addEventListener('pointerup', rangeRelease, true);
+  document.addEventListener('pointercancel', rangeRelease, true);
+
+  // ---- Medien-Leisten (Radio- und Video-Lautstärke, Video-Zeitleiste) wie in Apple Musik: kein Knopf – die Leiste wird
+  // beim Anfassen dicker (.grab, 08-regler.css) und geht beim Loslassen federnd zurück
+  const BAR_SEL = '.rd-bar, .vd-bar, .vd-seek';
+  let barGrab = null; // { cls, pointerId }
+  document.addEventListener('pointerdown', (e) => {
+    if (!glassTouchOk(e)) return;
+    const bar = e.target?.closest?.(BAR_SEL);
+    if (!bar) return;
+    barGrab = { cls: BAR_SEL.split(', ').find((x) => bar.matches(x)), pointerId: e.pointerId };
+    bar.classList.add('grab');
+  }, true);
+  const barRelease = (e) => {
+    if (!barGrab || (e?.pointerId !== undefined && e.pointerId !== barGrab.pointerId)) return;
+    barGrab = null;
+    // die Leiste kann beim Ziehen neu gezeichnet worden sein: alle angefassten zurück
+    for (const b of document.querySelectorAll('.grab')) b.classList.remove('grab');
+  };
+  // beim Ziehen neu gezeichnet: die sichtbare Leiste derselben Art wieder dick machen
+  document.addEventListener('pointermove', () => {
+    if (!barGrab || document.querySelector('.grab')) return;
+    const b = [...document.querySelectorAll(barGrab.cls)].find((x) => x.getBoundingClientRect().width > 0);
+    b?.classList.add('grab');
+  }, true);
+  document.addEventListener('pointerup', barRelease, true);
+  document.addEventListener('pointercancel', barRelease, true);
+  // ------------------------------------------------------------------ Liquid Glass: gleitende Auswahl in Leisten (wie iOS 27)
+  // Wechselt man in einer Leiste (Telefon, Musik, Radio, Sport, Tanken & Rasten, Fahrtenbuch, Lkw, Browser) das Feld, hebt
+  // sich die Auswahl bei iOS als Glaslinse ab, gleitet – in Laufrichtung gedehnt wie Gel – zum neuen Feld, schwingt ganz
+  // leicht über und setzt sich ab; unterwegs bricht sie die Beschriftungen darunter. Drückt man auf die aktive Auswahl,
+  // quillt sie auf und zieht sich beim Loslassen federnd zurück.
+  // Bewegung 1:1 nach den gemessenen iOS-27-Kurven (Präsentationsebene) aus github.com/webview-native-ui/ionic-theme-ios27,
+  // src/segment/index.ts (gelesen 22.11.): Position (normiert, Überschwingen 1,024), Breite/Höhe als Zuschlag in Punkten
+  // (bis +29,5 / +11 pt), Farbe wird mit der Dehnung bis 90 % durchsichtig, am Ende 200 ms Überblenden zur echten Auswahl.
+  // Die Leisten werden beim Umschalten oft neu gezeichnet, daher: beim Antippen die alte Auswahl merken, danach die Leiste
+  // an derselben Stelle wieder suchen und ein eigenes Glas-Element (.glass.seg-lens, in #shell) per Web-Animation führen.
+  // Größe fest (größte Form), Dehnung per transform – so entsteht nur eine Brechungskarte je Leiste (03a).
+  const SEG_BARS = '.segmented, .phone-tabs, .bw-seg, .tr-seg';
+  // [Zeit s, Position 0…1, Breite +pt, Höhe +pt] – iOS 27, 0,8 s
+  const SEG_SELECT = [
+    [0, 0, 0, 0], [0.033, 0.08, 4, 3], [0.067, 0.27, 11, 7], [0.1, 0.47, 17, 10], [0.133, 0.64, 22, 11],
+    [0.167, 0.76, 26, 10.5], [0.2, 0.84, 29.5, 9.5], [0.267, 0.935, 24, 7.5], [0.333, 0.994, 7.5, 3.5],
+    [0.4, 1.022, -0.6, 2.9], [0.5, 1.024, -3.3, 2.5], [0.6, 1.015, -2, 1.5], [0.7, 1.002, -0.5, 0.4], [0.8, 1, 0, 0],
+  ];
+  // Drücken auf die aktive Auswahl: aufquellen (+24 / +16 pt) in 0,233 s; Loslassen: zurück in 0,65 s (leichtes Unterschwingen)
+  const SEG_PRESS = [[0, 0], [0.033, 0.133], [0.067, 0.43], [0.1, 0.67], [0.133, 0.83], [0.167, 0.92], [0.2, 0.97], [0.233, 1]];
+  const SEG_RELEASE = [[0, 1], [0.033, 0.78], [0.067, 0.49], [0.1, 0.28], [0.133, 0.157], [0.167, 0.089], [0.2, 0.054], [0.233, 0.034], [0.267, 0.009], [0.317, 0], [0.43, -0.013], [0.65, 0]];
+  const IOS_IND_H = 28; // Höhe der Auswahl bei iOS (pt) – Maßstab für die Zuschläge
+  let segRun = null; // { el, timers, press }
+
+  const shellBox = () => {
+    const s = shell.getBoundingClientRect();
+    return { s, k: s.width ? shell.offsetWidth / s.width : 1 }; // Bühne evtl. skaliert
+  };
+  // Schrift der (neuen) Auswahl: solange die Linse läuft, wie die übrigen Felder – bei weißer Auswahl ist sie sonst schwarz
+  // auf dunklem Grund (Sport, Tanken & Rasten, Fahrtenbuch, Musik-Bibliothek); am Ende per Übergang zurück
+  function segCalmText(bar) {
+    const on = bar?.querySelector(':scope > button.on');
+    const other = on && [...bar.querySelectorAll(':scope > button')].find((b) => b !== on && !b.classList.contains('on'));
+    if (on && other) on.style.color = getComputedStyle(other).color;
+  }
+  function segMovingEnd() {
+    for (const b of document.querySelectorAll('.seg-moving')) {
+      b.classList.remove('seg-moving');
+      for (const x of b.querySelectorAll(':scope > button[style*="color"]')) x.style.removeProperty('color');
+    }
+  }
+  function segEnd() {
+    if (!segRun) return;
+    for (const t of segRun.timers) clearTimeout(t);
+    if (segRun.drag) cancelAnimationFrame(segRun.drag.raf);
+    segRun.anim?.cancel();
+    segRun.el.remove();
+    segMovingEnd();
+    segRun = null;
+  }
+  // Leiste an derselben Stelle wiederfinden (neu gezeichnet)
+  function segFind(from) {
+    let best = null, bestD = 40;
+    for (const bar of document.querySelectorAll(SEG_BARS)) {
+      const r = bar.getBoundingClientRect();
+      if (!r.width) continue;
+      const d = Math.hypot(r.left - from.left, r.top - from.top) + Math.abs(r.width - from.width) / 4;
+      if (d < bestD) { bestD = d; best = bar; }
+    }
+    return best;
+  }
+  // Linse anlegen: feste Größe W × H (größte Form der Bewegung), mittig auf „anchor“; Formen als transform relativ dazu
+  function segLens(anchor, W, H) {
+    segEnd();
+    const { s, k } = shellBox();
+    const cx = (anchor.left + anchor.width / 2 - s.left) * k, cy = (anchor.top + anchor.height / 2 - s.top) * k;
+    const el = document.createElement('div');
+    el.className = 'glass seg-lens';
+    el.setAttribute('aria-hidden', 'true');
+    el.dataset.lensKind = 'seg'; // eigene, schwächere Brechung (03a)
+    el.style.cssText = `left:${cx - W / 2}px;top:${cy - H / 2}px;width:${W}px;height:${H}px`;
+    shell.appendChild(el);
+    segRun = { el, timers: [], k, s, cx, cy, W, H };
+    return segRun;
+  }
+  // ein Bild der Animation: Mitte (Bildschirm), Breite/Höhe (px), Farbe nach Dehnung (gedehnt = klar)
+  function segFrame(run, x, y, w, h, onBg, restW, unit) {
+    const clear = Math.max(0, Math.min(1, (w - restW) / (24 * unit))) * 90;
+    return {
+      transform: `translate(${((x - run.s.left) * run.k - run.cx).toFixed(2)}px, ${((y - run.s.top) * run.k - run.cy).toFixed(2)}px) scale(${(w * run.k / run.W).toFixed(4)}, ${(h * run.k / run.H).toFixed(4)})`,
+      backgroundColor: `color-mix(in srgb, ${onBg} ${(100 - clear).toFixed(1)}%, transparent)`,
+    };
+  }
+  const mid = (r) => [r.left + r.width / 2, r.top + r.height / 2];
+
+  // Auswahl wechselt: von „from“ zu „to“ gleiten (0,8 s), am Ende in die echte Auswahl überblenden
+  function segSelect(from, to, onBg) {
+    const unit = to.height / IOS_IND_H;
+    const W = Math.max(from.width, to.width) + 32 * unit;
+    const H = Math.max(from.height, to.height) + 13 * unit;
+    const run = segLens(to, W * shellBox().k, H * shellBox().k);
+    const [fx, fy] = mid(from), [tx, ty] = mid(to);
+    const frames = SEG_SELECT.map(([t, p, dw, dh]) => ({
+      offset: t / 0.8,
+      ...segFrame(run, fx + (tx - fx) * p, fy + (ty - fy) * p,
+        Math.max(1, to.width + (from.width - to.width) * (1 - p) + dw * unit),
+        Math.max(1, to.height + (from.height - to.height) * (1 - p) + dh * 1.1 * unit), onBg, from.width, unit),
+    }));
+    run.anim = run.el.animate(frames, { duration: 800, easing: 'linear', fill: 'forwards' });
+    // die letzten 200 ms: Linse aus, echte Auswahl ein (wie iOS)
+    run.el.animate([{ opacity: 1 }, { opacity: 1, offset: 0.75 }, { opacity: 0 }], { duration: 800, fill: 'forwards' });
+    run.timers.push(setTimeout(segMovingEnd, 600));
+    run.timers.push(setTimeout(segEnd, 860));
+  }
+  // Druck auf die aktive Auswahl: aufquellen und halten (bis zum Loslassen)
+  function segPress(rest, onBg, bar) {
+    const unit = rest.height / IOS_IND_H;
+    const W = rest.width + 26 * unit, H = rest.height + 17 * unit;
+    const run = segLens(rest, W * shellBox().k, H * shellBox().k);
+    const [x, y] = mid(rest);
+    bar.classList.add('seg-moving');
+    segCalmText(bar);
+    run.press = { rest, onBg, unit };
+    run.anim = run.el.animate(SEG_PRESS.map(([t, e]) => ({
+      offset: t / 0.233,
+      ...segFrame(run, x, y, rest.width + 24 * unit * e, rest.height + 16 * unit * e, onBg, rest.width, unit),
+    })), { duration: 233, easing: 'linear', fill: 'forwards' });
+  }
+  function segRelease() {
+    const run = segRun;
+    if (!run?.press) return;
+    const { rest, onBg, unit } = run.press;
+    const [x, y] = mid(rest);
+    run.press = null;
+    run.anim?.cancel();
+    run.anim = run.el.animate(SEG_RELEASE.map(([t, r]) => ({
+      offset: t / 0.65,
+      ...segFrame(run, x, y, rest.width + 24 * unit * r, rest.height + 16 * unit * r, onBg, rest.width, unit),
+    })), { duration: 650, easing: 'linear', fill: 'forwards' });
+    run.el.animate([{ opacity: 1 }, { opacity: 1, offset: 0.6 }, { opacity: 0 }], { duration: 650, fill: 'forwards' });
+    run.timers.push(setTimeout(segMovingEnd, 420));
+    run.timers.push(setTimeout(() => { if (segRun === run) segEnd(); }, 700));
+  }
+
+  // den Klick schlucken, den das Loslassen nach einem Ziehen noch auslöst (Ziel wurde schon selbst angeklickt). Gilt bis zu
+  // diesem einen Klick – fällt beim nächsten Drücken bzw. nach 1 s weg, falls er nie kommt (neben der Leiste losgelassen)
+  function swallowNextClick() {
+    let t = 0;
+    const off = () => { clearTimeout(t); document.removeEventListener('click', swallow, true); document.removeEventListener('pointerdown', off, true); };
+    const swallow = (ce) => { ce.stopPropagation(); ce.preventDefault(); off(); };
+    document.addEventListener('click', swallow, true);
+    document.addEventListener('pointerdown', off, true);
+    t = setTimeout(off, 1000);
+  }
+  // Ziehen (wie iOS 26/27): die aufgequollene Auswahl folgt waagerecht dem Finger, dehnt sich mit dem Tempo wie Gel
+  // (und wird dabei klarer), federt über die Enden der Leiste nur gebremst hinaus; beim Loslassen rastet sie im nächsten
+  // Feld ein und wählt es aus. Felder einmal beim Start vermessen (die Leiste ändert sich währenddessen nicht).
+  function segDragStart(bar, rest, onBg, x) {
+    const run = segRun;
+    if (!run?.press) return null;
+    run.anim?.cancel(); // sonst überdeckt die Druck-Animation (fill: forwards) die Bilder beim Ziehen
+    const btns = [...bar.querySelectorAll(':scope > button')].filter((b) => !b.disabled && b.getBoundingClientRect().width > 0); // ausgeblendete Felder nie als Ziel
+    const centers = btns.map((b) => mid(b.getBoundingClientRect())[0]);
+    const unit = rest.height / IOS_IND_H;
+    const drag = { run, bar, btns, centers, rest, onBg, unit, off: mid(rest)[0] - x, x, lastX: x, lastT: performance.now(), v: 0, raf: 0, lensX: mid(rest)[0] };
+    const tick = () => { // ohne Bewegung lässt die Dehnung nach
+      if (performance.now() - drag.lastT > 40) drag.v *= 0.8;
+      segDragDraw(drag);
+      drag.raf = requestAnimationFrame(tick);
+    };
+    drag.raf = requestAnimationFrame(tick);
+    run.drag = drag; // segEnd beendet die Schleife
+    return drag;
+  }
+  function segDragDraw(d) {
+    const lo = Math.min(...d.centers), hi = Math.max(...d.centers);
+    let x = d.x + d.off;
+    if (x < lo) x = lo - (lo - x) * 0.25; else if (x > hi) x = hi + (x - hi) * 0.25; // Gummiband an den Enden
+    d.lensX = x;
+    const s = Math.min(1, Math.abs(d.v) / 1.6); // 1,6 px/ms = volle Dehnung
+    const w = d.rest.width + 24 * d.unit + 20 * d.unit * s;
+    const h = d.rest.height + 16 * d.unit - 6 * d.unit * s;
+    Object.assign(d.run.el.style, segFrame(d.run, x, mid(d.rest)[1], w, h, d.onBg, d.rest.width, d.unit));
+  }
+  function segDragMove(d, x) {
+    const now = performance.now(), dt = Math.max(1, now - d.lastT);
+    d.v = d.v * 0.6 + ((x - d.lastX) / dt) * 0.4;
+    d.x = x; d.lastX = x; d.lastT = now;
+  }
+  // Loslassen: nächstes Feld wählen und die Linse federnd dorthin setzen (gleiche Kurve wie beim Loslassen)
+  function segDragEnd(d, pendingBarRect) {
+    cancelAnimationFrame(d.raf);
+    const run = d.run;
+    run.press = null;
+    let i = 0;
+    d.centers.forEach((c, j) => { if (Math.abs(c - d.lensX) < Math.abs(d.centers[i] - d.lensX)) i = j; });
+    // Leiste inzwischen neu gezeichnet (Live-Daten)? Dann das Feld an derselben Stelle der neuen Leiste nehmen
+    let target = d.btns[i];
+    if (!target.isConnected) {
+      const nb = segFind(pendingBarRect);
+      const fresh = nb && [...nb.querySelectorAll(':scope > button')].filter((b) => !b.disabled && b.getBoundingClientRect().width > 0);
+      target = fresh?.length === d.btns.length ? fresh[i] : null;
+      if (!target) { segEnd(); return; }
+    }
+    const to = target.getBoundingClientRect();
+    const fromX = d.lensX, y = mid(d.rest)[1], tx = mid(to)[0];
+    const fromW = d.rest.width + 24 * d.unit, fromH = d.rest.height + 16 * d.unit;
+    run.el.style.removeProperty('transform');
+    run.anim = run.el.animate(SEG_RELEASE.map(([t, r]) => ({
+      offset: t / 0.65,
+      ...segFrame(run, tx + (fromX - tx) * r, y, to.width + (fromW - to.width) * r, to.height + (fromH - to.height) * r, d.onBg, to.width, d.unit),
+    })), { duration: 650, easing: 'linear', fill: 'forwards' });
+    run.el.animate([{ opacity: 1 }, { opacity: 1, offset: 0.6 }, { opacity: 0 }], { duration: 650, fill: 'forwards' });
+    run.timers.push(setTimeout(segMovingEnd, 420));
+    run.timers.push(setTimeout(() => { if (segRun === run) segEnd(); }, 700));
+    if (target.classList.contains('on')) return; // zurück aufs alte Feld
+    // den Klick, den das Loslassen gleich noch auslöst, schlucken (er käme auf das alte Feld oder die Leiste) – er folgt
+    // direkt auf pointerup, noch vor jedem Timer
+    target.click();
+    swallowNextClick();
+    // neu gezeichnete Leiste: echte Auswahl verbergen, bis die Linse sitzt
+    let tries = 0;
+    const look = () => {
+      const nb = segFind(pendingBarRect);
+      if (nb && segRun === run) { nb.classList.add('seg-moving'); segCalmText(nb); }
+      else if (!nb && ++tries < 6) setTimeout(look, 40);
+    };
+    look();
+  }
+
+  document.addEventListener('pointerdown', (e) => {
+    if (!glassTouchOk(e)) return;
+    const btn = e.target?.closest?.('button');
+    const bar = btn?.closest(SEG_BARS);
+    if (!bar || btn.disabled) return;
+    const old = bar.querySelector(':scope > button.on');
+    if (!old) return;
+    const from = old.getBoundingClientRect();
+    if (!from.width) return;
+    // laufende Linse erst beenden: während .seg-moving ist die Auswahl durchsichtig – sonst liest man hier „transparent“
+    // (schnelles Doppeltippen ließ die Auswahl verschwinden). Farbe ohne Übergang lesen, dann Übergang wieder an
+    segEnd();
+    old.style.transition = 'none';
+    const onBg = getComputedStyle(old).backgroundColor;
+    void old.offsetWidth;
+    old.style.removeProperty('transition');
+    const pending = { barRect: bar.getBoundingClientRect(), from, onBg, downAt: [e.clientX, e.clientY] };
+    if (btn === old) segPress(from, onBg, bar); // aktive Auswahl gedrückt: aufquellen
+    // Finger bewegt sich: waagerecht von der aktiven Auswahl aus = Linse ziehen (Leiste muss ganz sichtbar sein, nicht
+    // selbst scrollbar); sonst wird gescrollt – aufgequollene Linse sofort weg
+    const canDrag = btn === old && bar.scrollWidth <= bar.clientWidth + 1;
+    let drag = null;
+    const move = (ev) => {
+      if (ev.pointerId !== e.pointerId) return;
+      if (drag) { ev.stopPropagation(); segDragMove(drag, ev.clientX); return; } // nicht gleichzeitig die Liste scrollen
+      const dx = ev.clientX - pending.downAt[0], dy = ev.clientY - pending.downAt[1];
+      if (Math.hypot(dx, dy) <= 8) return;
+      if (canDrag && segRun?.press && Math.abs(dx) > Math.abs(dy)) {
+        drag = segDragStart(bar, from, onBg, pending.downAt[0]);
+        if (drag) { ev.stopPropagation(); segDragMove(drag, ev.clientX); return; }
+      }
+      if (Math.hypot(dx, dy) <= 12) return;
+      document.removeEventListener('pointermove', move, true);
+      if (segRun?.press) segEnd();
+    };
+    document.addEventListener('pointermove', move, true);
+    const up = (ev) => {
+      if (ev.pointerId !== e.pointerId) return; // nur der Finger, der gedrückt hat
+      document.removeEventListener('pointerup', up, true);
+      document.removeEventListener('pointercancel', up, true);
+      document.removeEventListener('pointermove', move, true);
+      if (drag) {
+        if (ev.type === 'pointercancel') { cancelAnimationFrame(drag.raf); segEnd(); return; }
+        segDragEnd(drag, pending.barRect);
+        return;
+      }
+      const moved = ev.type === 'pointercancel' || Math.hypot(ev.clientX - pending.downAt[0], ev.clientY - pending.downAt[1]) > 12;
+      if (btn === old) { segRelease(); return; }
+      if (moved) return; // gescrollt
+      // nach dem Umschalten (evtl. neu gezeichnet) die neue Auswahl suchen
+      let tries = 0;
+      const look = () => {
+        const nb = segFind(pending.barRect);
+        const on = nb?.querySelector(':scope > button.on');
+        const to = on?.getBoundingClientRect();
+        if (to && to.width && Math.abs(to.left - pending.from.left) > 2) {
+          segSelect(pending.from, to, pending.onBg);
+          nb.classList.add('seg-moving');
+          segCalmText(nb);
+        } else if (++tries < 6) setTimeout(look, 40);
+      };
+      look(); // sofort prüfen (oft schon umgeschaltet), sonst kurz warten
+    };
+    document.addEventListener('pointerup', up, true);
+    document.addEventListener('pointercancel', up, true);
+  }, true);
+  // ------------------------------------------------------------------ Kopfleiste wie iOS 27 („uniform toolbar“)
+  // Steht eine Liste ganz oben, schwebt die große Überschrift frei. Sobald Inhalt unter den Kopf scrollt, blendet hinter dem
+  // Titel eine gleichmäßig getönte Glasleiste mit feiner Trennlinie ein (iOS 27, Werte aus dem iOS-27-Figma-Kit:
+  // dunkel Schwarz 55 %, hell Weiß 85 %, Unschärfe, 1 px Kante, 0,25 s). CSS: .scrolled in 03-ios-stil.css
+  const BAR_AREAS = '.settings-body, .list-rows, .log-grid';
+  function barSync(area) {
+    const card = area.closest('.settings, .list-card');
+    if (!card) return;
+    const was = card.classList.contains('scrolled');
+    const on = was ? area.scrollTop > 2 : area.scrollTop > 12; // Hysterese: kein Flackern an der Schwelle
+    if (card.classList.contains('scrolled') !== on) card.classList.toggle('scrolled', on);
+  }
+  document.addEventListener('scroll', (e) => {
+    if (e.target?.matches?.(BAR_AREAS)) barSync(e.target);
+  }, { capture: true, passive: true });
   // ------------------------------------------------------------------ Einstellungen anwenden
   const ask = (question) => window.confirm(CarI18n.translate(question));
 
@@ -4764,6 +6090,7 @@
     callEl.innerHTML = ''; // neuer Zustand: keine alte Statuszeile übernehmen
     renderCall();
     videoForCall(true);
+    browserForCall(true); // App „Browser“: Ton der Seiten anhalten
     clearTimeout(callTimer);
     if (!ongoing) callTimer = setTimeout(endCall, 20000); // nicht angenommen → bleibt als Nachricht
     nav.reset();
@@ -4874,6 +6201,7 @@
       callEl.innerHTML = '';
     }
     videoForCall(false);
+    browserForCall(false);
   }
 
   function renderChat() {
@@ -5929,8 +7257,8 @@
     // goal：从左边数(0-based)的推荐车道索引（已升序）
     if (goal.length === 1) {
       const idx = goal[0];
-      const fromLeft = idx + 1;      // 从左数第几
-      const fromRight = count - idx; // 从右数第几
+      const fromLeft = idx + 1;
+      const fromRight = count - idx;
       if (fromLeft <= fromRight) return `Bitte die ${fromLeft}. Spur von links nehmen.`;
       return `Bitte die ${fromRight}. Spur von rechts nehmen.`;
     }
@@ -5975,6 +7303,8 @@
 
   let navActive = false;
   let onRouteSeen = false; // war der Truck schon auf dieser Route? (sonst: Start abseits, z. B. Firmengelände)
+  let offSpoken = false; // 偏航播报只播一次（回到路线后复位）
+  let arrivalStage = 0; // 到达播报阶段：0=未播, 1=已播"即将到达", 2=已播"已到达"
   let laneNowSeen = null; // für das Kombiinstrument (Fahrassistenz-Ansicht)
   // Spurempfehlung fürs Kombiinstrument: { lanes, mask (Bit i = Spur i von links empfohlen), lane (jetzige Spur), dist (m bis
   // zur Stelle, an der die Spur zählt) } – nur wenn die Spurzahl der Straße zur Empfehlung passt, sonst null
@@ -5999,8 +7329,11 @@
     const atRest = here && CarMap.poisNear(['p', 'g'], here.x, here.z, 500).some((poi) => Math.hypot(poi[1] - here.x, poi[2] - here.z) < 500);
     const offRoute = !m && onRouteSeen && CarMap.hasRoute() && num(telemetry?.speedKmh) > 25 && !atRest;
     naviEvents(m, offRoute);
+    if (!offRoute) offSpoken = false; // 回到路线：允许下次偏航再播
     toggle('maneuver', 'idle', !m && !offRoute);
     if (offRoute) {
+      // 偏航：P0 紧急播报一次
+      if (!offSpoken) { offSpoken = true; speak('Sie haben die Route verlassen, die Route wird neu berechnet.', null, { priority: 0 }); }
       html('mv-arrow', 'recalc', `<span class="turn recalc">${ICONS.reset || ''}</span>`);
       text('mv-dist', 'Route wird neu berechnet …');
       html('mv-road', 'recalc', '');
@@ -6015,6 +7348,11 @@
       if (navActive) surfaceWidget('nav');
     }
     if (!m) return;
+    // 到达播报：接近目的地 / 到达
+    if (m.remaining != null && settings.navVoice) {
+      if (arrivalStage === 0 && m.remaining <= 150) { arrivalStage = 1; speak('Sie nähern sich dem Ziel.', null, { priority: 1 }); }
+      else if (arrivalStage === 1 && m.remaining <= 20) { arrivalStage = 2; speak('Sie haben das Ziel erreicht.', null, { priority: 1 }); }
+    }
     const t = telemetry || {};
     const destination = t.hasJob ? latin(t.destinationCity) : m.destination;
     const first = m.turns[0];
@@ -7264,6 +8602,7 @@
     const laneOff = hex.map(() => null);
     spokenTurns.clear(); // neue Route: Ansagen neu
     laneSaid.clear(); laneWarned.clear(); // 车道推荐也重新来
+    arrivalStage = 0; // 新路线：到达播报重新开始
     lastFirstTurn = null;
     if (!curveData) return { curveOf, laneOff };
     const choice = hex.map(() => null); // Kreuzung: { inLane, outLane, nIn, nOut }
@@ -7354,35 +8693,47 @@
     if (!t) return;
     const v = num(telemetry?.speedKmh);
     const mps = v / 3.6; // 游戏内米 / 现实秒
-    const T_SPEECH = 3;  // 语音时长补偿（约 3 秒，语音在参考点恰好结束）
-    // 提前秒数（按速度近似道路等级：高速/主干路更长，城市更短）；执行层提前 1.5 秒
+    const T_SPEECH = 3;  // 语音时长补偿
+    // 提前秒数（高速/主干路更长，城市更短）；执行层提前 1.5 秒
     const adv = v > 65 ? [45, 14, 1.5] : v > 35 ? [30, 10, 1.5] : [18, 7, 1.5];
-    // D_ref = V × 提前秒数；D_trigger = D_ref + V × T_speech
     const refs = adv.map((s) => Math.round(mps * s));
     const trigs = refs.map((d) => d + Math.round(mps * T_SPEECH));
-    // 找到已触发的最深层级（0=L1 预告, 1=L2 准备, 2=L3 执行）
+    // 0=L1 预告, 1=L2 准备, 2=L3 执行
     let lv = -1;
     for (let i = 0; i < 3; i++) if (t.distance <= trigs[i]) lv = i;
     if (lv < 0) return;
-    // 环岛：L3（“现在驶出环岛”）只在环岛内、接近出口时触发（进环岛时 distance 是到入口的距离，不能报“驶出”）
+    // 环岛：L3（现在驶出环岛）只在环岛内、接近出口时触发
     if (lv === 2 && t.kind === 'roundabout' && !t.inside) return;
     const key = String(t.index);
-    if ((spokenTurns.get(key) ?? -1) >= lv) return; // 同一 (id, level) 全局只播一次
+    if ((spokenTurns.get(key) ?? -1) >= lv) return;
     spokenTurns.set(key, lv);
     const isNow = lv === 2;
-    // 锁定/解锁：预告/准备层锁定这个转弯；执行层（现在）报完就解锁，允许报下一个转弯
+    // 锁定/解锁：预告/准备层锁定这个转弯；执行层（现在）报完就解锁
     if (lv <= 1) turnLock = t.index;
     else turnLock = null;
-    // 两步联合播报：第二机动在 200 m 内才合并「然后 X 米后 …」；超过 200 m 不提前播
+    // 两步联合播报：第二机动在 200 m 内才合并「然后 X 米后 …」
     const thenGap = lv <= 1 && m.turns[1] ? m.turns[1].distance - t.distance : Infinity;
     const thenTurn = thenGap < 200 ? m.turns[1] : null;
-    const then = thenTurn ? ` Danach in ${meters(Math.max(10, Math.round(thenGap / 10) * 10))} ${turnSpoken(thenTurn)}.` : '';
-    // Ziel vom Wegweiser (nur wenn das Schild zur Route passt): „Ausfahrt rechts nehmen Richtung München“
-    const yard = yardTurn(m, t) ? ' auf das Firmengelände' : t.towards && t.kind !== 'roundabout' ? ` Richtung ${t.towards}` : '';
-    // 显示用【当前】距离（随时间递减），而不是参考距离——避免“距离越来越远”
+    let then = '';
+    if (thenTurn) {
+      // 岔路内第二机动的车道提示
+      let lane2Text = '';
+      const lh2 = m.laneHint2;
+      if (lh2 && lh2.key !== m.laneHint?.key && lh2.lanes >= 2) {
+        const goal2 = [...Array(lh2.lanes).keys()].filter((i) => (lh2.mask >> i) & 1);
+        if (goal2.length && goal2.length < lh2.lanes) {
+          const p = lanePhrase(lh2.lanes, goal2);
+          if (p) lane2Text = ' ' + p;
+        }
+      }
+      then = ` Danach in ${meters(Math.max(10, Math.round(thenGap / 10) * 10))} ${turnSpoken(thenTurn)}.${lane2Text}`;
+    }
+    // echte Entfernung, gerundet (unter 1 km auf 50 m, darüber auf 100 m; „2 km“ statt „2,0 km“)
     const step = t.distance >= 1000 ? 100 : 50;
     const near = Math.max(step, Math.round(t.distance / step) * step);
     const spokenDist = !imperial() && near >= 1000 && near % 1000 === 0 ? `${near / 1000} km` : meters(near);
+    // Ziel vom Wegweiser (nur wenn das Schild zur Route passt): „Ausfahrt rechts nehmen Richtung München“
+    const yard = yardTurn(m, t) ? ' auf das Firmengelände' : t.towards && t.kind !== 'roundabout' ? ` Richtung ${t.towards}` : '';
     const say = isNow
       ? (t.kind === 'roundabout' ? 'Jetzt aus dem Kreisverkehr ausfahren.' : `Jetzt ${turnSpoken(t)}${yard}.`)
       : `In ${spokenDist} ${turnSpoken(t)}${yard}.${then}`;
@@ -8488,6 +9839,1037 @@
     g.fillRect(side === 1 ? w - 4 : 0, 0, 4, h);
     drawMirror({ width: w, height: h, side: side | (side === 1 ? 16 : 0), split, data: g.getImageData(0, 0, w, h).data });
   }
+  // ------------------------------------------------------------------ App „Browser“ (Issue #9)
+  // Webseiten mit Tabs (höchstens 5), Favoriten und gespeicherter Anmeldung – Aufbau wie Safari in iOS 27 (kompakte Leiste
+  // unten als Glas-Kapsel, Tabs rechts, Seitenmenü links, Wischen über die Leiste wechselt den Tab). Die Seiten sind
+  // <webview> (main/browser-ipc.js: eigener Speicher persist:browser, nur https, keine Downloads) und laufen nur im
+  // Truck-Bildschirm – der Editor am PC zeigt einen Hinweis (sonst liefen Seiten und Ton doppelt).
+  // Alles liegt in einem festen Layer außerhalb der Bildschirme (#browser-layer, wie der Video-Player): ein Neuaufbau der
+  // Oberfläche (Einstellungen) lädt die Seiten nicht neu.
+  // Eingaben: Die Mausereignisse vom Plugin erreichen eingebettete Seiten im Offscreen-Fenster nicht (gemessen 22.11.) –
+  // eine Fangfläche über der Seite nimmt sie an und gibt sie weiter: Antippen = Klick, Ziehen = Scrollen (mit Nachlauf),
+  // Mausrad = Scrollen. Tippt man ein Eingabefeld der Seite an, erscheint die Bildschirmtastatur (02b).
+  const browserLayer = document.getElementById('browser-layer');
+  // im Truck-Bildschirm immer; im PC-Fenster nur mit „Auch im PC-Fenster (zum Testen)“ (sonst liefen Seiten und Ton doppelt)
+  const bwSupported = !!api && !!browserLayer && (role === 'game' || role === 'editor');
+  const canBrowse = () => bwSupported && (role === 'game' || !!settings.browser.editor);
+  // Hinweis im Platzhalter, wenn der Browser hier nicht läuft
+  const bwNoteHtml = () => `<div class="browser-note"><span class="browser-note-icon">${ICONS.truck}</span><b>${CarI18n.translate('Der Browser läuft im Truck-Display')}</b><small>${CarI18n.translate('Webseiten öffnen und bedienen geht auf dem Navi im Truck. Zum Testen am PC: Einstellungen › Apps › Browser › „Auch im PC-Fenster“.')}</small></div>`;
+  // Browser im PC-Fenster abgeschaltet: Seiten schließen (Ton aus), Layer verbergen
+  function bwTeardown() {
+    if (!bwBuilt) return;
+    bwLinkMenuHide();
+    for (const t of bwAll()) { t.view?.remove(); t.view = null; t.audible = false; }
+    bwShown = false;
+    browserLayer.classList.remove('on');
+    browserMedia = null;
+    api?.browserState?.(false);
+  }
+  const BW_MAX_TABS = 5;
+  const BW_PARTITION = 'persist:browser';
+  const BW_PRIVATE_PARTITION = 'browser-private'; // nur im Arbeitsspeicher (main/browser-ipc.js)
+  const BW_MOBILE_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
+  const BW_SEARCH = 'https://www.bing.com/search?q=';
+  let bwTabs = []; // { id, url, title, view, thumb, loading, audible, icon, priv } – Tabs der gezeigten Gruppe
+  let bwActive = -1;
+  // Privates Surfen wie bei Safari: zweite Tab-Gruppe; gezeigt wird immer eine, die andere wartet hier (Seiten laufen weiter)
+  let bwPrivate = false;
+  let bwOther = { tabs: [], active: -1 };
+  const bwAll = () => [...bwTabs, ...bwOther.tabs];
+  let bwMode = 'page'; // page | tabs
+  let bwMenuOpen = false;
+  let bwKbd = ''; // '' | 'page' (Eingabefeld der Seite) | 'address'
+  let bwAddress = ''; // Eingabe in der Adressleiste
+  let bwFull = false; // Vollbild einer Seite (Video)
+  let bwTabsMore = false; // „…“-Menü der Tab-Übersicht
+  let bwTabsMoreAt = 0; // geöffnet um – nur dann aufgehen lassen (Übersicht zeichnet jede Sekunde neu)
+  let bwMini = false; // Leiste beim Herunterscrollen klein (nur die Adresse)
+  let bwBuilt = false;
+  let bwShown = false;
+  let bwNextId = 1;
+  let browserMedia = null; // { title, artist, art, playing, pos, dur } – spielt eine Seite Ton? (Kombi, „Jetzt läuft“)
+
+  const bwHost = (url) => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return ''; } };
+  const bwTab = () => bwTabs[bwActive] || null;
+
+  function bwBuild() {
+    if (bwBuilt || !browserLayer) return;
+    bwBuilt = true;
+    browserLayer.innerHTML = `
+      <div class="bw-views"></div>
+      <div class="bw-start" data-bind="bw-start"></div>
+      <div class="bw-catch"></div>
+      <div class="bw-cover" hidden><span class="bw-cover-icon">${ICONS.truck || ''}</span><b>Beim Fahren nur Ton</b><small>Das Bild erscheint im Stand wieder.</small></div>
+      <div class="bw-tabs" hidden><img class="bw-tabs-bg" alt=""><div class="bw-tabs-in"></div></div>
+      <div class="bw-menu glass" hidden></div>
+      <div class="bw-bar">
+        <button class="glass bw-round" data-focus data-bw="back" aria-label="Zurück">${ICONS.back}</button>
+        <div class="glass bw-pill" data-bw-swipe>
+          <button class="bw-pill-btn" data-focus data-bw="menu" aria-label="Seitenmenü">${BW_ICON.page}</button>
+          <button class="bw-addr" data-focus data-bw="address"><span class="bw-lock">${BW_ICON.lock}</span><span class="bw-addr-text"></span><i class="bw-progress"></i></button>
+          <button class="bw-pill-btn" data-focus data-bw="reload" aria-label="Neu laden">${BW_ICON.reload}</button>
+        </div>
+        <button class="glass bw-round bw-tabs-btn" data-focus data-bw="tabs" aria-label="Tabs">${BW_ICON.tabs}<b class="bw-count"></b></button>
+      </div>
+      <div class="bw-popup glass" hidden><span class="bw-popup-text"></span><button data-focus data-bw="popup-open"></button><button class="bw-popup-x" data-focus data-bw="popup-close" aria-label="Schließen">${BW_ICON.close}</button></div>
+      <div class="bw-suggest glass" hidden></div>
+      <div class="bw-lm" data-bw="lm-close" hidden><div class="bw-lm-card glass" data-bw="lm-noop"></div></div>
+      <div class="bw-kbd" hidden></div>`;
+    browserLayer.addEventListener('click', bwClick);
+    // Tasten der Bildschirmtastatur und Vorschläge dürfen den Fokus nicht nehmen – sonst verliert das Eingabefeld der Seite
+    // den Fokus, meldet „weg“ und die Tastatur schließt sich nach dem ersten Tastendruck wieder
+    browserLayer.addEventListener('mousedown', (e) => { if (e.target?.closest?.('.bw-kbd, .bw-suggest')) e.preventDefault(); }, true);
+    // kaputtes Vorschaubild (leer/abgeschnitten) nicht als Symbol „Bild fehlt“ zeigen
+    browserLayer.addEventListener('error', (e) => { if (e.target?.tagName === 'IMG') e.target.classList.add('broken'); }, true);
+    bwInput(browserLayer.querySelector('.bw-catch'));
+    bwSwipeBar(browserLayer.querySelector('[data-bw-swipe]'));
+    bwBarHold(browserLayer.querySelector('.bw-bar'));
+    api?.onBrowserOpen?.(bwWindowOpen);
+    api?.onBrowserCmd?.((cmd) => bwMediaCommand(cmd));
+    // gespeicherte Tabs wiederherstellen – geladen wird erst, wenn man sie ansieht (spart Speicher beim Start)
+    for (const url of settings.browser.tabs) bwTabs.push({ id: bwNextId++, url, title: bwHost(url), view: null, thumb: '', loading: false, audible: false, icon: '' });
+    bwActive = bwTabs.length ? 0 : -1;
+    setInterval(bwTick, 1000);
+  }
+
+  // kleine Symbole der Leiste (wie SF Symbols)
+  const BW_ICON = {
+    page: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8 9h8M8 12.5h8M8 16h5"/></svg>',
+    lock: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 10V7.5a4 4 0 0 1 8 0V10h.5A1.5 1.5 0 0 1 18 11.5v7a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 18.5v-7A1.5 1.5 0 0 1 7.5 10zm2 0h4V7.5a2 2 0 0 0-4 0z"/></svg>',
+    reload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12a7 7 0 1 1-2.05-4.95"/><path d="M19 5v4h-4"/></svg>',
+    // Adresse leeren (wie Safari: ⓧ im grauen Kreis)
+    clear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="currentColor" opacity="0.45"/><path d="m9 9 6 6m0-6-6 6" stroke="#000" stroke-opacity="0.75" stroke-width="1.9" stroke-linecap="round"/></svg>',
+    stop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m7 7 10 10M17 7 7 17"/></svg>',
+    tabs: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3.5" y="7" width="13.5" height="13.5" rx="3.2"/><path d="M7.5 3.5h9a4 4 0 0 1 4 4v9"/></svg>',
+    star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="m12 3.6 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.6 9.7l5.8-.8z"/></svg>',
+    starOn: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 3.6 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.6 9.7l5.8-.8z"/></svg>',
+    fwd: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>',
+    phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 17.5h2"/></svg>',
+    desktop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="4.5" width="18" height="12" rx="2"/><path d="M9 20h6M12 16.5V20"/></svg>',
+    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m7 7 10 10M17 7 7 17"/></svg>',
+    // Link kopieren (wie „doc.on.doc“)
+    copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="8" width="12" height="13" rx="2.5"/><path d="M16 8V5.5A2.5 2.5 0 0 0 13.5 3h-7A2.5 2.5 0 0 0 4 5.5v8A2.5 2.5 0 0 0 6.5 16H8"/></svg>',
+    shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.2 5 6v5.4c0 4.4 2.9 8.2 7 9.4 4.1-1.2 7-5 7-9.4V6z"/><path d="m9 12 2.2 2.2L15.4 10" stroke-linecap="round"/></svg>',
+    chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9.5 6 6 6-6 6"/></svg>',
+    // privat (wie „hand.raised“: erhobene Hand)
+    hand: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 12.5V5.8a1.4 1.4 0 0 1 2.8 0v5.7M11.3 11V4.4a1.4 1.4 0 0 1 2.8 0V11M14.1 11V5.6a1.4 1.4 0 0 1 2.8 0v7.6c0 4.2-2.5 7.3-6.1 7.3-2.4 0-3.8-1.1-5-3.1l-2-3.6a1.4 1.4 0 0 1 2.4-1.4l1.3 1.9"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+    more: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="18.5" cy="12" r="1.9"/></svg>',
+    globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"/><ellipse cx="12" cy="12" rx="3.6" ry="8.5"/><path d="M3.5 12h17"/></svg>',
+  };
+
+  // ---- Anzeigen: Bildschirm „browser“ aktiv → Layer über den Platzhalter legen, sonst unsichtbar (Ton läuft weiter)
+  function syncBrowser(id) {
+    const slot = stage.querySelector('[data-screen="browser"] [data-browser-slot]');
+    if (slot) { const want = canBrowse() ? '' : bwNoteHtml(); if ((slot.innerHTML === '') !== (want === '')) slot.innerHTML = want; }
+    if (!canBrowse()) { bwTeardown(); return; }
+    bwBuild();
+    const show = id === 'browser' && poweredOn && !standby;
+    if (show !== bwShown) {
+      bwShown = show;
+      browserLayer.hidden = false; // nie aus dem Dokument nehmen: sonst lädt eine Seite neu
+      browserLayer.classList.toggle('on', show);
+      if (show) {
+        if (bwPrivate && !bwTabs.length) bwSwitchGroup(false);
+        if (bwActive < 0) bwNewTab();
+        bwShowTab(bwActive);
+      } else {
+        bwKbd = '';
+        bwMenuOpen = false;
+        bwTabsMore = false;
+        bwLinkMenuHide(); // Menüs schließen beim Verlassen (wie iOS) – sonst wären sie beim Zurückkommen noch offen
+        for (const t of bwAll()) if (t.view) t.view.classList.remove('active');
+      }
+    }
+    if (show) {
+      bwPlace();
+      bwRender();
+    }
+  }
+  function bwPlace() {
+    const slot = stage.querySelector('.screen.active [data-browser-slot]');
+    if (!slot) return;
+    if (bwFull) { browserLayer.style.cssText = 'left:0;top:0;width:100%;height:100%'; browserLayer.classList.add('full'); delete browserLayer.dataset.pos; return; }
+    browserLayer.classList.remove('full');
+    const r = slot.getBoundingClientRect();
+    const s = shell.getBoundingClientRect();
+    const css = `left:${Math.round(r.left - s.left)}px;top:${Math.round(r.top - s.top)}px;width:${Math.round(r.width)}px;height:${Math.round(r.height)}px`;
+    if (browserLayer.dataset.pos !== css) {
+      browserLayer.dataset.pos = css;
+      browserLayer.style.cssText = css;
+    }
+  }
+
+  // ---- Tabs
+  function bwNewTab(url = '') {
+    if (bwTabs.length >= BW_MAX_TABS) {
+      // voll: den ältesten Tab ohne Ton ersetzen (wie Safari „Tabs automatisch schließen“), sonst den aktuellen nehmen
+      const old = bwTabs.findIndex((t, i) => i !== bwActive && !t.audible);
+      bwCloseTab(old >= 0 ? old : bwActive, { keepEmpty: true });
+    }
+    bwTabs.push({ id: bwNextId++, url, title: url ? bwHost(url) : '', view: null, thumb: '', loading: false, audible: false, icon: '', priv: bwPrivate });
+    bwActive = bwTabs.length - 1;
+    bwShowTab(bwActive);
+    bwSaveTabs();
+  }
+  function bwCloseTab(i, { keepEmpty = false } = {}) {
+    const t = bwTabs[i];
+    if (!t) return;
+    t.view?.remove();
+    bwTabs.splice(i, 1);
+    if (bwActive >= bwTabs.length) bwActive = bwTabs.length - 1;
+    else if (i < bwActive) bwActive--;
+    if (!bwTabs.length && !keepEmpty) bwActive = -1;
+    if (t.priv && !bwAll().some((x) => x.priv)) api?.browserClearPrivate?.(); // privates Surfen zu Ende: alles vergessen
+    bwSaveTabs();
+  }
+  // Gruppe wechseln (normal ↔ privat): Seiten der anderen Gruppe ausblenden, nicht schließen
+  function bwSwitchGroup(priv) {
+    if (priv === bwPrivate) return;
+    bwLinkMenuHide();
+    if (bwTab()) bwThumb(bwTab());
+    for (const t of bwTabs) t.view?.classList.remove('active');
+    const cur = { tabs: bwTabs, active: bwActive };
+    bwTabs = bwOther.tabs;
+    bwActive = bwOther.active;
+    bwOther = cur;
+    bwPrivate = priv;
+    bwKbd = '';
+    bwMenuOpen = false;
+    bwMini = false;
+  }
+  function bwShowTab(i) {
+    bwLinkMenuHide(); // Menü gehört zum bisherigen Tab (Verlauf, Link) – nicht auf einen anderen Tab anwenden
+    if (i !== bwActive && bwTab()) bwThumb(bwTab()); // Vorschaubild der Seite, die man gerade verlässt (noch sichtbar)
+    bwActive = i;
+    const t = bwTab();
+    for (const x of bwTabs) if (x.view) x.view.classList.toggle('active', x === t && bwShown);
+    if (t && t.url && !t.view) bwMakeView(t);
+    bwKbd = '';
+    bwMini = false;
+    bwRender();
+  }
+  function bwSaveTabs() {
+    if (role !== 'game') return; // PC-Fenster (Test) speichert keine Tabs – sonst überschreibt es die Tabs im Truck
+    const urls = (bwPrivate ? bwOther.tabs : bwTabs).map((t) => t.url).filter((u) => /^https:/.test(u)); // private Tabs nie
+    if (JSON.stringify(urls) === JSON.stringify(settings.browser.tabs)) return;
+    quietSetting((s) => (s.browser.tabs = urls));
+  }
+
+  // ---- Seite (webview) anlegen und Ereignisse verfolgen
+  function bwMakeView(t) {
+    const v = document.createElement('webview');
+    v.setAttribute('partition', t.priv ? BW_PRIVATE_PARTITION : BW_PARTITION);
+    if (settings.browser.mobileSites.includes(bwHost(t.url))) v.setAttribute('useragent', BW_MOBILE_UA);
+    v.setAttribute('allowpopups', ''); // sonst verwirft Electron jedes neue Fenster – auch Links „in neuem Tab“ (08c entscheidet)
+    v.setAttribute('src', t.url);
+    v.className = 'bw-view';
+    t.view = v;
+    const tab = t;
+    v.addEventListener('dom-ready', () => {
+      bwApplyZoom(tab);
+      // ohne dauerhaften Scrollbalken wie bei Apple (ein heller Streifen am rechten Rand) – Scrollen geht per Wischen
+      v.insertCSS('::-webkit-scrollbar { width: 0 !important; height: 0 !important; background: transparent !important; }').catch(() => {});
+      // Eingabefelder der Seite melden (Bildschirmtastatur) – über die Konsole, die Seite hat keinen Zugriff auf die App
+      v.executeJavaScript(`(() => { if (window.__cabplayKbd) return; window.__cabplayKbd = 1;
+        const text = (el) => el && (el.isContentEditable || el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !/^(button|checkbox|radio|submit|reset|file|image|range|color|hidden)$/i.test(el.type)));
+        // Satzanfang für die Auto-Großschreibung: nicht bei autocapitalize=off/none, nur Text-Eingaben/Textfelder/editierbar
+        const capAt = (el) => { try {
+          if (/^(off|none)$/i.test(el.getAttribute('autocapitalize') || '')) return 0;
+          if (el.tagName === 'INPUT' && !/^(text)?$/i.test(el.getAttribute('type') || '')) return 0;
+          const before = typeof el.value === 'string' && typeof el.selectionStart === 'number' ? el.value.slice(0, el.selectionStart) : (el.textContent || '');
+          return /^\\s*$|[.!?]\\s+$/.test(before) ? 1 : 0;
+        } catch (x) { return 0; } };
+        let off = 0;
+        document.addEventListener('focusin', (e) => { if (text(e.target)) { clearTimeout(off); window.__cabplayField = e.target; console.log('__cabplay:kbd:1:' + (e.target.type || 'text').toLowerCase() + ':' + capAt(e.target)); } }, true);
+        // „weg“ erst, wenn der Fokus innerhalb der Seite woanders hingeht – nicht, wenn nur die Seite den Fokus verliert
+        // (Tippen auf die Bildschirmtastatur der App nimmt ihn ihr kurz weg)
+        document.addEventListener('focusout', (e) => { if (!text(e.target)) return; clearTimeout(off); off = setTimeout(() => { if (document.hasFocus() && !text(document.activeElement)) { window.__cabplayField = null; console.log('__cabplay:kbd:0'); } }, 250); }, true);
+      })()`).catch(() => {});
+    });
+    v.addEventListener('console-message', (e) => {
+      const msg = String(e.message || '');
+      if (!msg.startsWith('__cabplay:kbd:') || tab !== bwTab()) return;
+      // „weg“ direkt nach einem Tastendruck auf der Bildschirmtastatur: nur kurz weggesprungen – Fokus zurück, Tastatur bleibt
+      if (msg.endsWith(':0') && bwKbd === 'page' && performance.now() - bwOskAt < 500) { try { v.focus(); } catch { /* egal */ } return; }
+      const on = msg.startsWith('__cabplay:kbd:1');
+      if (on) { oskWordReset(); oskShift = settings.kbdAutoCap !== false && msg.split(':')[4] === '1' && !oskCaps; bwPageKind = msg.split(':')[3] || 'text'; oskPage = /^(number|tel)$/.test(bwPageKind) ? '123' : 'abc'; } // Zahlenfeld: Ziffern zuerst (wie iOS)
+      bwKbd = on ? 'page' : bwKbd === 'page' ? '' : bwKbd;
+      // Fokus auch im App-Fenster aufs Browser-Element – sonst geht er beim ersten Tastendruck verloren
+      if (bwKbd === 'page' && document.activeElement !== v) { try { v.focus(); } catch { /* egal */ } }
+      bwRender();
+      // Seite wird über der Tastatur kleiner (CSS .kbd) – das Feld danach in die Mitte des sichtbaren Teils holen
+      if (bwKbd === 'page') setTimeout(() => v.executeJavaScript("document.activeElement && document.activeElement.scrollIntoView({ block: 'center', inline: 'nearest' })").catch(() => {}), 120);
+    });
+    v.addEventListener('did-start-loading', () => { tab.loading = true; bwRender(); });
+    v.addEventListener('did-stop-loading', () => { tab.loading = false; bwRender(); bwThumb(tab); });
+    const nav = (e) => {
+      if (!e.url || e.url === 'about:blank') return;
+      const hostBefore = bwHost(tab.url);
+      tab.url = e.url;
+      if (tab === bwTab()) bwLinkMenuHide(); // Seite ist weitergegangen: Verlauf-/Link-Menü passt nicht mehr
+      // andere Seite: Zoom der Seite, altes Seitensymbol vergessen (sonst trägt „Zuletzt besucht“ das Symbol der vorigen Seite)
+      if (bwHost(e.url) !== hostBefore) { bwApplyZoom(tab); tab.icon = ''; tab.iconData = ''; }
+      bwSaveTabs();
+      bwRender();
+    };
+    v.addEventListener('did-navigate', nav);
+    v.addEventListener('did-navigate-in-page', (e) => { if (e.isMainFrame) nav(e); });
+    v.addEventListener('page-title-updated', (e) => {
+      tab.title = String(e.title || '').slice(0, 80);
+      bwRemember(tab);
+      bwRender();
+    });
+    // Seitensymbol: der Hauptprozess holt es klein als data:-Bild (die App lädt keine fremden Bilder) – für Favoriten, zuletzt
+    // besuchte Seiten und die Tab-Übersicht
+    v.addEventListener('page-favicon-updated', (e) => {
+      const url = (e.favicons || []).find((u) => /^https:/.test(u)) || '';
+      if (!url || url === tab.icon || tab.priv) return;
+      tab.icon = url;
+      api?.browserIcon?.(url).then((data) => {
+        if (!data) return;
+        tab.iconData = data;
+        bwRemember(tab);
+        const host = bwHost(tab.url);
+        if (settings.browser.favorites.some((p) => bwHost(p.url) === host && !p.icon)) {
+          quietSetting((s) => (s.browser.favorites = s.browser.favorites.map((p) => (bwHost(p.url) === host && !p.icon ? { ...p, icon: data } : p))));
+        }
+        bwRender();
+      }).catch(() => {});
+    });
+    v.addEventListener('media-started-playing', () => { tab.audible = true; bwMediaState(); });
+    v.addEventListener('media-paused', () => { tab.audible = false; bwMediaState(); });
+    v.addEventListener('enter-html-full-screen', () => { bwFull = true; bwPlace(); bwRender(); });
+    v.addEventListener('leave-html-full-screen', () => { bwFull = false; bwPlace(); bwRender(); });
+    v.addEventListener('did-fail-load', (e) => { if (e.isMainFrame && e.errorCode !== -3) { tab.loading = false; bwRender(); } });
+    browserLayer.querySelector('.bw-views').appendChild(v);
+    v.classList.toggle('active', tab === bwTab() && bwShown);
+  }
+  const bwZoomOf = (t) => settings.browser.siteZoom[bwHost(t.url)] || settings.browser.zoom;
+  function bwApplyZoom(t) {
+    try { t.view?.setZoomFactor(bwZoomOf(t) / 100); } catch { /* lädt gerade */ }
+  }
+  // zuletzt besuchte Seiten (Startseite) – Titel erst, wenn die Seite ihn kennt
+  function bwRemember(t) {
+    if (t.priv || !/^https:/.test(t.url) || !t.title) return; // privat: kein Verlauf
+    const list = [{ url: t.url, title: t.title, ...(t.iconData ? { icon: t.iconData } : {}) }, ...settings.browser.recent.filter((p) => bwHost(p.url) !== bwHost(t.url))].slice(0, 8);
+    if (JSON.stringify(list) !== JSON.stringify(settings.browser.recent)) quietSetting((s) => (s.browser.recent = list));
+  }
+  // Vorschaubild für die Tab-Übersicht (klein, JPEG)
+  function bwThumb(t) {
+    if (!t.view || t.view !== bwTab()?.view) return;
+    if (!bwShown || !t.view.classList.contains('active')) return; // nur die sichtbare Seite (versteckt: leeres Bild)
+    t.view.capturePage().then((img) => {
+      if (!img || img.isEmpty() || img.getSize().width < 20) return; // leer: altes Vorschaubild behalten
+      const data = img.resize({ width: 400 }).toDataURL();
+      if (!/^data:image\/png;base64,.{300}/.test(data)) return; // abgeschnitten/leer
+      t.thumb = data;
+      if (bwMode === 'tabs') bwRender();
+    }).catch(() => {});
+  }
+
+  // Adresse oder Suche öffnen
+  function bwOpen(text, { newTab = false } = {}) {
+    const raw = String(text || '').trim();
+    if (!raw) return;
+    let url;
+    if (/^https?:\/\//i.test(raw)) url = raw.replace(/^http:/i, 'https:');
+    else if (/^[^\s]+\.[a-z]{2,}([/:?#].*)?$/i.test(raw)) url = `https://${raw}`;
+    else url = BW_SEARCH + encodeURIComponent(raw);
+    if (newTab || bwActive < 0) return bwNewTab(url);
+    const t = bwTab();
+    t.url = url;
+    t.title = bwHost(url);
+    if (t.view) {
+      t.view.loadURL(url).catch(() => {});
+    } else bwMakeView(t);
+    bwKbd = '';
+    bwMode = 'page';
+    bwSaveTabs();
+    bwRender();
+  }
+
+  // ---- Neue Fenster der Seite und Pop-up-Blocker (wie Safari): nach einem Tippen (bis 1,5 s) wird ein neues Fenster ein Tab,
+  // ohne Zutun ist es ein Pop-up – blockiert, unten kurz „Pop-up blockiert“ mit „Öffnen“. Pop-ups zu Werbeservern still weg.
+  // Ein Tippen erlaubt höchstens einen neuen Tab (Werbeseiten öffnen gern mehrere auf einmal)
+  let bwGesture = 0;
+  let bwPopupUrl = '';
+  let bwPopupTimer = 0;
+  function bwWindowOpen(d) {
+    const url = typeof d === 'string' ? d : d?.url;
+    if (!url) return;
+    const block = settings.browser.popups !== false;
+    const fromTap = performance.now() - bwGesture < 1500;
+    if (block && d?.ad) return;
+    if (block && !fromTap) return bwPopupShow(url);
+    bwGesture = 0;
+    bwOpen(url, { newTab: true });
+  }
+  function bwPopupShow(url) {
+    if (!bwShown) return;
+    bwPopupUrl = url;
+    const box = browserLayer.querySelector('.bw-popup');
+    let host = '';
+    try { host = new URL(url).hostname.replace(/^www\./, ''); } catch { /* egal */ }
+    box.querySelector('.bw-popup-text').textContent = `${CarI18n.translate('Pop-up blockiert')}${host ? ` · ${host}` : ''}`;
+    box.querySelector('[data-bw="popup-open"]').textContent = CarI18n.translate('Öffnen');
+    box.hidden = false;
+    clearTimeout(bwPopupTimer);
+    bwPopupTimer = setTimeout(bwPopupHide, 6000);
+  }
+  function bwPopupHide() {
+    clearTimeout(bwPopupTimer);
+    bwPopupUrl = '';
+    const box = browserLayer?.querySelector('.bw-popup');
+    if (box) box.hidden = true;
+  }
+
+  // ---- Leiste, Menü, Tab-Übersicht, Startseite
+  function bwRender() {
+    if (!bwBuilt || !bwShown) return;
+    const t = bwTab();
+    const empty = !t || !t.url;
+    const q = (sel) => browserLayer.querySelector(sel);
+    browserLayer.classList.toggle('empty', empty);
+    browserLayer.classList.toggle('private', bwPrivate);
+    browserLayer.classList.toggle('kbd', !!bwKbd);
+    const mini = bwMini && !bwKbd && !bwMenuOpen && bwMode === 'page' && !empty;
+    browserLayer.classList.toggle('mini', mini);
+    // Adresse: beim Tippen die Eingabe (gerade angetippt: die ganze Adresse markiert), sonst der Name der Seite
+    // (wie Safari: nur die Domain) bzw. mit „Vollständige Adresse anzeigen“ die Adresse ohne https://
+    const addr = q('.bw-addr-text');
+    const typing = bwKbd === 'address';
+    if (bwAddrSel && (!typing || !bwAddress)) bwAddrSel = false;
+    const text = typing ? (bwAddrSel ? bwAddress : `\u200E${bwAddress}|\u200E`) : empty ? CarI18n.translate('Suchen oder Adresse eingeben') : settings.browser.fullUrl && !mini ? bwShortUrl(t.url) : bwHost(t.url); // kleine Kapsel: immer nur die Domain (wie Safari)
+    if (addr.textContent !== text) addr.textContent = text;
+    addr.classList.toggle('sel', typing && bwAddrSel);
+    addr.classList.toggle('tail', typing && !bwAddrSel);
+    q('.bw-addr').classList.toggle('typing', bwKbd === 'address');
+    q('.bw-addr').classList.toggle('placeholder', empty && bwKbd !== 'address');
+    q('.bw-lock').hidden = empty || bwKbd === 'address';
+    q('.bw-progress').classList.toggle('on', !!t?.loading);
+    // rechts: beim Tippen ⓧ (Adresse leeren, wie Safari), sonst Neu laden bzw. Stopp
+    const reload = q('[data-bw="reload"]');
+    const ri = typing ? 'clear' : t?.loading ? 'stop' : 'reload';
+    if (reload.dataset.icon !== ri) {
+      reload.dataset.icon = ri;
+      reload.innerHTML = BW_ICON[ri];
+      reload.setAttribute('aria-label', CarI18n.translate(ri === 'clear' ? 'Adresse löschen' : 'Neu laden'));
+    }
+    reload.classList.toggle('bw-clear', typing);
+    reload.classList.toggle('off', typing && !bwAddress);
+    q('[data-bw="back"]').disabled = !(t?.view && bwCanGoBack(t));
+    q('.bw-count').textContent = String(Math.max(1, bwTabs.length));
+    // Startseite (leerer Tab): Favoriten und zuletzt besucht
+    const start = q('.bw-start');
+    start.hidden = !empty || bwMode === 'tabs';
+    if (!start.hidden) {
+      // Kachel wie in Safari: Seitensymbol auf weißem Feld, ohne Symbol der Anfangsbuchstabe auf Farbe (je Seite gleich)
+      const tile = (p, i, kind) => {
+        const name = p.title || bwHost(p.url);
+        const hue = [...bwHost(p.url)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
+        const icon = p.icon ? `<span class="bw-fav-icon img"><img src="${escape(p.icon)}" alt=""></span>`
+          : `<span class="bw-fav-icon" style="--h:${hue}">${escape(name.trim().slice(0, 1).toUpperCase())}</span>`;
+        return `<button class="bw-fav" data-focus data-bw="open-${kind}" data-i="${i}">${icon}<small>${escape(name)}</small></button>`;
+      };
+      const favs = settings.browser.favorites;
+      const recent = settings.browser.recent;
+      // wie Safari: Abschnitte mit Überschrift und „›“, Favoriten-Kacheln, darunter Datenschutzbericht und Zuletzt besucht
+      const head = (title) => `<h2>${CarI18n.translate(title)}<span class="bw-h-chev">${BW_ICON.chevron}</span></h2>`;
+      const privacy = settings.browser.adblock !== false
+        ? `<section class="bw-sec"><div class="bw-privacy"><span class="bw-privacy-icon">${BW_ICON.shield}</span><div><b>${CarI18n.translate('Datenschutzbericht')}</b><small>${CarI18n.translate('Werbe- und Tracker-Anfragen blockiert')}</small></div><strong data-bw-blocked>${bwBlocked}</strong></div></section>`
+        : '';
+      const html = (bwPrivate ? bwPrivateInfo() : '')
+        + `<section class="bw-sec">${head('Favoriten')}`
+        + (favs.length ? `<div class="bw-grid">${favs.map((p, i) => tile(p, i, 'fav')).join('')}</div>` : `<p class="bw-hint">${CarI18n.translate('Öffne eine Seite und tippe im Seitenmenü auf den Stern – sie erscheint dann hier.')}</p>`)
+        + '</section>' + privacy
+        + (recent.length && !bwPrivate ? `<section class="bw-sec">${head('Zuletzt besucht')}<div class="bw-grid">${recent.map((p, i) => tile(p, i, 'recent')).join('')}</div></section>` : '');
+      bwStatsSoon();
+      if (start.dataset.html !== html) { start.dataset.html = html; start.innerHTML = html; }
+    }
+    // Tab-Übersicht: Karten mit Vorschaubild wie in Safari, × schließt, + öffnet einen neuen Tab
+    const tabs = q('.bw-tabs');
+    tabs.hidden = bwMode !== 'tabs';
+    tabs.classList.toggle('private', bwPrivate);
+    if (!tabs.hidden) {
+      // wie Safari in iOS 27: große Karten im Raster, × oben rechts auf der Karte, darunter Symbol und Titel; unten eine
+      // Glas-Leiste mit +, Umschalter „Privat | 3 Tabs“ und Fertig; dahinter die aktuelle Seite stark verschwommen
+      const bg = q('.bw-tabs-bg');
+      const shot = (t && t.thumb) || bwTabs.find((x) => x.thumb)?.thumb || '';
+      if (bg.dataset.src !== shot) {
+        bg.dataset.src = shot;
+        bg.classList.remove('broken');
+        if (shot) bg.src = shot; else bg.removeAttribute('src');
+      }
+      const normalCount = (bwPrivate ? bwOther.tabs : bwTabs).length;
+      const count = normalCount === 1 ? CarI18n.translate('1 Tab') : `${normalCount} ${CarI18n.translate('Tabs')}`;
+      const cards = bwTabs.map((x, i) => `<div class="bw-card${i === bwActive ? ' current' : ''}">
+          <button class="bw-card-shot" data-focus data-bw="tab" data-i="${i}">${x.thumb ? `<img src="${x.thumb}" alt="">` : `<span class="bw-card-empty">${x.iconData ? `<img src="${escape(x.iconData)}" alt="">` : x.url ? BW_ICON.globe : BW_ICON.star}</span>`}</button>
+          <button class="bw-card-close glass" data-focus data-bw="close" data-i="${i}" aria-label="Schließen">${BW_ICON.close}</button>
+          <div class="bw-card-title">${x.iconData ? `<img class="bw-card-icon" src="${escape(x.iconData)}" alt="">` : ''}<span>${escape(x.title || bwHost(x.url) || CarI18n.translate('Startseite'))}</span></div>
+        </div>`).join('');
+      const grid = bwPrivate && !bwTabs.length ? bwPrivateInfo() : `<div class="bw-tab-grid">${cards}</div>`;
+      // oben rechts „…“ wie Safari in iOS 27: Alle Tabs schließen
+      const top = `<div class="bw-tabs-top"><button class="glass bw-round bw-more" data-focus data-bw="tabs-more" aria-label="Mehr"${bwTabs.length ? '' : ' disabled'}>${BW_ICON.more}</button>${bwTabsMore && bwTabs.length ? `<div class="glass bw-tabs-menu${performance.now() - bwTabsMoreAt < 400 ? ' pop' : ''}"><button class="bw-menu-row danger" data-focus data-bw="close-all">${BW_ICON.close}<span>${CarI18n.translate('Alle Tabs schließen')}</span></button></div>` : ''}</div>`;
+      const html = `${top}${grid}
+        <div class="bw-tabs-bar"><button class="glass bw-round" data-focus data-bw="new" aria-label="Neuer Tab"${bwTabs.length >= BW_MAX_TABS ? ' disabled' : ''}>${BW_ICON.plus}</button>
+          <div class="glass bw-seg"><button class="${bwPrivate ? 'on' : ''}" data-focus data-bw="group" data-g="private">${BW_ICON.hand}<span>${CarI18n.translate('Privat')}</span></button><button class="${bwPrivate ? '' : 'on'}" data-focus data-bw="group" data-g="normal">${count}</button></div>
+          <button class="bw-round bw-done" data-focus data-bw="done" aria-label="Fertig">${BW_ICON.check}</button></div>`;
+      const inner = q('.bw-tabs-in');
+      if (inner.dataset.html !== html) { inner.dataset.html = html; inner.innerHTML = html; }
+    }
+    // Seitenmenü: Zoom, Favorit, Handy-/PC-Ansicht, Vor
+    const menu = q('.bw-menu');
+    menu.hidden = !bwMenuOpen || empty;
+    if (!menu.hidden) {
+      const host = bwHost(t.url);
+      const fav = settings.browser.favorites.some((p) => bwHost(p.url) === host);
+      const mobile = settings.browser.mobileSites.includes(host);
+      const html = `<div class="bw-menu-head"><b>${escape(t.title || host)}</b><small>${escape(host)}</small></div>
+        <div class="bw-zoom"><button data-focus data-bw="zoom-out" aria-label="Kleiner">A</button><span>${bwZoomOf(t)} %</span><button data-focus data-bw="zoom-in" aria-label="Größer">A</button></div>
+        <button class="bw-menu-row" data-focus data-bw="fav">${fav ? BW_ICON.starOn : BW_ICON.star}<span>${CarI18n.translate(fav ? 'Aus Favoriten entfernen' : 'Zu Favoriten hinzufügen')}</span></button>
+        <button class="bw-menu-row" data-focus data-bw="ua">${mobile ? BW_ICON.desktop : BW_ICON.phone}<span>${CarI18n.translate(mobile ? 'Desktop-Website anfordern' : 'Mobile Website anfordern')}</span></button>
+        <button class="bw-menu-row" data-focus data-bw="forward"${t.view && bwCanGoForward(t) ? '' : ' disabled'}>${BW_ICON.fwd}<span>${CarI18n.translate('Vor')}</span></button>`;
+      if (menu.dataset.html !== html) { menu.dataset.html = html; menu.innerHTML = html; }
+    }
+    // Bildschirmtastatur: Adresse oder Eingabefeld der Seite
+    const kbd = q('.bw-kbd');
+    kbd.hidden = !bwKbd;
+    if (bwKbd) {
+      oskTarget = bwKbd === 'address' ? { onKey: bwAddressKey, enter: 'Öffnen', kind: 'url', onHide: bwHideKbd } : { onKey: bwPageKey, enter: bwPageKind === 'search' ? 'Suchen' : 'Fertig', kind: bwPageKind === 'email' ? 'email' : bwPageKind === 'url' ? 'url' : 'text', onHide: bwHideKbd, words: !/^(password|email|url|number|tel)$/.test(bwPageKind), learn: !bwPrivate, replaceWord: bwPageReplace };
+      const html = oskHtml();
+      if (kbd.dataset.html !== html) { kbd.dataset.html = html; kbd.innerHTML = html; oskQtUpdate(); }
+    }
+    browserLayer.classList.toggle('qt', !!bwKbd && qtOn()); // Tastatur mit Vorschlagsleiste ist höher
+    // Vorschläge beim Tippen der Adresse (wie Safari): passende Favoriten und zuletzt besuchte Seiten
+    const sug = q('.bw-suggest');
+    const list = bwKbd === 'address' && !bwAddrSel ? bwSuggestions(bwAddress) : []; // markierte Adresse: erst beim Tippen Vorschläge
+    sug.hidden = !list.length;
+    const shtml = list.map((p) => `<button class="bw-menu-row" data-focus data-bw="suggest" data-url="${escape(p.url)}">${p.icon ? `<img src="${escape(p.icon)}" alt="">` : `<span class="bw-sug-ic">${BW_ICON.globe}</span>`}<b>${escape(p.title || bwHost(p.url))}</b><small>${escape(bwHost(p.url))}</small></button>`).join('');
+    if (sug.dataset.html !== shtml) { sug.dataset.html = shtml; sug.innerHTML = shtml; }
+    // Beim Fahren nur Ton (Einstellung „Bild beim Fahren zeigen“ aus)
+    q('.bw-cover').hidden = settings.browser.driving || !(Number(telemetry?.speedKmh) > 8) || empty;
+  }
+  // Datenschutzbericht: Zahl blockierter Anfragen (Hauptprozess), höchstens alle 5 s neu
+  let bwBlocked = 0;
+  let bwStatsAt = 0;
+  function bwStatsSoon() {
+    if (performance.now() - bwStatsAt < 5000 || !api?.browserStats) return;
+    bwStatsAt = performance.now();
+    api.browserStats().then((st) => {
+      const n = Number(st?.blocked) || 0;
+      if (n === bwBlocked) return;
+      bwBlocked = n;
+      const el = browserLayer.querySelector('[data-bw-blocked]');
+      if (el) el.textContent = String(n);
+    }).catch(() => {});
+  }
+  // Hinweis im privaten Modus (Startseite und leere private Tab-Übersicht)
+  const bwPrivateInfo = () => `<div class="bw-private-info"><span class="bw-private-icon">${BW_ICON.hand}</span><b>${CarI18n.translate('Privates Surfen')}</b><p>${CarI18n.translate('Besuchte Seiten, Suchen und Anmeldungen werden nicht gespeichert. Alles wird gelöscht, sobald du die privaten Tabs schließt.')}</p></div>`;
+  const bwCanGoBack = (t) => { try { return t.view.canGoBack(); } catch { return false; } };
+  const bwCanGoForward = (t) => { try { return t.view.canGoForward(); } catch { return false; } };
+
+  // bis zu 4 Seiten aus Favoriten/zuletzt besucht, deren Name oder Adresse den getippten Text enthält
+  function bwSuggestions(text) {
+    const t = String(text || '').trim().toLowerCase();
+    if (!t) return [];
+    const seen = new Set();
+    return [...settings.browser.favorites, ...settings.browser.recent].filter((p) => {
+      const h = bwHost(p.url);
+      if (seen.has(h)) return false;
+      const hit = h.toLowerCase().includes(t) || String(p.title || '').toLowerCase().includes(t);
+      if (hit) seen.add(h);
+      return hit;
+    }).slice(0, 4);
+  }
+  // Tastatur ausblenden: Adresse verwerfen bzw. das Feld der Seite verlassen (sonst käme sie beim nächsten Antippen nicht wieder)
+  function bwHideKbd() {
+    const t = bwTab();
+    if (bwKbd === 'page' && t?.view) t.view.executeJavaScript('(() => { const f = window.__cabplayField; window.__cabplayField = null; if (f && f.blur) f.blur(); })()', true).catch(() => {});
+    bwKbd = '';
+    bwAddress = '';
+    bwRender();
+  }
+  // Adresse für die Leiste ohne https:// und ohne Schrägstrich am Ende (Einstellung „Vollständige Adresse anzeigen“)
+  function bwShortUrl(url) {
+    return String(url || '').replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/$/, '');
+  }
+  function bwAddressKey(k) {
+    // markierte Adresse (gerade angetippt): erstes Zeichen ersetzt sie, Löschen leert sie, Öffnen lädt sie neu
+    if (bwAddrSel && k !== 'enter') { bwAddrSel = false; bwAddress = k === 'del' ? '' : k; return bwRender(); }
+    bwAddrSel = false;
+    if (k === 'del') bwAddress = bwAddress.slice(0, -1);
+    else if (k === 'enter') { const a = bwAddress; bwAddress = ''; bwKbd = ''; if (a.trim()) return bwOpen(a); }
+    else if (bwAddress.length < 300) bwAddress += k;
+    bwRender();
+  }
+  // Zeichen an das Eingabefeld der Seite (wie echte Tasten)
+  let bwAddrSel = false; // Adresse gerade angetippt: ganz markiert (wie Safari), das erste Zeichen ersetzt sie
+  let bwPageKind = 'text'; // Art des Eingabefelds der Seite (email, url, search, number, text)
+  let bwOskAt = 0; // letzter Tastendruck auf der Bildschirmtastatur (Fokus-Wegsprung abfangen)
+  // Wort vor dem Cursor im Feld der Seite ersetzen (Vorschlag/Autokorrektur) – nur, wenn dort wirklich „from“ steht und nichts
+  // markiert ist; sonst bleibt der Text unverändert (Cursor versetzt, Seite hat umgeschrieben, Höchstlänge …)
+  function bwPageReplace(from, to) {
+    const v = bwTab()?.view;
+    if (!v) return;
+    bwOskAt = performance.now();
+    v.executeJavaScript(`(() => { const f = window.__cabplayField; if (!f || !f.isConnected) return false; f.focus();
+      const o = ${JSON.stringify(from)}, n = ${JSON.stringify(to)};
+      if (typeof f.value === 'string' && typeof f.selectionEnd === 'number') {
+        const e = f.selectionEnd;
+        if (f.selectionStart !== e || f.value.slice(Math.max(0, e - o.length), e) !== o) return false;
+        f.setSelectionRange(e - o.length, e);
+      } else {
+        const s = getSelection();
+        if (!s || !s.rangeCount || !s.isCollapsed) return false;
+        for (let i = 0; i < o.length; i++) s.modify('extend', 'backward', 'character');
+        if (s.toString() !== o) { s.collapseToEnd(); return false; }
+      }
+      document.execCommand('insertText', false, n);
+      return true; })()`, true).catch(() => false);
+  }
+  function bwPageKey(k) {
+    const v = bwTab()?.view;
+    if (!v) return;
+    bwOskAt = performance.now();
+    // ins zuletzt angetippte Feld der Seite schreiben – auch wenn die Seite gerade keinen Fokus hat (die Tasten der App nehmen
+    // ihn ihr kurz weg); execCommand löst dieselben input-Ereignisse aus wie echtes Tippen
+    const write = (cmd, arg) => v.executeJavaScript(`(() => { const f = window.__cabplayField; if (!f || !f.isConnected) return false; f.focus(); document.execCommand(${JSON.stringify(cmd)}, false, ${JSON.stringify(arg)}); return true; })()`, true).catch(() => false);
+    if (k === 'del') write('delete', null);
+    else if (k === 'enter') {
+      bwGesture = performance.now();
+      v.executeJavaScript('(() => { const f = window.__cabplayField; if (f && f.isConnected) f.focus(); })()', true).catch(() => {}).then(() => {
+        v.sendInputEvent({ type: 'keyDown', keyCode: 'Return' });
+        v.sendInputEvent({ type: 'char', keyCode: '\r' });
+        v.sendInputEvent({ type: 'keyUp', keyCode: 'Return' });
+      });
+      bwKbd = '';
+      bwRender();
+    } else write('insertText', k);
+  }
+
+  function bwClick(e) {
+    const el = e.target.closest('[data-bw], [data-osk]');
+    if (!el) return;
+    if (performance.now() - bwSwipedAt < 400 && el.closest('[data-bw-swipe]')) return; // war ein Wischen über die Leiste
+    if (el.dataset.osk !== undefined) {
+      // Bildschirmtastatur im Layer: selbst behandeln (die allgemeine Tastatur zeichnet nur innerhalb der Bildschirme neu)
+      e.stopPropagation();
+      oskKey(el.dataset.osk);
+      return bwRender(); // zeichnet die Tastatur nur neu, wenn sie sich ändert (sonst ginge das Drück-Feedback verloren)
+    }
+    const a = el.dataset.bw;
+    const t = bwTab();
+    const i = Number(el.dataset.i);
+    if (a !== 'menu') bwMenuOpen = false;
+    if (a !== 'tabs-more') bwTabsMore = false;
+    if (a?.startsWith('pm-')) { const r = bwPmRows[Number(a.slice(3))]; if (r?.disabled) return; bwLinkMenuHide(); bwPmRows = []; r?.act(); return bwRender(); }
+    if (a?.startsWith('lm-')) return bwLinkMenuAction(a);
+    bwLinkMenuHide();
+    if (a === 'back') { if (t?.view && bwCanGoBack(t)) t.view.goBack(); else if (t?.url) { t.url = ''; t.view?.remove(); t.view = null; bwSaveTabs(); } }
+    else if (a === 'forward') { if (t?.view && bwCanGoForward(t)) t.view.goForward(); }
+    else if (a === 'reload' && bwKbd === 'address') { bwAddress = ''; bwAddrSel = false; } // ⓧ: Adresse leeren, Tastatur bleibt
+    else if (a === 'reload') { if (!t?.view) return; if (t.loading) t.view.stop(); else t.view.reload(); }
+    else if (a === 'menu') bwMenuOpen = !bwMenuOpen;
+    else if (a === 'address' && bwMini) bwMini = false; // kleine Kapsel antippen: Leiste wieder ganz
+    else if (a === 'address') {
+      // wie Safari: Antippen zeigt die ganze Adresse markiert (Tippen ersetzt sie); nochmal antippen = Markierung weg, Cursor ans Ende
+      if (bwKbd === 'address' && bwAddrSel) bwAddrSel = false;
+      else if (bwKbd === 'address') { bwKbd = ''; bwAddress = ''; }
+      else { bwKbd = 'address'; bwAddress = t?.url || ''; bwAddrSel = !!bwAddress; }
+      bwMode = 'page';
+    }
+    else if (a === 'tabs') { bwMode = bwMode === 'tabs' ? 'page' : 'tabs'; bwKbd = ''; if (bwMode === 'tabs') bwThumb(t || {}); }
+    else if (a === 'tab') { bwMode = 'page'; bwShowTab(i); }
+    else if (a === 'close') { const wasActive = i === bwActive; bwCloseTab(i); if (!bwTabs.length && !bwPrivate) bwNewTab(); else if (wasActive && bwTabs.length) bwShowTab(bwActive); }
+    else if (a === 'group') { bwSwitchGroup(el.dataset.g === 'private'); bwMode = 'tabs'; if (bwTab()) bwShowTab(bwActive); }
+    else if (a === 'new') { bwMode = 'page'; bwNewTab(); bwKbd = 'address'; bwAddress = ''; }
+    else if (a === 'suggest') { bwKbd = ''; bwAddress = ''; bwOpen(el.dataset.url); }
+    else if (a === 'popup-open') { const u = bwPopupUrl; bwPopupHide(); if (u) bwOpen(u, { newTab: true }); }
+    else if (a === 'popup-close') bwPopupHide();
+    else if (a === 'tabs-more') { bwTabsMore = !bwTabsMore; bwTabsMoreAt = performance.now(); }
+    else if (a === 'close-all') {
+      // alle Tabs der gezeigten Gruppe schließen; normal danach ein leerer Tab (Startseite), privat der Hinweis
+      while (bwTabs.length) bwCloseTab(bwTabs.length - 1);
+      if (!bwPrivate) { bwMode = 'page'; bwNewTab(); }
+    }
+    else if (a === 'done') {
+      bwMode = 'page';
+      if (bwPrivate && !bwTabs.length) bwSwitchGroup(false); // keine privaten Tabs: zurück zu den normalen
+      if (bwActive < 0) bwNewTab(); else bwShowTab(bwActive);
+    }
+    else if (a === 'open-fav' || a === 'open-recent') { const p = settings.browser[a === 'open-fav' ? 'favorites' : 'recent'][i]; if (p) bwOpen(p.url); }
+    else if (a === 'fav' && t?.url) {
+      const host = bwHost(t.url);
+      quietSetting((s) => {
+        const has = s.browser.favorites.some((p) => bwHost(p.url) === host);
+        s.browser.favorites = has ? s.browser.favorites.filter((p) => bwHost(p.url) !== host) : [...s.browser.favorites, { url: t.url, title: t.title || host, ...(t.iconData ? { icon: t.iconData } : {}) }].slice(0, 24);
+      });
+      bwMenuOpen = true;
+    } else if (a === 'ua' && t?.url) {
+      const host = bwHost(t.url);
+      quietSetting((s) => (s.browser.mobileSites = s.browser.mobileSites.includes(host) ? s.browser.mobileSites.filter((h) => h !== host) : [...s.browser.mobileSites, host].slice(0, 50)));
+      t.view?.remove(); // Kennung gilt ab dem Laden: Seite neu anlegen
+      t.view = null;
+      bwMakeView(t);
+    } else if (a === 'zoom-in' || a === 'zoom-out') {
+      const steps = [75, 90, 100, 110, 125, 150, 175, 200];
+      const cur = bwZoomOf(t);
+      const idx = steps.findIndex((z) => z >= cur);
+      const next = a === 'zoom-in' ? steps[Math.min(steps.length - 1, (idx < 0 ? steps.length - 1 : steps[idx] > cur ? idx : idx + 1))] : steps[Math.max(0, (idx < 0 ? steps.length : idx) - 1)];
+      quietSetting((s) => (s.browser.siteZoom = { ...s.browser.siteZoom, [bwHost(t.url)]: next }));
+      bwApplyZoom(t);
+      bwMenuOpen = true;
+    }
+    bwRender();
+  }
+
+  // ---- Eingabe-Weiterleitung: Antippen = Klick, Ziehen = Scrollen mit Nachlauf, Mausrad = Scrollen
+  function bwInput(catchEl) {
+    let down = null; // { x, y, t, lx, ly, moved, vx, vy, lt }
+    let fling = 0;
+    const local = (e) => {
+      const r = catchEl.getBoundingClientRect();
+      const k = r.width ? catchEl.offsetWidth / r.width : 1; // Bühne evtl. skaliert
+      return { x: Math.round((e.clientX - r.left) * k), y: Math.round((e.clientY - r.top) * k) };
+    };
+    const view = () => bwTab()?.view || null;
+    const wheel = (dx, dy, p) => {
+      view()?.sendInputEvent({ type: 'mouseWheel', x: p.x, y: p.y, deltaX: dx, deltaY: dy, canScroll: true });
+      // wie Safari: beim Lesen nach unten schrumpft die Leiste zur kleinen Adress-Kapsel, nach oben kommt sie ganz zurück
+      const mini = dy < -3 ? true : dy > 3 ? false : bwMini;
+      if (mini !== bwMini) { bwMini = mini; bwMenuOpen = false; bwRender(); }
+    };
+    const EDGE = 36; // Breite des Randstreifens (Bühnen-Pixel)
+    let edgeEl = null;
+    const edgeShow = (side, dx) => {
+      if (!edgeEl) { edgeEl = document.createElement('div'); edgeEl.className = 'glass bw-edge'; edgeEl.innerHTML = BW_ICON.fwd; catchEl.parentElement.appendChild(edgeEl); }
+      const f = Math.min(1, Math.abs(dx) / 110);
+      edgeEl.classList.toggle('right', side === 'right');
+      edgeEl.classList.toggle('ready', f >= 1);
+      edgeEl.style.opacity = side ? String(f) : '0';
+      edgeEl.style.setProperty('--f', String(f));
+    };
+    catchEl.addEventListener('pointerdown', (e) => {
+      cancelAnimationFrame(fling);
+      try { catchEl.setPointerCapture(e.pointerId); } catch { /* egal */ } // Loslassen auch über dem Link-Menü/außerhalb hierher
+      const p = local(e);
+      const w = catchEl.offsetWidth;
+      const v = view();
+      const t = bwTab();
+      const edge = !v ? '' : p.x < EDGE && t && bwCanGoBack(t) ? 'left' : p.x > w - EDGE && t && bwCanGoForward(t) ? 'right' : '';
+      down = { ...p, t: performance.now(), lx: p.x, ly: p.y, moved: false, vx: 0, vy: 0, lt: performance.now(), edge };
+      bwLinkMenuHide();
+      const d0 = down;
+      // Link gedrückt halten: Menü nur, wenn dort wirklich ein Link ist (dann zählt das Loslassen nicht als Klick) – sonst
+      // bleibt ein langsames Antippen ein normaler Klick
+      if (v && !edge) d0.lp = setTimeout(() => { if (down === d0 && !d0.moved) bwLinkAt(p, catchEl, () => down === d0 && !d0.moved && (d0.long = true)); }, 520);
+      bwMenuOpen = false;
+    });
+    catchEl.addEventListener('pointermove', (e) => {
+      const p = local(e);
+      if (!down) { view()?.sendInputEvent({ type: 'mouseMove', x: p.x, y: p.y }); return; } // Zeigen (Menüs der Seite)
+      const dx = p.x - down.lx, dy = p.y - down.ly;
+      if (!down.moved && Math.hypot(p.x - down.x, p.y - down.y) < 9) return;
+      clearTimeout(down.lp);
+      if (down.long) return; // Menü offen: nicht scrollen
+      // am Rand begonnen und waagerecht gezogen: Rand-Wischen statt Scrollen
+      if (down.edge && !down.moved && Math.abs(p.x - down.x) < Math.abs(p.y - down.y)) down.edge = '';
+      down.moved = true;
+      if (down.edge) {
+        const ddx = (p.x - down.x) * (down.edge === 'left' ? 1 : -1);
+        edgeShow(down.edge, Math.max(0, ddx));
+        down.lx = p.x; down.ly = p.y;
+        return;
+      }
+      const now = performance.now(), dt = Math.max(1, now - down.lt);
+      down.vx = down.vx * 0.6 + (dx / dt) * 0.4;
+      down.vy = down.vy * 0.6 + (dy / dt) * 0.4;
+      down.lx = p.x; down.ly = p.y; down.lt = now;
+      wheel(dx, dy, p); // Finger nach oben = Seite nach unten (Rad-Werte wie Chromium: positiv = nach oben)
+    });
+    const up = (e) => {
+      if (!down) return;
+      const p = local(e);
+      const d = down;
+      down = null;
+      clearTimeout(d.lp);
+      if (d.long) return; // gedrückt gehalten: kein Klick
+      if (d.edge && d.moved) {
+        edgeShow('', 0);
+        const ddx = (p.x - d.x) * (d.edge === 'left' ? 1 : -1);
+        const v = view();
+        if (ddx >= 110 && v) { if (d.edge === 'left') v.goBack(); else v.goForward(); }
+        return;
+      }
+      if (!d.moved && performance.now() - d.t < 1500) { // auch langsames Antippen (im Spiel oft) – Link-Menü hat oben schon abgefangen
+        bwGesture = performance.now(); // Tippen: ein neues Fenster der Seite darf jetzt ein Tab werden
+        if (bwKbd === 'page') oskWordReset(); // Cursor evtl. versetzt – Wortvorschläge neu ab hier
+        const v = view();
+        if (!v) return;
+        v.sendInputEvent({ type: 'mouseMove', x: p.x, y: p.y });
+        v.sendInputEvent({ type: 'mouseDown', x: p.x, y: p.y, button: 'left', clickCount: 1 });
+        v.sendInputEvent({ type: 'mouseUp', x: p.x, y: p.y, button: 'left', clickCount: 1 });
+        return;
+      }
+      // Nachlauf wie am Handy: Tempo beim Loslassen, sanft abbremsen
+      let vx = d.vx * 16, vy = d.vy * 16;
+      const step = () => {
+        vx *= 0.94; vy *= 0.94;
+        if (Math.abs(vx) < 0.6 && Math.abs(vy) < 0.6) return;
+        wheel(vx, vy, p);
+        fling = requestAnimationFrame(step);
+      };
+      if (Math.hypot(vx, vy) > 4) fling = requestAnimationFrame(step);
+    };
+    catchEl.addEventListener('pointerup', up);
+    catchEl.addEventListener('pointercancel', () => { if (down) clearTimeout(down.lp); down = null; edgeShow('', 0); });
+    catchEl.addEventListener('wheel', (e) => { e.preventDefault(); wheel(-e.deltaX, -e.deltaY, local(e)); }, { passive: false });
+  }
+  // ---- Link gedrückt halten (wie Safari): Menü mit Öffnen, In neuem Tab öffnen, Link kopieren
+  let bwLinkUrl = '';
+  function bwLinkAt(p, catchEl, claim) {
+    const t = bwTab();
+    const v = t?.view;
+    if (!v) return;
+    const z = bwZoomOf(t) / 100;
+    const js = `(() => { const e = document.elementFromPoint(${(p.x / z).toFixed(1)}, ${(p.y / z).toFixed(1)}); const a = e && e.closest && e.closest('a[href]'); if (!a || !/^https?:/i.test(a.href)) return null; return { href: a.href, text: (a.innerText || a.getAttribute('aria-label') || a.title || '').trim().replace(/\\s+/g, ' ').slice(0, 100) }; })()`;
+    v.executeJavaScript(js, false).then((r) => {
+      if (!r?.href || bwTab() !== t || !claim()) return;
+      try { v.sendInputEvent({ type: 'mouseLeave', x: p.x, y: p.y }); } catch { /* egal */ } // Zeiger „weg“: Hover-Vorschauen der Seite (z. B. Wikipedia) schließen
+      bwLinkMenuShow(r, p, catchEl);
+    }).catch(() => {});
+  }
+  function bwLinkMenuShow(link, p, catchEl) {
+    const lm = browserLayer.querySelector('.bw-lm');
+    const card = lm.querySelector('.bw-lm-card');
+    lm.classList.remove('pm');
+    card.style.bottom = '';
+    card.style.maxHeight = '';
+    bwLinkUrl = String(link.href).slice(0, 2000);
+    const row = (a, icon, label) => `<button class="bw-menu-row" data-focus data-bw="${a}">${icon}<span>${escape(CarI18n.translate(label))}</span></button>`;
+    card.innerHTML = `<div class="bw-menu-head"><b>${escape(link.text || bwHost(bwLinkUrl))}</b><small>${escape(bwShortUrl(bwLinkUrl))}</small></div>`
+      + row('lm-open', BW_ICON.globe, 'Öffnen') + row('lm-tab', BW_ICON.tabs, 'In neuem Tab öffnen') + row('lm-copy', BW_ICON.copy, 'Link kopieren');
+    lm.hidden = false;
+    // Karte am Finger: darunter, unten zu wenig Platz → darüber; nie über den Rand
+    const W = browserLayer.offsetWidth, H = browserLayer.offsetHeight;
+    const cw = card.offsetWidth, ch = card.offsetHeight;
+    const x = p.x + catchEl.offsetLeft, y = p.y + catchEl.offsetTop;
+    card.style.left = `${Math.round(Math.max(16, Math.min(W - cw - 16, x - cw / 2)))}px`;
+    card.style.top = `${Math.round(y + 24 + ch < H - 90 ? y + 24 : Math.max(16, y - ch - 24))}px`;
+    card.style.transformOrigin = `${Math.round(x - parseFloat(card.style.left))}px ${y < parseFloat(card.style.top) ? 0 : ch}px`;
+    lm.classList.remove('in');
+    void lm.offsetWidth;
+    lm.classList.add('in');
+  }
+  function bwLinkMenuHide() {
+    const lm = browserLayer?.querySelector('.bw-lm');
+    if (lm && !lm.hidden) { lm.hidden = true; lm.classList.remove('in', 'pm'); bwPmRows = []; }
+  }
+  function bwLinkMenuAction(a) {
+    const url = bwLinkUrl;
+    if (a === 'lm-noop') return;
+    bwLinkMenuHide();
+    if (!url || a === 'lm-close') return bwRender();
+    if (a === 'lm-open') bwOpen(url);
+    else if (a === 'lm-tab') bwOpen(url, { newTab: true });
+    else if (a === 'lm-copy') {
+      api?.browserCopy?.(url);
+      showToast({ icon: 'check', color: 'blue', title: CarI18n.translate('Link kopiert'), text: bwHost(url) });
+    }
+    bwRender();
+  }
+
+  // ---- Lange drücken wie Safari: Zurück = zuletzt besuchte Seiten dieses Tabs, Tabs = Neuer Tab, Neuer privater Tab, Diesen
+  // Tab schließen, Alle Tabs schließen. Menü als Karte über dem Knopf (gleiche Karte wie beim Link gedrückt halten). Das
+  // Loslassen nach dem Öffnen löst den Knopf nicht mehr aus.
+  function bwBarHold(bar) {
+    let st = null;
+    const end = () => {
+      if (!st) return;
+      clearTimeout(st.timer);
+      window.removeEventListener('pointermove', move, true);
+      window.removeEventListener('pointerup', up, true);
+      window.removeEventListener('pointercancel', up, true);
+      st = null;
+    };
+    const move = (e) => { if (st && e.pointerId === st.id && Math.hypot(e.clientX - st.x, e.clientY - st.y) > 10) end(); };
+    const up = (e) => {
+      if (!st || e.pointerId !== st.id) return;
+      const opened = st.opened;
+      end();
+      if (opened && e.type === 'pointerup') swallowNextClick(); // Menü ist offen: der Klick des Loslassens zählt nicht
+    };
+    bar.addEventListener('pointerdown', (e) => {
+      end();
+      const b = e.target.closest('[data-bw="back"], [data-bw="tabs"]');
+      if (!b || b.disabled || e.button > 0 || browserLayer.classList.contains('mini')) return;
+      st = { id: e.pointerId, x: e.clientX, y: e.clientY, opened: false };
+      const s0 = st;
+      st.timer = setTimeout(() => {
+        if (st !== s0) return;
+        if (b.dataset.bw === 'back') bwBackMenu(b, () => { if (st !== s0) return false; s0.opened = true; return true; }); // nur solange noch gedrückt
+        else { s0.opened = true; bwTabsMenu(b); }
+      }, 450);
+      window.addEventListener('pointermove', move, true);
+      window.addEventListener('pointerup', up, true);
+      window.addEventListener('pointercancel', up, true);
+    });
+  }
+  // Menükarte über einem Knopf der Leiste: rows = [{ label, sub, act, danger, icon }]
+  let bwPmRows = [];
+  function bwPopMenu(anchor, title, rows) {
+    const lm = browserLayer.querySelector('.bw-lm');
+    const card = lm.querySelector('.bw-lm-card');
+    bwPmRows = rows;
+    bwLinkUrl = '';
+    card.innerHTML = (title ? `<div class="bw-menu-head"><b>${escape(title)}</b></div>` : '')
+      + rows.map((r, i) => `<button class="bw-menu-row${r.danger ? ' danger' : ''}${r.sub ? ' two' : ''}" data-focus data-bw="pm-${i}"${r.disabled ? ' disabled' : ''}>${r.icon || ''}${r.sub ? `<span class="bw-pm-t"><span>${escape(r.label)}</span><small>${escape(r.sub)}</small></span>` : `<span>${escape(r.label)}</span>`}</button>`).join('');
+    lm.hidden = false;
+    lm.classList.add('pm');
+    const L = browserLayer.getBoundingClientRect(), a = anchor.getBoundingClientRect();
+    const k = L.width ? browserLayer.offsetWidth / L.width : 1;
+    const W = browserLayer.offsetWidth, H = browserLayer.offsetHeight, cw = card.offsetWidth;
+    const ax = (a.left - L.left) * k, aw = a.width * k, top = (a.top - L.top) * k;
+    const right = ax + aw / 2 > W / 2; // rechter Knopf: Karte rechtsbündig
+    const left = Math.max(16, Math.min(W - cw - 16, right ? ax + aw - cw : ax));
+    card.style.left = `${Math.round(left)}px`;
+    card.style.top = '';
+    card.style.bottom = `${Math.round(H - top + 12)}px`;
+    card.style.maxHeight = `${Math.max(120, Math.round(top - 12 - 16))}px`; // nur der Platz über dem Knopf – sonst oben abgeschnitten
+    card.style.transformOrigin = `${right ? '100%' : '0%'} 100%`;
+    lm.classList.remove('in');
+    void lm.offsetWidth;
+    lm.classList.add('in');
+  }
+  async function bwBackMenu(anchor, claim) {
+    const t = bwTab();
+    if (!t?.view || !api?.browserHistory) return;
+    let h = null;
+    try { h = await api.browserHistory(t.view.getWebContentsId()); } catch { /* lädt gerade */ }
+    if (!h?.entries?.length || bwTab() !== t) return;
+    // ältere Seiten dieses Tabs, die zuletzt besuchte zuerst (wie Safari), höchstens 10
+    const rows = [];
+    const off = Number(h.offset) || 0; // Liste ist auf die letzten 50 gekürzt: Stelle im ganzen Verlauf = i + off
+    for (let i = h.active - off - 1; i >= 0 && rows.length < 10; i--) {
+      const e = h.entries[i];
+      const idx = i + off;
+      if (!e?.url || !/^https?:/i.test(e.url)) continue;
+      rows.push({ label: e.title || bwHost(e.url), sub: bwShortUrl(e.url), icon: BW_ICON.globe, act: () => { try { t.view.goToIndex(idx); } catch { /* weg */ } } });
+    }
+    if (!rows.length || !claim()) return; // nichts da oder schon losgelassen: normales Zurück
+    bwPopMenu(anchor, '', rows);
+  }
+  function bwTabsMenu(anchor) {
+    const n = bwTabs.length;
+    // volle Gruppe (5 Tabs): wie das „+“ in der Tab-Übersicht gesperrt – nie still einen Tab schließen
+    const normalFull = (bwPrivate ? bwOther.tabs.length : bwTabs.length) >= BW_MAX_TABS;
+    const privateFull = (bwPrivate ? bwTabs.length : bwOther.tabs.length) >= BW_MAX_TABS;
+    const rows = [
+      { label: CarI18n.translate('Neuer Tab'), icon: BW_ICON.plus, disabled: normalFull, act: () => { if (bwPrivate) bwSwitchGroup(false); bwMode = 'page'; bwNewTab(); bwKbd = 'address'; bwAddress = ''; } },
+      { label: CarI18n.translate('Neuer privater Tab'), icon: BW_ICON.hand, disabled: privateFull, act: () => { if (!bwPrivate) bwSwitchGroup(true); bwMode = 'page'; bwNewTab(); bwKbd = 'address'; bwAddress = ''; } },
+    ];
+    if (bwTab()) rows.push({ label: CarI18n.translate('Diesen Tab schließen'), icon: BW_ICON.close, danger: true, act: () => {
+      bwCloseTab(bwActive);
+      if (!bwTabs.length) { if (bwPrivate) bwSwitchGroup(false); if (!bwTabs.length) bwNewTab(); else bwShowTab(bwActive); } else bwShowTab(bwActive);
+    } });
+    if (n > 1) rows.push({ label: CarI18n.translate('Alle {n} Tabs schließen').replace('{n}', n), icon: BW_ICON.close, danger: true, act: () => {
+      while (bwTabs.length) bwCloseTab(bwTabs.length - 1);
+      if (bwPrivate) bwSwitchGroup(false);
+      if (!bwTabs.length) bwNewTab(); else bwShowTab(bwActive);
+    } });
+    bwPopMenu(anchor, '', rows);
+  }
+
+  // Wischen über die Kapsel wechselt den Tab (wie Safari in iOS 27)
+  let bwSwipedAt = 0;
+  function bwSwipeBar(bar) {
+    let x0 = null;
+    bar.addEventListener('pointerdown', (e) => { x0 = e.clientX; });
+    bar.addEventListener('pointerup', (e) => {
+      if (x0 === null) return;
+      const dx = e.clientX - x0;
+      x0 = null;
+      if (Math.abs(dx) < 60 || bwTabs.length < 2) return;
+      bwSwipedAt = performance.now();
+      bwShowTab((bwActive + (dx < 0 ? 1 : bwTabs.length - 1)) % bwTabs.length);
+    });
+  }
+
+  // ---- Ton: Titel fürs Kombi, Lenkradtasten, Anrufe, Ansagen, Display aus
+  const BW_MEDIA_JS = `(() => { const m = navigator.mediaSession && navigator.mediaSession.metadata;
+    const v = [...document.querySelectorAll('video, audio')].find((x) => !x.paused) || null;
+    const art = m && m.artwork && m.artwork.length ? m.artwork[m.artwork.length - 1].src : '';
+    return { title: (m && m.title) || document.title || '', artist: (m && m.artist) || location.hostname.replace(/^www\\./, ''), art: /^https:/.test(art) ? art : '', playing: !!v, pos: v ? v.currentTime : 0, dur: v && isFinite(v.duration) ? v.duration : 0 }; })()`;
+  const bwAudible = () => bwAll().find((t) => t.audible && t.view) || null;
+  function bwMediaState() {
+    const t = bwAudible();
+    api?.browserState?.(!!t);
+    if (!t) { browserMedia = null; return; }
+    t.view.executeJavaScript(BW_MEDIA_JS).then((m) => { browserMedia = m && m.playing ? m : null; }).catch(() => {});
+  }
+  const BW_PLAY_JS = (how) => `(() => { const list = [...document.querySelectorAll('video, audio')]; const v = list.find((x) => !x.paused) || list.find((x) => x.dataset.cpPaused) || list[0]; if (!v) return false;
+    ${how === 'toggle' ? 'if (v.paused) v.play(); else v.pause();' : how === 'pause' ? 'if (!v.paused) { v.pause(); v.dataset.cpPaused = 1; }' : 'if (v.dataset.cpPaused) { delete v.dataset.cpPaused; v.play(); }'} return true; })()`;
+  function bwMediaCommand(cmd) {
+    const t = bwAudible() || bwTabs.find((x) => x.view && x === bwTab());
+    if (!t?.view) return;
+    if (cmd === 'toggle') t.view.executeJavaScript(BW_PLAY_JS('toggle')).catch(() => {});
+    else { // Vor/Zurück: Medientasten an die Seite (viele Player hören darauf), sonst 10 s springen
+      const key = cmd === 'next' ? 'MediaNextTrack' : 'MediaPreviousTrack';
+      t.view.sendInputEvent({ type: 'keyDown', keyCode: key });
+      t.view.sendInputEvent({ type: 'keyUp', keyCode: key });
+    }
+    setTimeout(bwMediaState, 500);
+  }
+  // Anruf: anhalten, nach dem Auflegen weiter (nur, was die App selbst angehalten hat)
+  let bwCallPaused = [];
+  function browserForCall(on) {
+    if (!canBrowse()) return;
+    if (on) {
+      bwCallPaused = bwAll().filter((t) => t.audible && t.view);
+      for (const t of bwCallPaused) t.view.executeJavaScript(BW_PLAY_JS('pause')).catch(() => {});
+    } else {
+      for (const t of bwCallPaused) t.view?.executeJavaScript(BW_PLAY_JS('resume')).catch(() => {});
+      bwCallPaused = [];
+    }
+  }
+  // Ansage: leiser, danach wieder wie vorher
+  function browserDuck(on) {
+    if (!canBrowse()) return;
+    const js = on
+      ? `document.querySelectorAll('video, audio').forEach((m) => { if (m.dataset.cpVol === undefined) { m.dataset.cpVol = m.volume; m.volume = Math.min(m.volume, 0.25); } })`
+      : `document.querySelectorAll('video, audio').forEach((m) => { if (m.dataset.cpVol !== undefined) { m.volume = Number(m.dataset.cpVol); delete m.dataset.cpVol; } })`;
+    for (const t of bwAll()) if (t.audible && t.view) t.view.executeJavaScript(js).catch(() => {});
+  }
+  // jede Sekunde: Titel/Fortschritt fürs Kombi, Display aus → Ton aus, Fahren-Abdeckung, Lage des Layers
+  let bwPoweredOff = false;
+  function bwTick() {
+    const off = !poweredOn || standby;
+    if (off && !bwPoweredOff) for (const t of bwAll()) if (t.audible && t.view) t.view.executeJavaScript(BW_PLAY_JS('pause')).catch(() => {});
+    bwPoweredOff = off;
+    if (bwAudible()) bwMediaState();
+    else if (browserMedia) { browserMedia = null; api?.browserState?.(false); }
+    if (bwShown) { bwPlace(); bwRender(); }
+  }
+  // „Browserdaten löschen“ (Einstellungen): erst nachfragen (zweites Tippen binnen 4 s), dann alles weg – auch offene Tabs
+  let bwClearArmed = 0;
+  function browserClear() {
+    const now = performance.now();
+    if (now - bwClearArmed > 4000) { bwClearArmed = now; return false; }
+    bwClearArmed = 0;
+    bwLinkMenuHide();
+    for (const t of bwAll()) t.view?.remove();
+    bwTabs = [];
+    bwActive = -1;
+    bwOther = { tabs: [], active: -1 };
+    bwPrivate = false;
+    quietSetting((s) => { s.browser.tabs = []; s.browser.recent = []; });
+    api?.browserClear?.();
+    return true;
+  }
+  // Test (nur Demo): Seite öffnen, Zustand lesen (tools/browser-test.js)
+  if (demoMode) window.__bw = { open: (u, o) => bwOpen(u, o), group: (p) => { bwSwitchGroup(!!p); bwRender(); }, state: () => ({ priv: bwPrivate, other: bwOther.tabs.length, shown: bwShown, active: bwActive, kbd: bwKbd, mode: bwMode, full: bwFull, tabs: bwTabs.map((t) => ({ url: t.url, title: t.title, loading: t.loading, audible: t.audible, view: !!t.view })) }) };
   // ------------------------------------------------------------------ Spotify-Mediathek
   let libLoadedAt = 0;
   function loadLibrary(force = false) {
@@ -9280,6 +11662,7 @@
   radioAudio.addEventListener('error', () => radioAudio.dataset.url && radioReconnect());
   radioAudio.addEventListener('ended', () => radioAudio.dataset.url && radioReconnect());
   function duckRadio(on) {
+    browserDuck(on); // App „Browser“: Seiten mit Ton ebenfalls leiser
     radioDuck = on;
     if (radioAudio.dataset.url) radioAudio.volume = radioVolume();
   }
@@ -10145,12 +12528,17 @@
       glass.style.setProperty('--ty', `${e.clientY - r.top}px`);
       glass.classList.add('lit');
     }
-    const release = () => setTimeout(() => {
+    const ac = new AbortController(); // beide Listener zusammen entfernen (once entfernt nur den, der feuert)
+    const release = () => (ac.abort(), setTimeout(() => {
       el.classList.remove('pressed');
-      glass?.classList.remove('lit');
-    }, 90);
-    document.addEventListener('pointerup', release, { once: true });
-    document.addEventListener('pointercancel', release, { once: true });
+      if (glass?.classList.contains('lit')) {
+        glass.classList.remove('lit');
+        glass.classList.add('unlit'); // sanft zurück (Animation in 03-ios-stil.css)
+        setTimeout(() => glass.classList.remove('unlit'), 450);
+      }
+    }, 90));
+    document.addEventListener('pointerup', release, { signal: ac.signal });
+    document.addEventListener('pointercancel', release, { signal: ac.signal });
   });
 
   document.addEventListener('click', (e) => {
@@ -10243,6 +12631,20 @@
         else if (s.video.current > i) s.video.current--;
       });
     } else if (d.action === 'video-driving') changeSetting((s) => (s.video.driving = !s.video.driving), '[data-action="video-driving"]');
+    else if (d.action === 'browser-driving') changeSetting((s) => (s.browser.driving = !s.browser.driving), '[data-action="browser-driving"]');
+    else if (d.action === 'browser-popups') changeSetting((s) => (s.browser.popups = s.browser.popups === false), '[data-action="browser-popups"]');
+    else if (d.action === 'browser-adblock') changeSetting((s) => (s.browser.adblock = s.browser.adblock === false), '[data-action="browser-adblock"]');
+    else if (d.action === 'kbd-forget') { qtForget(); showToast({ icon: 'check', color: 'gray', title: CarI18n.translate('Gelernte Wörter gelöscht') }); }
+    else if (d.action === 'browser-fullurl') changeSetting((s) => (s.browser.fullUrl = !s.browser.fullUrl), '[data-action="browser-fullurl"]');
+    else if (d.action === 'browser-editor') changeSetting((s) => (s.browser.editor = !s.browser.editor), '[data-action="browser-editor"]');
+    else if (d.action === 'browser-zoom-next') changeSetting((s) => (s.browser.zoom = { 100: 110, 110: 125, 125: 150, 150: 100 }[s.browser.zoom] || 125), '[data-action="browser-zoom-next"]');
+    else if (d.action === 'browser-clear') { browserClear(); rerenderSettings('[data-action="browser-clear"]'); }
+    else if (d.action === 'browser-add') {
+      const input = stage.querySelector('[data-input="browser-link"]');
+      const raw = String(input?.value || '').trim();
+      const url = /^https?:\/\//i.test(raw) ? raw.replace(/^http:/i, 'https:') : raw ? `https://${raw}` : '';
+      if (url && /^https:\/\/[^\s/]+\.[^\s/]+/.test(url)) changeSetting((s) => (s.browser.favorites = [...s.browser.favorites, { url, title: bwHost(url) }].slice(0, 24)), '[data-input="browser-link"]');
+    } else if (d.browserFavRemove !== undefined) changeSetting((s) => s.browser.favorites.splice(Number(d.browserFavRemove), 1), '[data-action="browser-zoom-next"]');
     else if (d.action === 'video-clear-history') videoClear('history');
     else if (d.action === 'video-clear-cookies') videoClear('cookies');
     else if (d.action === 'video-web') changeSetting((s) => (s.video.web = !s.video.web), '[data-action="video-web"]');
@@ -10432,7 +12834,10 @@
       } else showToast({ icon: 'phone', color: 'green', title: 'Telefon', text: dialed ? `Kein Anschluss unter ${dialed}` : 'Nummer eingeben – 1 bis 5 sind Kurzwahlen', open: 'phone' });
     } else if (d.scroll) {
       const listEl = el.closest('[data-scroll-host]')?.querySelector('[data-scroll-area]') || el.closest('.phone-body')?.querySelector('.phone-list');
-      listEl?.scrollBy({ top: Number(d.scroll) * listEl.clientHeight * 0.8, behavior: 'smooth' });
+      // sichtbare Höhe ohne überdeckte Ränder (Kopfleiste, Suchkapsel – scroll-padding)
+      const lst = listEl && getComputedStyle(listEl);
+      const seen = listEl ? listEl.clientHeight - (parseFloat(lst.scrollPaddingTop) || 0) - (parseFloat(lst.scrollPaddingBottom) || 0) : 0;
+      listEl?.scrollBy({ top: Number(d.scroll) * seen * 0.8, behavior: 'smooth' });
     }
     else if (d.chatOpen) {
       chatOpen = d.chatOpen;
@@ -10601,6 +13006,7 @@
   // Lautstärke-Regler: beim Ziehen nur die Anzeige, beim Loslassen speichern (Einstellungen neu zeichnen, Kartenmenü leise)
   function volumeRangeShow(el) {
     el.style.setProperty('--v', `${el.value}%`);
+    if (el.dataset.volumeRange === 'glassTint') applyGlassTint(el.value); // Liquid Glass: beim Ziehen sofort sehen (wie iOS 27)
     const out = el.parentElement?.querySelector('.vol-val');
     if (out) out.textContent = `${el.value} %`;
   }
@@ -10625,9 +13031,12 @@
   function volumeRangeAt(el, clientX) {
     const r = el.getBoundingClientRect();
     if (r.width <= 0) return; // nicht sichtbar (gerade neu gezeichnet) – Wert nicht anfassen
-    const knob = 1.4 * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 10); // halber Knopf (2,8rem)
+    const knob = 1.9 * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 10); // halber Knopf (Kapsel 3,8 rem breit)
     const frac = Math.max(0, Math.min(1, (clientX - r.left - knob) / Math.max(1, r.width - 2 * knob)));
-    el.value = String(Math.max(0, Math.min(100, Math.round(frac * 100)))); // 1er-Schritte (Rückmeldung 16.11.)
+    let value = Math.max(0, Math.min(100, Math.round(frac * 100))); // 1er-Schritte (Rückmeldung 16.11.)
+    // Liquid Glass: an den Einrastlinien (0, 25, 50, 75, 100) einrasten – in der Mitte (Standard) etwas stärker, wie bei iOS
+    if (el.dataset.volumeRange === 'glassTint') for (const p of [0, 25, 50, 75, 100]) if (Math.abs(value - p) <= (p === 50 ? 4 : 2)) value = p;
+    el.value = String(value);
     volumeRangeShow(el);
   }
   document.addEventListener('pointerdown', (e) => {
@@ -10930,6 +13339,8 @@
       const station = radio.station?.name || '';
       return { title: radio.title || station, artist: radio.title ? radio.artist || station : '', art: radio.cover || radio.station?.logo || '' };
     }
+    // App „Browser“: spielt eine Seite Ton, deren Titel (Media Session oder Seitentitel) und Fortschritt
+    if (browserMedia?.playing && browserMedia.title) return { title: browserMedia.title, artist: browserMedia.artist || '', art: browserMedia.art || '', pos: browserMedia.dur ? Math.floor(browserMedia.pos) : 0, dur: browserMedia.dur ? Math.round(browserMedia.dur) : 0 };
     // Position und Länge in Sekunden (ab 1.18.6): Fortschrittsbalken mit Restzeit wie bei CarPlay Ultra – ändert sich einmal je Sekunde
     if (media?.available && media.title) return { title: media.title, artist: media.artist || '', art: media.art || '', pos: media.durationMs ? Math.floor(mediaPosition() / 1000) : 0, dur: media.durationMs ? Math.round(media.durationMs / 1000) : 0 };
     return null;
