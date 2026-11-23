@@ -1,0 +1,12 @@
+    // 第二机动的车道提示（用于「驶出岔路，然后按左侧两车道行驶」）
+    let laneHint2 = null;
+    if (turns[1]) {
+      const k2 = turns[1].index;
+      for (let k = Math.max(0, k2); k < routePoints.length && routePoints[k] && k <= k2 + 5; k++) {
+        const la2 = routePoints[k].la;
+        if (la2 && la2[2] && la2[0] >= 2) {
+          laneHint2 = { distance: Math.max(0, routeCum[k] - here), lanes: la2[0], mask: la2[1], key: la2[5] || null };
+          break;
+        }
+      }
+    }
