@@ -1,0 +1,4 @@
+    "Jetzt aus dem Kreisverkehr ausfahren.": "現在駛出環島。",
+    "Sie haben die Route verlassen, die Route wird neu berechnet.": "您已偏航，正在重新規劃路線。",
+    "Sie nähern sich dem Ziel.": "前方即將到達目的地。",
+    "Sie haben das Ziel erreicht.": "已到達目的地附近。",
