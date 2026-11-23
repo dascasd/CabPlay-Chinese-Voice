@@ -1,0 +1,2 @@
+  let offSpoken = false; // 偏航播报只播一次（回到路线后复位）
+  let arrivalStage = 0; // 到达播报阶段：0=未播, 1=已播"即将到达", 2=已播"已到达"
