@@ -1,0 +1,2 @@
+      // 偏航：P0 紧急播报一次
+      if (!offSpoken) { offSpoken = true; speak('Sie haben die Route verlassen, die Route wird neu berechnet.', null, { priority: 0 }); }
