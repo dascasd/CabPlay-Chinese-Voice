@@ -22,6 +22,7 @@
     sports: { name: 'Sport', color: 'green', kind: 'other' },
     radar: { name: 'Blitzer', color: 'green', kind: 'other' },
     video: { name: 'Video', color: 'indigo', kind: 'other' },
+    browser: { name: 'Browser', color: 'blue', kind: 'other' }, // Webseiten mit Tabs, Favoriten und Anmeldung (Issue #9) – nur im Truck-Bildschirm
     settings: { name: 'Einstellungen', color: 'gray', kind: 'other' },
   };
 
@@ -92,10 +93,12 @@
   const MAP_STYLES = { google: 'Google', apple: 'Apple Karten', standard: 'Standard', mono: 'Graphit', contrast: 'Kontrast' };
 
   const DEFAULTS = {
-    version: 5,
+    version: 6,
     wallpaper: 'ios-blue',
     appearance: 'auto', // dark | light | auto (nach Uhrzeit im Spiel) | lights (nach Scheinwerfer)
-    glass: 'full',      // Liquid Glass: full (Regular) | clear (Clear mit Abdunklung) | reduced (ohne Unschärfe über der Karte) | off
+    glass: 'full',      // alt (bis 1.21): full | clear | reduced | off – nur noch zur Übernahme in glassTint/glassReduce
+    glassTint: 50,      // Liquid Glass wie iOS 27: 0 Ultraklar … 50 Normal (Standard) … 100 Voll getönt
+    glassReduce: false, // Unschärfe reduzieren: über Karte und Dashboard ohne Weichzeichner (spart Rechenzeit)
     iconTheme: 'brands', // Symbol-Set: brands (Google Maps, Spotify) | apple (Karten, Musik) | classic
     iconStyle: 'color', // color | dark | clear
     sidebar: 'left',
@@ -113,7 +116,7 @@
     mapAlong: false,     // Rastplätze und Tankstellen entlang der Route als Liste auf der Karte
     setupDone: false,     // Einrichtung beim ersten Start erledigt (bestehende Einstellungen: ja)
     setupControl: '',     // dort gewählte Bedienung: touch | keys | phone
-    navVoice: true,       // Abbiegungen selbst ansagen (Olivia), Zeitpunkte nach Tempo – das Spiel sagt sonst schon an
+    navVoice: true,      // Abbiegungen selbst ansagen (Olivia), Zeitpunkte nach Tempo – das Spiel sagt sonst schon an
     mapBorder: true,      // Hinweis vor Grenzen: Lkw-Tempolimits, Maut, Diesel, Zeitzone des nächsten Landes
     mapBorderVoice: false, // … auch ansagen
     mapGrade: true,       // Hinweis vor steilen Abschnitten (Steigung/Gefälle)
@@ -185,7 +188,15 @@
     cameras: [],         // gemeldete/gelernte Blitzer: { x, z, src: 'fine' | 'user', at, game?: 'ats' }
     // Video-App: YouTube- und Twitch-Links; driving = Bild beim Fahren zeigen (sonst nur Ton)
     video: { items: [], current: -1, driving: true, pip: true, pipCorner: 'br', pipSize: 'm', pauseOnCall: true, web: false },
+    // App „Browser“: Video-Bild beim Fahren (wie die Video-App, eigene Einstellung), Zoom ab Werk in %, Favoriten und zuletzt
+    // besuchte Seiten ({ url, title }), offene Tabs (Adressen, höchstens 5), Zoom je Seite (Host → %), Seiten in Handy-Ansicht
+    browser: { driving: true, fullUrl: false, adblock: true, popups: true, editor: false, zoom: 125, favorites: [], recent: [], tabs: [], siteZoom: {}, mobileSites: [] }, // editor: auch im PC-Fenster (Test)
     spotify: false,      // Spotify-Mediathek (Playlists) in der Musik-App – braucht eine Client-ID
+    keyboard: 'auto',    // Bildschirmtastatur: auto = wie die App-Sprache, sonst de | en | pl | tr (Weltkugel-Taste)
+    kbdSuggest: true,    // Wortvorschläge über der Bildschirmtastatur
+    kbdAutocorrect: true, // Autokorrektur (nur sichere Tippfehler)
+    kbdAutoCap: true,    // Auto-Großschreibung (Satzanfang) wie iOS
+    kbdPeriod: true,     // Kurzbefehl „.“: zweimal Leertaste = Punkt und Leerzeichen
     mapFps: 30,          // Bildrate der Karte: 30 | 20 | 15 – weniger spart Rechenzeit beim Fahren
     gamma: 'balanced',   // Bildkorrektur nur für das Truck-Display (das Spiel hellt es auf): off | light | balanced | strong | dim | custom
     gammaValue: 1.6,     // eigene Kurve: Gamma 1,0–2,4
@@ -454,6 +465,10 @@
     s.wallpaper = src.wallpaper === 'custom' || WALLPAPERS[src.wallpaper] || /^file:[\w .()-]{1,80}$/.test(src.wallpaper || '') ? src.wallpaper : s.wallpaper;
     s.appearance = pick(src.appearance, ['dark', 'light', 'auto', 'lights'], s.appearance);
     s.glass = pick(src.glass, ['full', 'clear', 'reduced', 'off'], s.glass);
+    // Liquid-Glass-Regler (22.11.): ohne gespeicherten Wert aus der alten Wahl übernehmen – Klar 20, Normal/Sparsam 50, Aus 100
+    const oldTint = { clear: 20, full: 50, reduced: 50, off: 100 }[s.glass];
+    s.glassTint = Number.isFinite(Number(src.glassTint)) && src.glassTint !== null && src.glassTint !== '' ? Math.max(0, Math.min(100, Math.round(Number(src.glassTint)))) : oldTint;
+    s.glassReduce = typeof src.glassReduce === 'boolean' ? src.glassReduce : s.glass === 'reduced' || s.glass === 'off';
     s.iconTheme = pick(src.iconTheme, ['brands', 'apple', 'classic'], s.iconTheme);
     s.iconStyle = pick(src.iconStyle, ['color', 'dark', 'clear'], s.iconStyle);
     s.sidebar = pick(src.sidebar, ['left', 'right', 'top', 'bottom'], s.sidebar);
@@ -496,6 +511,11 @@
       if (s.units === 'metric') s.units = 'auto';
       if (s.clock === '24') s.clock = 'auto';
     }
+    // bis Version 5: Installationen vor dem 17.10. hatten die GPU-Übertragung ab Werk aus – und damit auch keine
+    // Hardware-Beschleunigung (main.js). Gemessen 22.11.: doppelte Prozessorlast, Bilder als Pixel über die Leitung ins Spiel.
+    // Einmalig an; bei Problemen fällt die App für die Sitzung selbst zurück, ausschalten bleibt danach (Version 6) erhalten.
+    // main.js (gpuSettingAtStart) prüft dieselbe Version, weil es vor dem Laden der Einstellungen entscheidet.
+    if (!(src.version >= 6)) s.gpuTransfer = true;
     s.iconSize = pick(src.iconSize, ['normal', 'large'], s.iconSize);
     s.textScale = pick(src.textScale, ['small', 'normal', 'large', 'xlarge'], s.textScale);
     s.displayAreas = {};
@@ -613,6 +633,36 @@
         pipSize: pick(src.video.pipSize, ['s', 'm', 'l'], s.video.pipSize),
       };
     }
+    if (src.browser && typeof src.browser === 'object') {
+      const b = src.browser;
+      const https = (u) => { try { const x = new URL(String(u)); return x.protocol === 'https:' ? x.href.slice(0, 600) : null; } catch { return null; } };
+      // Seitensymbol: nur kleines eingebettetes Bild (vom Hauptprozess geholt, main/browser-ipc.js)
+      const icon = (v) => typeof v === 'string' && v.length < 33000 && /^data:image\/(png|x-icon|vnd\.microsoft\.icon|svg\+xml|jpeg|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(v);
+      const pages = (list, max) => (Array.isArray(list) ? list : [])
+        .map((p) => (p && https(p.url) ? { url: https(p.url), title: String(p.title || '').slice(0, 80), ...(icon(p.icon) ? { icon: p.icon } : {}) } : null)).filter(Boolean).slice(0, max);
+      const zoom = {};
+      for (const [host, pct] of Object.entries(b.siteZoom && typeof b.siteZoom === 'object' ? b.siteZoom : {}).slice(0, 200)) {
+        if (/^[\w.-]{1,120}$/.test(host) && Number(pct) >= 50 && Number(pct) <= 250) zoom[host] = Math.round(Number(pct));
+      }
+      s.browser = {
+        driving: bool(b.driving, s.browser.driving),
+        editor: bool(b.editor, s.browser.editor),
+        fullUrl: bool(b.fullUrl, s.browser.fullUrl),
+        adblock: bool(b.adblock, s.browser.adblock),
+        popups: bool(b.popups, s.browser.popups),
+        zoom: [100, 110, 125, 150].includes(Number(b.zoom)) ? Number(b.zoom) : s.browser.zoom,
+        favorites: pages(b.favorites, 24),
+        recent: pages(b.recent, 12),
+        tabs: (Array.isArray(b.tabs) ? b.tabs : []).map(https).filter(Boolean).slice(0, 5),
+        siteZoom: zoom,
+        mobileSites: (Array.isArray(b.mobileSites) ? b.mobileSites : []).filter((h) => typeof h === 'string' && /^[\w.-]{1,120}$/.test(h)).slice(0, 50),
+      };
+    }
+    s.keyboard = ['auto', 'de', 'en', 'pl', 'tr'].includes(src.keyboard) ? src.keyboard : 'auto';
+    s.kbdSuggest = bool(src.kbdSuggest, s.kbdSuggest);
+    s.kbdAutocorrect = bool(src.kbdAutocorrect, s.kbdAutocorrect);
+    s.kbdAutoCap = bool(src.kbdAutoCap, s.kbdAutoCap);
+    s.kbdPeriod = bool(src.kbdPeriod, s.kbdPeriod);
     s.mapFps = [30, 20, 15].includes(Number(src.mapFps)) ? Number(src.mapFps) : s.mapFps;
     s.showLabels = bool(src.showLabels, s.showLabels);
     s.clusterDesign = pick(src.clusterDesign, ['dials', 'bars', 'music', 'map', 'mapdials', 'service', 'trip', 'job', 'tesla'], s.clusterDesign);
