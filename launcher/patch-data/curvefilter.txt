@@ -1,0 +1,1 @@
+        if (type && !Array.isArray(jt) && (type.kind === 'turn' || type.kind === 'sharp')) continue;
