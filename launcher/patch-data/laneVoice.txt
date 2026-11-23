@@ -1,0 +1,54 @@
+  // 车道引导（高德式）：80–600 m 前主动播报推荐车道；走错 3 秒后纠偏；两次播报至少间隔 10 秒
+  const laneSaid = new Set();   // 主动推荐已播（一次）
+  const laneWarned = new Set(); // 纠偏已播（一次）
+  let laneWrongSince = 0;
+  let laneLastAt = 0;
+  const LANE_COOLDOWN = 10000;
+  function lanePhrase(count, goal) {
+    // goal：从左边数(0-based)的推荐车道索引（已升序）
+    if (goal.length === 1) {
+      const idx = goal[0];
+      const fromLeft = idx + 1;
+      const fromRight = count - idx;
+      if (fromLeft <= fromRight) return `Bitte die ${fromLeft}. Spur von links nehmen.`;
+      return `Bitte die ${fromRight}. Spur von rechts nehmen.`;
+    }
+    if (goal.length === count) return ''; // 全车道可走，不提示
+    const leftCount = goal.length;
+    const fromLeftEdge = goal[0];
+    const fromRightEdge = count - 1 - goal[goal.length - 1];
+    if (fromLeftEdge === 0 && fromRightEdge === 0) return ''; // 两侧都有空，不报
+    if (fromLeftEdge <= fromRightEdge) return `Bitte die ${leftCount} linken Spuren nehmen.`;
+    return `Bitte die ${leftCount} rechten Spuren nehmen.`;
+  }
+  function laneVoice(m) {
+    const hint = m?.laneHint;
+    if (!settings.navVoice || !hint?.key || hint.distance < 80 || hint.distance > 600) { laneWrongSince = 0; return; }
+    const goal = [...Array(hint.lanes).keys()].filter((i) => (hint.mask >> i) & 1);
+    if (!goal.length) { laneWrongSince = 0; return; }
+    const now = performance.now();
+    // 主动推荐（一次，且两次播报之间至少 10 秒）
+    if (!laneSaid.has(hint.key) && now - laneLastAt >= LANE_COOLDOWN) {
+      const p = lanePhrase(hint.lanes, goal);
+      if (p) { laneSaid.add(hint.key); laneLastAt = now; speak(p, null, { priority: 2 }); }
+    }
+    // 纠偏：需要知道当前车道（且车道数一致时才能判断是否走错）
+    if (!hint.laneNow || hint.laneNow.own !== hint.lanes) { laneWrongSince = 0; return; }
+    const lane = hint.laneNow.lane;
+    if ((hint.mask >> lane) & 1) { laneWrongSince = 0; return; } // 已在推荐车道
+    if (laneWarned.has(hint.key)) { laneWrongSince = 0; return; }
+    // blinkt schon in Richtung der richtigen Spur: wechselt gerade – nicht dazwischenreden
+    const blink = blinkSide();
+    if (blink && ((blink === 'l' && goal[0] < lane) || (blink === 'r' && goal[goal.length - 1] > lane))) { laneWrongSince = 0; return; }
+    if (!laneWrongSince) { laneWrongSince = now; return; }
+    if (now - laneWrongSince < 3000) return;
+    if (now - laneLastAt < LANE_COOLDOWN) return; // 限流
+    let best = -1;
+    for (let i = 0; i < hint.lanes; i++) if ((hint.mask >> i) & 1 && (best < 0 || Math.abs(i - lane) < Math.abs(best - lane))) best = i;
+    if (best < 0) return;
+    laneWarned.add(hint.key);
+    laneLastAt = now;
+    laneWrongSince = 0;
+    speak(best < lane ? 'Bitte links einordnen.' : 'Bitte rechts einordnen.', null, { priority: 2 });
+  }
+
