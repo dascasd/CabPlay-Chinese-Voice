@@ -1,0 +1,7 @@
+    // 两步联合播报的「然后 X 米后 …」必须最先处理
+    [/Danach in ([\d.,]+ (?:m|km|ft|yd|mi)) (links halten|rechts halten|die Ausfahrt (?:links|rechts) nehmen|(?:scharf )?(?:links|rechts) abbiegen|wenden|im Kreisverkehr die \d+\. Ausfahrt nehmen|die Fähre nehmen)\./g, (m, dist, turn) => `然后${translate(dist)}后${translate(turn)}。`],
+    // 车道提示（集合用数量词「两车道」，单条用序数词「第二车道」）
+    [/Bitte die (\d+)\. Spur von links nehmen\./g, (m, n) => `请走左侧第${laneOrd(n)}车道。`],
+    [/Bitte die (\d+)\. Spur von rechts nehmen\./g, (m, n) => `请走右侧第${laneOrd(n)}车道。`],
+    [/Bitte die (\d+) linken Spuren nehmen\./g, (m, n) => `请走左侧${laneCard(n)}车道。`],
+    [/Bitte die (\d+) rechten Spuren nehmen\./g, (m, n) => `请走右侧${laneCard(n)}车道。`],
