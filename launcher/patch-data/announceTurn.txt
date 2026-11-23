@@ -1,0 +1,76 @@
+  let lastFirstTurn = null; // nächste Abbiegung beim letzten Mal – wechselt sie, ist die vorige geschafft
+  let turnLock = null; // 正在播报的转弯（route index）；它的「现在」播报完成前，不播下一个转弯
+  function announceTurn(m) {
+    if (!settings.navVoice || !m) return;
+    // 选转弯：锁定了某个转弯且它还在前面 → 继续报它；否则报最近的
+    let t = null;
+    if (turnLock !== null) {
+      const locked = m.turns.find((x) => x.index === turnLock);
+      if (locked && locked.distance > -25) t = locked;
+      else turnLock = null;
+    }
+    if (!t) t = m.turns[0] || null;
+    const firstKey = t ? String(t.index) : 'none';
+    if (lastFirstTurn !== null && firstKey !== lastFirstTurn && num(telemetry?.speedKmh) > 15) {
+      // gerade abgebogen: ist die nächste weit weg, „24 km geradeaus“ (wie echte Navis)
+      if (t && t.distance > 3000) {
+        const km = Math.round(t.distance / 1000);
+        lastFirstTurn = firstKey;
+        speak(`${imperial() ? meters(t.distance) : `${km} km`} geradeaus.`);
+        return;
+      }
+      if (!t) speak('Der Route folgen.');
+    }
+    lastFirstTurn = firstKey;
+    if (!t) return;
+    const v = num(telemetry?.speedKmh);
+    const mps = v / 3.6; // 游戏内米 / 现实秒
+    const T_SPEECH = 3;  // 语音时长补偿
+    // 提前秒数（高速/主干路更长，城市更短）；执行层提前 1.5 秒
+    const adv = v > 65 ? [45, 14, 1.5] : v > 35 ? [30, 10, 1.5] : [18, 7, 1.5];
+    const refs = adv.map((s) => Math.round(mps * s));
+    const trigs = refs.map((d) => d + Math.round(mps * T_SPEECH));
+    // 0=L1 预告, 1=L2 准备, 2=L3 执行
+    let lv = -1;
+    for (let i = 0; i < 3; i++) if (t.distance <= trigs[i]) lv = i;
+    if (lv < 0) return;
+    // 环岛：L3（现在驶出环岛）只在环岛内、接近出口时触发
+    if (lv === 2 && t.kind === 'roundabout' && !t.inside) return;
+    const key = String(t.index);
+    if ((spokenTurns.get(key) ?? -1) >= lv) return;
+    spokenTurns.set(key, lv);
+    const isNow = lv === 2;
+    // 锁定/解锁：预告/准备层锁定这个转弯；执行层（现在）报完就解锁
+    if (lv <= 1) turnLock = t.index;
+    else turnLock = null;
+    // 两步联合播报：第二机动在 200 m 内才合并「然后 X 米后 …」
+    const thenGap = lv <= 1 && m.turns[1] ? m.turns[1].distance - t.distance : Infinity;
+    const thenTurn = thenGap < 200 ? m.turns[1] : null;
+    let then = '';
+    if (thenTurn) {
+      // 岔路内第二机动的车道提示
+      let lane2Text = '';
+      const lh2 = m.laneHint2;
+      if (lh2 && lh2.key !== m.laneHint?.key && lh2.lanes >= 2) {
+        const goal2 = [...Array(lh2.lanes).keys()].filter((i) => (lh2.mask >> i) & 1);
+        if (goal2.length && goal2.length < lh2.lanes) {
+          const p = lanePhrase(lh2.lanes, goal2);
+          if (p) lane2Text = ' ' + p;
+        }
+      }
+      then = ` Danach in ${meters(Math.max(10, Math.round(thenGap / 10) * 10))} ${turnSpoken(thenTurn)}.${lane2Text}`;
+    }
+    // echte Entfernung, gerundet (unter 1 km auf 50 m, darüber auf 100 m; „2 km“ statt „2,0 km“)
+    const step = t.distance >= 1000 ? 100 : 50;
+    const near = Math.max(step, Math.round(t.distance / step) * step);
+    const spokenDist = !imperial() && near >= 1000 && near % 1000 === 0 ? `${near / 1000} km` : meters(near);
+    // Ziel vom Wegweiser (nur wenn das Schild zur Route passt): „Ausfahrt rechts nehmen Richtung München“
+    const yard = yardTurn(m, t) ? ' auf das Firmengelände' : t.towards && t.kind !== 'roundabout' ? ` Richtung ${t.towards}` : '';
+    const say = isNow
+      ? (t.kind === 'roundabout' ? 'Jetzt aus dem Kreisverkehr ausfahren.' : `Jetzt ${turnSpoken(t)}${yard}.`)
+      : `In ${spokenDist} ${turnSpoken(t)}${yard}.${then}`;
+    if (say === lastTurnSay.text && performance.now() - lastTurnSay.at < 20000) return;
+    lastTurnSay = { text: say, at: performance.now() };
+    if (demoMode) (window.__said = window.__said || []).push(`${Math.round(t.distance)} m bei ${Math.round(v)} km/h: ${say}`); // Test
+    speak(say, null, { priority: lv === 2 ? 1 : lv === 1 ? 2 : 3 });
+  }
