@@ -1,0 +1,2 @@
+  const laneCard = (n) => ['零', '一', '两', '三', '四', '五', '六', '七', '八'][Number(n)] || String(n);
+  const laneOrd = (n) => ['零', '一', '二', '三', '四', '五', '六', '七', '八'][Number(n)] || String(n);
