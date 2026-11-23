@@ -1,0 +1,90 @@
+  // 播报优先级队列（P0 紧急 / P1 执行 / P2 准备 / P3 预告）
+  const speechQueue = [];
+  const isSpeaking = () => (currentAudio && !currentAudio.ended) || (typeof speechSynthesis !== 'undefined' && speechSynthesis.speaking);
+  function speak(text, onEnd0, { pa = false, lang = null, priority = 2 } = {}) {
+    // Durchsagen (Haltestellen) mit eigenem Regler, alles andere mit „Sprachansagen“
+    const level = pa ? settings.volumeAnnounce ?? settings.volumeVoice : settings.volumeVoice;
+    if (!canSpeak || !settings.voice || level <= 0) return onEnd0 && onEnd0();
+    if (!pa && Date.now() < paBusyUntil) {
+      const queued = () => speak(text, onEnd0, { lang, priority });
+      afterPa = queued;
+      setTimeout(() => afterPa === queued && runAfterPa(), paBusyUntil - Date.now() + 50);
+      return;
+    }
+    // 优先级：P0/P1 打断并清空普通队列；P2/P3 正在播报时排队等待
+    if (!pa && isSpeaking()) {
+      if (priority >= 2) { speechQueue.push({ text, onEnd0, lang, priority }); return; }
+      speechQueue.length = 0;
+    }
+    stopSpeaking();
+    duckRadio(true); // Radio leiser, solange gesprochen wird
+    if (pa) paBusyUntil = Date.now() + 15000;
+    const startToken = speakToken;
+    const onEnd = () => {
+      duckRadio(false);
+      if (pa && startToken === speakToken) setTimeout(runAfterPa, 300); // kurz Luft nach der Durchsage
+      // 播完当前条后，播队列中的下一条
+      if (speechQueue.length) {
+        const next = speechQueue.shift();
+        setTimeout(() => speak(next.text, next.onEnd0, { lang: next.lang, priority: next.priority }), 250);
+      }
+      onEnd0 && onEnd0();
+    };
+    const token = speakToken;
+    const volume = callMuted && !callEl.hidden ? 0 : Math.max(0, Math.min(1, level / 100)); // Anruf „Ton aus“
+    // Durchsage: Gong erst, wenn die Stimme bereitsteht (nach der Sprachsynthese), dann die Stimme – für jede Stimme gleich
+    const prelude = pa ? (start) => {
+      const ms = busChime(volume);
+      setTimeout(() => token === speakToken && start(), ms);
+    } : (start) => start();
+    speakCtx = { token, volume, prelude };
+    const play = (url) => {
+      currentAudio = new Audio(url);
+      currentAudio.volume = volume;
+      if (pa) paRoute(currentAudio, volume);
+      currentAudio.onended = () => onEnd && onEnd();
+      currentAudio.onerror = () => onEnd && onEnd();
+      const audio = currentAudio;
+      prelude(() => audio.play().catch(() => onEnd && onEnd()));
+    };
+    // Chinesisch: mit der chinesischen Windows-Stimme (Huihui, Xiaoxiao, Hanhan …), Einheiten ausgeschrieben (Issue #8 –
+    // vorher bekam sie den Text als Deutsch markiert und buchstabierte „m“ & Co.). Ohne chinesische Stimme auf Englisch.
+    const vlang = lang || speechLang();
+    if (vlang === 'zh' || vlang === 'zh-hant') {
+      const hant = vlang === 'zh-hant';
+      const zh = spokenChinese(CarI18n.translateTo(text, vlang), hant);
+      const zhTag = hant ? 'zh-TW' : 'zh-CN';
+      const english = () => token === speakToken && speakIn('en', text, token, play, onEnd);
+      // chinesische AI-Stimme (Kokoro, main/tts-kokoro.js) – klappt das nicht, die Windows-Stimme
+      const windows = () => {
+        if (token !== speakToken) return;
+        if (api?.tts) api.tts(zh, hant ? 'Microsoft Hanhan' : 'Microsoft Huihui', zhTag).then((url) => {
+          if (token !== speakToken) return;
+          if (url) play(url);
+          else english();
+        }, english);
+        else if (browserVoice('zh')) speakBrowser(zh, onEnd, 'zh');
+        else english();
+      };
+      if (aiStatus?.kokoro && /^K\d+$/.test(settings.voiceZh || '') && api?.aiTts) {
+        api.aiTts(kokoroText(zh), vlang, settings.voiceZh).then((r) => {
+          if (token !== speakToken) return;
+          if (r?.url) play(r.url);
+          else windows();
+        }, windows);
+        return;
+      }
+      if (settings.voiceName === 'system' && browserVoice('zh')) speakBrowser(zh, onEnd, 'zh'); // Systemstimme ausdrücklich gewählt
+      else if (api?.tts) {
+        api.tts(zh, hant ? 'Microsoft Hanhan' : 'Microsoft Huihui', zhTag).then((url) => {
+          if (token !== speakToken) return;
+          if (url) play(url);
+          else english();
+        }, english);
+      } else if (browserVoice('zh')) speakBrowser(zh, onEnd, 'zh');
+      else english();
+      return;
+    }
+    speakIn(vlang, text, token, play, onEnd);
+  }
+
