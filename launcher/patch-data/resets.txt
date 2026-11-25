@@ -1,2 +1,4 @@
-    laneSaid.clear(); laneWarned.clear(); // 车道推荐也重新来
+    spokenTurns.clear(); // neue Route: Ansagen neu
+    laneSaid.clear(); laneWarned.clear(); laneLockTurn = null; // 车道推荐也重新来
     arrivalStage = 0; // 新路线：到达播报重新开始
+    lastFirstTurn = null;
