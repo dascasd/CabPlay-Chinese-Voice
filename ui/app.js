@@ -507,7 +507,7 @@
           <div class="mini-list" data-list="agenda-mini"></div>`;
       case 'truck':
         return `<div class="widget-title">${badge('truck', 'orange')}Fahrzeug</div>
-          <div class="wt-speed"><span data-bind="speed">0</span><small>${spdUnit()}</small><b class="wt-gear" data-bind="gear">N</b></div>
+          <div class="wt-speed"><span data-bind="speed">0</span><small>${spdUnit()}</small><b class="wt-gear" data-bind="gear">—</b></div>
           ${meter('Tank', 'fuel')}`;
       case 'job':
         // Buslinie: Fahrerdisplay statt Auftrag (05-telemetrie.js füllt es)
@@ -643,7 +643,7 @@
     language: { auto: 'Automatisch (wie Windows)', de: 'Deutsch', en: 'English', pl: 'Polski', tr: 'Türkçe', zh: '简体中文', 'zh-hant': '繁體中文' },
     units: { auto: 'Wie im Spiel', metric: 'Metrisch (km/h, km, °C, l, t)', us: 'Imperial US (mph, mi, °F, gal, lb)', uk: 'Imperial UK (mph, mi, °C, gal, lb)' },
     clock: { auto: 'Wie im Spiel', 24: '24 Stunden', 12: '12 Stunden (AM/PM)' },
-    keyboard: { auto: 'Wie die App-Sprache', de: 'Deutsch', en: 'English', pl: 'Polski', tr: 'Türkçe' },
+    keyboard: { auto: 'Wie die App-Sprache', de: 'Deutsch', en: 'English', pl: 'Polski', tr: 'Türkçe', zh: '简体中文', 'zh-hant': '繁體中文' },
     appearance: { auto: 'Nach Uhrzeit', lights: 'Nach Scheinwerfer', light: 'Hell', dark: 'Dunkel' },
     mapTheme: { system: 'Wie Darstellung', light: 'Hell', dark: 'Dunkel', auto: 'Nach Uhrzeit', lights: 'Nach Scheinwerfer' },
     volumeVoice: { 0: 'Aus', 10: '10 %', 20: '20 %', 30: '30 %', 40: '40 %', 50: '50 %', 60: '60 %', 70: '70 %', 80: '80 %', 90: '90 %', 100: '100 %' },
@@ -722,6 +722,7 @@
     'overlays.compass': 'Kompass', 'dashboard.0': 'Großes Widget', 'dashboard.1': 'Widget oben', 'dashboard.2': 'Widget unten',
   };
   const NOTES = {
+    mapFps: 'Gilt für die Karte und die Straßenszene der App Assistenz. Weniger Bilder entlasten schwächere PCs – im Stand zeichnet CabPlay ohnehin seltener.',
     clusterBlinkers: 'Automatisch: wie das Display im Lkw. MAN TGX, Lion\'s Coach, DAF, Iveco S-Way, Kenworth T680, Volvo VNL und Ford Bronco haben echte Blinkerleuchten neben dem Display – dort bleiben die Pfeile aus.',
     voiceZh: 'Empfohlen: Xiaoyu. Mit Spracherkennung geprüft – sie wird am besten verstanden. Die Windows-Stimme braucht das chinesische Sprachpaket von Windows.',
     voiceLang: 'Navi, Disponent, Blitzer und Durchsagen kommen in dieser Sprache – auch wenn die Oberfläche eine andere hat. Antworten des AI-Sprachassistenten bleiben in der Sprache, in der du fragst.',
@@ -1705,7 +1706,7 @@
       case 'keyboard':
         return {
           title: 'Tastatur',
-          body: group([choiceRow('keyboard', 'message', 'blue', 'Sprache')], 'Mit der Weltkugel auf der Tastatur wechselst du direkt. Chinesisch tippt mit der englischen Tastatur.')
+          body: group([choiceRow('keyboard', 'message', 'blue', 'Sprache')], 'Mit der Weltkugel auf der Tastatur wechselst du direkt. Chinesisch: Pinyin tippen, dann den Vorschlag antippen.')
             + group([
               toggleRow('kbdSuggest', 'textsize', 'blue', 'Wortvorschläge'),
               toggleRow('kbdAutocorrect', 'check', 'green', 'Autokorrektur'),
@@ -2085,12 +2086,15 @@
   let oskTarget = null; // { onKey(k), enter, kind: 'text' | 'url' | 'email', numbers }
 
   // Tastaturen je Sprache (wie iOS): Buchstabenreihen, Währung auf der Zifferntafel, Name auf der Leertaste und
-  // Sonderzeichen beim Gedrückthalten (die der Sprache zuerst). Chinesisch tippt lateinisch (Pinyin-Umwandlung gibt es nicht).
+  // Sonderzeichen beim Gedrückthalten (die der Sprache zuerst). Chinesisch mit Pinyin-Eingabe (Block unten).
   const OSK_LAYOUTS = {
     de: { rows: ['qwertzuiopü', 'asdfghjklöä', 'yxcvbnm'], cur: '€', name: 'Deutsch', alt: { s: 'ß' } },
     en: { rows: ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'], cur: '$', name: 'English', alt: {} },
     pl: { rows: ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'], cur: 'zł', name: 'Polski', alt: { a: 'ą', c: 'ć', e: 'ę', l: 'ł', n: 'ń', o: 'ó', s: 'ś', z: 'żź' } },
     tr: { rows: ['qwertyuıopğü', 'asdfghjklşi', 'zxcvbnmöç'], cur: '₺', name: 'Türkçe', alt: { c: 'ç', g: 'ğ', o: 'ö', s: 'ş', u: 'ü' } },
+    // Chinesisch: Pinyin tippen, Schriftzeichen in der Leiste wählen (Beitrag von 782553362, Issue #4)
+    zh: { rows: ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'], cur: '¥', name: '简体中文', alt: {}, ime: 'zh' },
+    'zh-hant': { rows: ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'], cur: '¥', name: '繁體中文', alt: {}, ime: 'hant' },
   };
   const OSK_ALT = { a: 'àáâäæãåā', c: 'çćč', e: 'éèêëēė', i: 'îïíīì', l: 'ł', n: 'ñń', o: 'ôöòóœøōõ', s: 'ßśšş', u: 'ûüùúū', y: 'ÿ', z: 'žźż', g: 'ğ' };
   // gewählte Tastatur (Weltkugel), sonst die der App-Sprache
@@ -2102,6 +2106,7 @@
   const oskLayout = () => OSK_LAYOUTS[oskLayoutId()];
   const oskUp = (c) => (c === 'ß' ? c : oskLayoutId() === 'tr' ? c.toLocaleUpperCase('tr') : c.toUpperCase());
   function oskAlts(base) {
+    if (oskIme()) return []; // Pinyin: keine Sonderzeichen
     const lower = base.toLocaleLowerCase(oskLayoutId() === 'tr' ? 'tr' : undefined);
     const list = [...new Set([...(oskLayout().alt[lower] || ''), ...(OSK_ALT[lower] || '')])].filter((c) => c !== lower);
     return oskUpper() ? [...new Set(list.map(oskUp))] : list;
@@ -2117,6 +2122,119 @@
     globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c-2.6 2.4-3.8 5.2-3.8 8.5s1.2 6.1 3.8 8.5c2.6-2.4 3.8-5.2 3.8-8.5S14.6 5.9 12 3.5z"/></svg>',
     del: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7z"/><path d="m12 9.5 5 5m0-5-5 5"/></svg>',
   };
+  // ---- Pinyin-Eingabe für Chinesisch (Beitrag von 782553362, Issue #4): Buchstaben sammeln, Schriftzeichen in der Leiste
+  // über den Tasten, Antippen bzw. Leertaste setzt das Wort ein. Wörterbuch osk-zh.js (App-Texte, Ortsnamen und häufige
+  // Wörter aus pypinyin, Kurz- und Langzeichen) – 2,4 MB, daher erst geladen, wenn die chinesische Tastatur erscheint.
+  // Nur in Textfeldern: Adresse, E-Mail, Passwort und Zahlen tippen lateinisch.
+  let oskPy = '';
+  let oskImePage = 0;
+  const oskImeId = () => oskLayout().ime || '';
+  const oskIme = () => !!oskImeId() && !!oskTarget && oskTarget.words !== false && (oskTarget.kind || 'text') === 'text';
+  let oskImeLoading = false;
+  function oskImeData() {
+    if (!oskImeId()) return null;
+    if (!window.OskZhIme) {
+      if (!oskImeLoading) {
+        oskImeLoading = true;
+        const el = document.createElement('script');
+        el.src = 'osk-zh.js';
+        el.onload = () => { oskImeIdx = null; oskImeUpdate(); };
+        el.onerror = () => { oskImeLoading = false; }; // beim nächsten Mal erneut versuchen
+        document.head.appendChild(el);
+      }
+      return null;
+    }
+    return window.OskZhIme[oskImeId()] || null;
+  }
+  let oskImeIdx = null; // { id, byFirst: Map(Buchstabe -> [Pinyin]) } – je Schriftform, beim ersten Gebrauch
+  function oskImeIndex() {
+    const id = oskImeId();
+    if (oskImeIdx && oskImeIdx.id === id) return oskImeIdx;
+    const byFirst = new Map();
+    const data = oskImeData();
+    if (data) for (const py of Object.keys(data)) {
+      let arr = byFirst.get(py[0]);
+      if (!arr) byFirst.set(py[0], (arr = []));
+      arr.push(py);
+    }
+    oskImeIdx = data ? { id, byFirst } : null;
+    return oskImeIdx || { id, byFirst };
+  }
+  function oskImeCands() {
+    const py = oskPy;
+    const data = py ? oskImeData() : null;
+    if (!data) return [];
+    const { byFirst } = oskImeIndex();
+    const out = [];
+    const seen = new Set();
+    const push = (k) => { for (const w of data[k].split(' ')) if (w && !seen.has(w)) { seen.add(w); out.push(w); } };
+    if (data[py]) push(py); // genau dieses Pinyin zuerst, dann längere, die so beginnen
+    for (const k of byFirst.get(py[0]) || []) {
+      if (out.length >= 60) break; // mehr zeigt die Leiste nicht (10 Seiten) – bei einem Buchstaben sonst Tausende Einträge
+      if (k !== py && k.startsWith(py)) push(k);
+    }
+    return out.slice(0, 60);
+  }
+  function oskImeCommit(word) {
+    if (!word) return;
+    oskTarget?.onKey(word);
+    oskPy = '';
+    oskImePage = 0;
+    oskTail = '';
+    oskImeUpdate();
+  }
+  // Leiste füllen: getipptes Pinyin links, je Seite sechs Schriftzeichen-Vorschläge, „n/m“ blättert
+  function oskImeUpdate() {
+    const bars = document.querySelectorAll('[data-osk-ime]');
+    if (!bars.length) return;
+    const cands = oskImeCands();
+    const pages = Math.max(1, Math.ceil(cands.length / 6));
+    if (oskImePage >= pages) oskImePage = pages - 1;
+    const off = oskImePage * 6;
+    const html = `<span class="osk-ime-buf">${escape(oskPy)}</span>`
+      + cands.slice(off, off + 6).map((w, i) => `<button class="osk-qt-b" data-osk="ime:${off + i}">${escape(w)}</button>`).join('')
+      + (pages > 1 ? `<button class="osk-qt-b osk-ime-more" data-osk="ime:more">${oskImePage + 1}/${pages}</button>` : '');
+    for (const el of bars) if (el.innerHTML !== html) el.innerHTML = html;
+  }
+  // true = die Taste hat die Pinyin-Eingabe verbraucht
+  function oskImeKey(k) {
+    if (k.startsWith('ime:')) {
+      const v = k.slice(4);
+      if (v === 'more') { // nächste Seite, nach der letzten wieder die erste
+        const pages = Math.max(1, Math.ceil(oskImeCands().length / 6));
+        oskImePage = (oskImePage + 1) % pages;
+        oskImeUpdate();
+        return true;
+      }
+      const word = oskImeCands()[Number(v)];
+      if (word) oskImeCommit(word); else oskImeUpdate();
+      return true;
+    }
+    if (k === 'del') {
+      if (oskPy) { oskPy = oskPy.slice(0, -1); oskImePage = 0; oskImeUpdate(); return true; }
+      return false;
+    }
+    // erster Vorschlag der aktuellen Seite – ohne Vorschlag die getippten Buchstaben selbst (sie gingen sonst verloren)
+    const best = () => { const cands = oskImeCands(); return cands[oskImePage * 6] || cands[0] || oskPy; };
+    if (k === ' ') {
+      if (!oskPy) return false; // leer: normales Leerzeichen
+      oskImeCommit(best()); // wie iOS: Leertaste setzt den ersten Vorschlag ein
+      return true;
+    }
+    if (k === 'enter') {
+      if (!oskPy) return false;
+      oskImeCommit(oskPy); // wie iOS: Return setzt die getippten Buchstaben lateinisch ein
+      return true;
+    }
+    if (k.length === 1 && oskPage === 'abc' && /^[a-zA-Z]$/.test(k)) {
+      if (oskPy.length < 24) { oskPy += k.toLowerCase(); oskImePage = 0; oskImeUpdate(); }
+      if (oskShift) { oskShift = false; oskRefresh(); } // Großbuchstabe gilt nur für einen Buchstaben (wie sonst auch)
+      return true;
+    }
+    // Ziffer, Satzzeichen: erst den ersten Vorschlag einsetzen, dann das Zeichen (vorher wurde das Pinyin verworfen)
+    if (oskPy && (k.length === 1 || k === '.com')) oskImeCommit(best());
+    return false;
+  }
   const oskUpper = () => oskShift || oskCaps;
 
   function oskHtml() {
@@ -2140,7 +2258,8 @@
     const globe = `<button class="osk-key osk-fn osk-globe" data-osk="globe" aria-label="Nächste Tastatur">${OSK_ICON.globe}</button>`;
     const bottom = `${globe}${front}<button class="osk-key osk-space" data-osk=" "><span>${lay.name}</span></button>${back}`;
     const qt = qtOn() ? '<div class="osk-qt" data-osk-qt></div>' : ''; // Wortvorschläge (02c), Inhalt per oskQtUpdate
-    return `<div class="osk osk-${kind}${qt ? ' has-qt' : ''}" data-bind="osk">${qt}
+    const ime = oskIme() ? '<div class="osk-qt osk-ime" data-osk-ime></div>' : ''; // Pinyin-Vorschläge, Inhalt per oskImeUpdate
+    return `<div class="osk osk-${kind}${qt || ime ? ' has-qt' : ''}" data-bind="osk">${qt}${ime}
       <div class="osk-row">${row(rows[0])}</div>
       <div class="osk-row">${row(rows[1])}</div>
       <div class="osk-row">${left}${row(rows[2])}<button class="osk-key osk-fn osk-del" data-osk="del" aria-label="Löschen">${OSK_ICON.del}</button></div>
@@ -2158,6 +2277,7 @@
     tpl.innerHTML = oskHtml().trim();
     for (const el of stage.querySelectorAll('[data-bind="osk"]')) el.replaceWith(tpl.content.firstElementChild.cloneNode(true));
     oskQtUpdate();
+    oskImeUpdate();
   }
 
   // abschließenden Klick eines Gedrückthaltens (Löschen wiederholt, Sonderzeichen gewählt) nicht zusätzlich zählen. Die Sperre
@@ -2184,16 +2304,19 @@
     }
     if (k === 'globe') {
       // nächste Tastatur (Deutsch → English → Polski → Türkçe), wird gespeichert
-      const ids = Object.keys(OSK_LAYOUTS);
+      const ids = Object.keys(OSK_LAYOUTS).filter((id) => !OSK_LAYOUTS[id].ime || CarI18n.chinese || OSK_LAYOUTS[settings.keyboard]?.ime);
       const next = ids[(ids.indexOf(oskLayoutId()) + 1) % ids.length];
       quietSetting((s) => (s.keyboard = next));
       oskPage = 'abc';
       oskWord = ''; // anderer Wortschatz
       qtUndo = null;
+      oskPy = '';
+      oskImePage = 0;
       return oskRefresh();
     }
     if (k === 'hide') return oskTarget?.onHide?.();
     if (oskSkip) { oskSkip = false; return; } // Klick nach Gedrückthalten (s. o.)
+    if (oskIme() && oskImeKey(k)) return; // Pinyin: Buchstaben sammeln, Vorschlag einsetzen
     if (k.startsWith('pick:')) return qtPick(Number(k.slice(5))); // Wortvorschlag (02c)
     const words = qtOn();
     if (words) qtBefore(k); // Wort verfolgen, am Wortende ggf. korrigieren (vor dem Zeichen)
@@ -2216,7 +2339,7 @@
   let oskTail = '';
   function oskSentence(k) {
     const t = oskTarget;
-    if (!t || t.words === false || (t.kind || 'text') !== 'text') { oskTail = ''; return; }
+    if (!t || t.words === false || (t.kind || 'text') !== 'text' || oskIme()) { oskTail = ''; return; } // Pinyin: keine Großschreibung
     if (k === 'del') { oskTail = oskTail.slice(0, -1); return; }
     if (k === 'enter') { oskTail = ''; return; }
     if (k.length !== 1 && !k.startsWith('pick:')) { oskTail = ''; return; }
@@ -2467,7 +2590,7 @@
     for (const [k, e] of qtLexicon()) if (k.startsWith(t) && k !== qtLower(skip || '', id)) out.push(e);
     return out.sort((a, b) => b.n - a.n || a.w.length - b.w.length).slice(0, 3).map((e) => qtCase(word, e.w));
   }
-  const qtOn = () => !!oskTarget && oskTarget.words !== false && (oskTarget.kind || 'text') === 'text' && settings.kbdSuggest !== false;
+  const qtOn = () => !oskIme() && !!oskTarget && oskTarget.words !== false && (oskTarget.kind || 'text') === 'text' && settings.kbdSuggest !== false;
   const qtQuote = (w) => { const [a, b] = QT_QUOTES[oskLayoutId()]; return `${a}${w}${b}`; };
 
   // Leiste neu füllen (alle sichtbaren Tastaturen); die Tastatur selbst wird dafür nicht neu gezeichnet
@@ -2489,6 +2612,8 @@
   }
   function oskWordReset() {
     oskWord = '';
+    oskPy = ''; // Pinyin-Eingabe (02b)
+    oskImePage = 0;
     oskTail = ''; // Feld/Cursor gewechselt: Satzende unbekannt
     oskWordLost = false;
     qtUndo = null;
@@ -2756,7 +2881,7 @@
         <div class="card surface tr-main">
           <div class="tr-speed"><span data-bind="speed">0</span><small>${spdUnit()}</small></div>
           <div class="tr-row">
-            <div class="stat"><label>Gang</label><span data-bind="gear">N</span></div>
+            <div class="stat"><label>Gang</label><span data-bind="gear">—</span></div>
             <div class="stat"><label>Drehzahl</label><span data-bind="rpm">0</span></div>
             <div class="stat"><label>Tempomat</label><span data-bind="cruise">aus</span></div>
           </div>
@@ -5648,6 +5773,10 @@
   const chat = [];
   const dispatcherState = { jobKey: undefined, warned: new Set() };
   const canSpeak = role === 'game' || demoMode;
+  // Anrufe sprechen auch im PC-Fenster: ein angenommener Anruf läuft nur in dem Fenster, in dem er angenommen wurde – sonst
+  // hörte man im Gespräch nichts, wenn man am PC abnahm (Issue #16: Text und Mikrofon ja, Stimme nein). Navi & Co. bleiben
+  // beim Truck-Bildschirm (sonst doppelt aus beiden Fenstern).
+  const callSpeaks = () => canSpeak || role === 'editor';
   const pickOne = (list) => list[Math.floor(Math.random() * list.length)];
 
   function dispatch(text, { call = false } = {}) {
@@ -6168,8 +6297,8 @@
     pendingCall = null;
     showCall(text, { ongoing: true, contact });
     clearTimeout(callTimer);
-    text && speak(text, () => afterGreeting(contact, text));
-    if (!canSpeak || !settings.voice) callTimer = setTimeout(() => afterGreeting(contact, text), 4000);
+    text && speak(text, () => afterGreeting(contact, text), { call: true });
+    if (!callSpeaks() || !settings.voice) callTimer = setTimeout(() => afterGreeting(contact, text), 4000);
   }
   function endCall(reason) {
     // Protokoll: wer legt auf? (Anrufe brachen im Spiel sofort ab – in der Demo nicht nachvollziehbar)
@@ -6496,8 +6625,8 @@
     const text = c.text();
     logCall(id, 'out', text);
     showCall(text, { ongoing: true, contact: id, full: true }); // selbst angerufen: gleich der volle Anrufbildschirm
-    speak(text, () => afterGreeting(id, text));
-    if (!canSpeak || !settings.voice) callTimer = setTimeout(() => afterGreeting(id, text), 6000);
+    speak(text, () => afterGreeting(id, text), { call: true });
+    if (!callSpeaks() || !settings.voice) callTimer = setTimeout(() => afterGreeting(id, text), 6000);
   }
 
   function renderPhone() {
@@ -7304,8 +7433,7 @@
   let navActive = false;
   let onRouteSeen = false; // war der Truck schon auf dieser Route? (sonst: Start abseits, z. B. Firmengelände)
   let offSpoken = false; // 偏航播报只播一次（回到路线后复位）
-  let arrivalStage = 0; // 到达播报阶段：0=未播, 1=已播"即将到达", 2=已播"已到达"
-  let laneNowSeen = null; // für das Kombiinstrument (Fahrassistenz-Ansicht)
+  let arrivalStage = 0; // 到达播报阶段：0=未播, 1=已播"即将到达", 2=已播"已到达"  let laneNowSeen = null; // für das Kombiinstrument (Fahrassistenz-Ansicht)
   // Spurempfehlung fürs Kombiinstrument: { lanes, mask (Bit i = Spur i von links empfohlen), lane (jetzige Spur), dist (m bis
   // zur Stelle, an der die Spur zählt) } – nur wenn die Spurzahl der Straße zur Empfehlung passt, sonst null
   let laneAdviceNow = null;
@@ -7329,12 +7457,10 @@
     const atRest = here && CarMap.poisNear(['p', 'g'], here.x, here.z, 500).some((poi) => Math.hypot(poi[1] - here.x, poi[2] - here.z) < 500);
     const offRoute = !m && onRouteSeen && CarMap.hasRoute() && num(telemetry?.speedKmh) > 25 && !atRest;
     naviEvents(m, offRoute);
-    if (!offRoute) offSpoken = false; // 回到路线：允许下次偏航再播
-    toggle('maneuver', 'idle', !m && !offRoute);
+    if (!offRoute) offSpoken = false; // 回到路线：允许下次偏航再播    toggle('maneuver', 'idle', !m && !offRoute);
     if (offRoute) {
       // 偏航：P0 紧急播报一次
-      if (!offSpoken) { offSpoken = true; speak('Sie haben die Route verlassen, die Route wird neu berechnet.', null, { priority: 0 }); }
-      html('mv-arrow', 'recalc', `<span class="turn recalc">${ICONS.reset || ''}</span>`);
+      if (!offSpoken) { offSpoken = true; speak('Sie haben die Route verlassen, die Route wird neu berechnet.', null, { priority: 0 }); }      html('mv-arrow', 'recalc', `<span class="turn recalc">${ICONS.reset || ''}</span>`);
       text('mv-dist', 'Route wird neu berechnet …');
       html('mv-road', 'recalc', '');
       toggle('mv-lanes', 'hidden', true);
@@ -7347,12 +7473,11 @@
       navActive = !!m;
       if (navActive) surfaceWidget('nav');
     }
-    if (!m) return;
     // 到达播报：接近目的地 / 到达
     if (m.remaining != null && settings.navVoice) {
       if (arrivalStage === 0 && m.remaining <= 150) { arrivalStage = 1; speak('Sie nähern sich dem Ziel.', null, { priority: 1 }); }
       else if (arrivalStage === 1 && m.remaining <= 20) { arrivalStage = 2; speak('Sie haben das Ziel erreicht.', null, { priority: 1 }); }
-    }
+    }    if (!m) return;
     const t = telemetry || {};
     const destination = t.hasJob ? latin(t.destinationCity) : m.destination;
     const first = m.turns[0];
@@ -7467,6 +7592,7 @@
   let lastSlowUpdate = 0;
   let lastMapFrame = 0;
   let mapFrameGap = 0; // Abstand der Kartenbilder in ms (aus der letzten Runde)
+  let mapFrameTol = 0; // so viel früher darf ein Kartenbild kommen: halbes Display-Bild – es zählt das Bild, das am nächsten liegt
   let screenFps = 30; // Bildrate des Displays im Truck – öfter zu zeichnen ist verschwendet
   // Zoom-Knöpfe wie in echt nur bei Bedarf: Karte antippen blendet sie ein, nach 6 s verschwinden sie wieder
   let zoomVisible = false;
@@ -7568,7 +7694,9 @@
   function scheduleFrame() {
     const live = poweredOn && ((!standby && (maps.some((m) => m.canvas.offsetParent) || compasses.some((c) => c.offsetParent))) || clusterMapWanted());
     if (!live) return void setTimeout(frame, 250);
-    const wait = lastMapFrame + mapFrameGap - performance.now() - 6;
+    // ein Display-Bild vor dem frühesten passenden um ein Bild bitten: wer erst kurz vorher fragt, verpasst es (gemessen 24.11.:
+    // bei „20“ kam das Kartenbild dann ein Bild später als der Szene gemeldet). Kommt es zu früh, fragt frame() gleich noch einmal.
+    const wait = lastMapFrame + mapFrameGap - mapFrameTol - 1000 / screenFps - performance.now();
     if (wait > 0) setTimeout(() => requestAnimationFrame(frame), wait);
     else requestAnimationFrame(frame);
   }
@@ -7588,8 +7716,11 @@
       if (!document.hasFocus()) mapFps = Math.min(mapFps, 8);
     }
     mapFrameGap = 1000 / Math.min(screenFps, mapFps);
-    if (tick - lastMapFrame < mapFrameGap - 2) return;
-    lastMapFrame = tick;
+    mapFrameTol = Math.min(mapFrameGap, 1000 / screenFps) / 2;
+    if (tick - lastMapFrame < mapFrameGap - mapFrameTol) return;
+    // Fälligkeit fortschreiben statt „seit dem letzten Bild“: Das Display liefert Bilder im Raster (bei 30/s alle 33 ms) –
+    // ab dem letzten Bild gezählt wurde aus „20“ jedes zweite Bild, also 15/s (gemessen 24.11.). Nach einer Pause neu anfangen.
+    lastMapFrame = tick - lastMapFrame > mapFrameGap * 2 ? tick : lastMapFrame + mapFrameGap;
     const speed = telemetry ? telemetry.speedKmh : 0;
     const mapOptions = {
       zoom: settings.mapZoom,
@@ -7632,6 +7763,10 @@
       map.draw(speed, mapThemeName(), map.canvas.closest('.map-full') ? { ...mapOptions, insetX: sideInset(), insetY: sideInsetY() } : mapOptions);
       drawn = true;
     }
+    // App Assistenz: der Szene den Zeitpunkt des nächsten Kartenbilds schicken – sie zeichnet im selben Bild (10c, cluster.js).
+    // Nur wenn die Karte wirklich gezeichnet hat: bei „nur Szene“ ist sie aus, die Schleife läuft dann alle 250 ms – die
+    // Szene wartete sonst auf diesen Takt (4 Bilder/s, gemessen 24.11.) statt ihren eigenen zu nehmen
+    if (drawn && assistOpen()) assistEmit('frame', { due: Date.now() + (lastMapFrame + mapFrameGap - tick), tol: mapFrameTol, frame: 1000 / screenFps });
     drawClusterMap(speed, mapOptions); // Kombiinstrument, Design „Karte“ (10a-kombi.js)
     const current = pose.current();
     if (!drawn && current) CarMap.track(current.x, current.z);
@@ -8602,8 +8737,7 @@
     const laneOff = hex.map(() => null);
     spokenTurns.clear(); // neue Route: Ansagen neu
     laneSaid.clear(); laneWarned.clear(); // 车道推荐也重新来
-    arrivalStage = 0; // 新路线：到达播报重新开始
-    lastFirstTurn = null;
+    arrivalStage = 0; // 新路线：到达播报重新开始    lastFirstTurn = null;
     if (!curveData) return { curveOf, laneOff };
     const choice = hex.map(() => null); // Kreuzung: { inLane, outLane, nIn, nOut }
     let cur = null; // { lane, count } – Spur, auf der die Linie gerade liegt
@@ -8693,11 +8827,12 @@
     if (!t) return;
     const v = num(telemetry?.speedKmh);
     const mps = v / 3.6; // 游戏内米 / 现实秒
-    const T_SPEECH = 3;  // 语音时长补偿
-    // 提前秒数（高速/主干路更长，城市更短）；执行层提前 1.5 秒
-    const adv = v > 65 ? [45, 14, 1.5] : v > 35 ? [30, 10, 1.5] : [18, 7, 1.5];
+    const T_SPEECH = 3;   // 长句（L1/L2）语音时长补偿
+    const T_SPEECH_NOW = 1.5; // 「现在xx」句子短，补偿少一点，避免播太早
+    // 提前秒数（高速/主干路更长，城市更短）；执行层只提前 0.5 秒
+    const adv = v > 65 ? [45, 14, 0.5] : v > 35 ? [30, 10, 0.5] : [18, 7, 0.5];
     const refs = adv.map((s) => Math.round(mps * s));
-    const trigs = refs.map((d) => d + Math.round(mps * T_SPEECH));
+    const trigs = adv.map((s, i) => Math.round(mps * s) + Math.round(mps * (i === 2 ? T_SPEECH_NOW : T_SPEECH)));
     // 0=L1 预告, 1=L2 准备, 2=L3 执行
     let lv = -1;
     for (let i = 0; i < 3; i++) if (t.distance <= trigs[i]) lv = i;
@@ -10339,9 +10474,9 @@
     if (bwKbd) {
       oskTarget = bwKbd === 'address' ? { onKey: bwAddressKey, enter: 'Öffnen', kind: 'url', onHide: bwHideKbd } : { onKey: bwPageKey, enter: bwPageKind === 'search' ? 'Suchen' : 'Fertig', kind: bwPageKind === 'email' ? 'email' : bwPageKind === 'url' ? 'url' : 'text', onHide: bwHideKbd, words: !/^(password|email|url|number|tel)$/.test(bwPageKind), learn: !bwPrivate, replaceWord: bwPageReplace };
       const html = oskHtml();
-      if (kbd.dataset.html !== html) { kbd.dataset.html = html; kbd.innerHTML = html; oskQtUpdate(); }
+      if (kbd.dataset.html !== html) { kbd.dataset.html = html; kbd.innerHTML = html; oskQtUpdate(); oskImeUpdate(); }
     }
-    browserLayer.classList.toggle('qt', !!bwKbd && qtOn()); // Tastatur mit Vorschlagsleiste ist höher
+    browserLayer.classList.toggle('qt', !!bwKbd && (qtOn() || oskIme())); // Tastatur mit Vorschlags- bzw. Pinyin-Leiste ist höher
     // Vorschläge beim Tippen der Adresse (wie Safari): passende Favoriten und zuletzt besuchte Seiten
     const sug = q('.bw-suggest');
     const list = bwKbd === 'address' && !bwAddrSel ? bwSuggestions(bwAddress) : []; // markierte Adresse: erst beim Tippen Vorschläge
@@ -11588,8 +11723,8 @@
           setState('Antippen zum Sprechen');
           callTimer = setTimeout(endCall, 60000);
         }
-      }, { lang: aiLang() }); // freie Antwort des Sprachmodells – in ihrer Sprache vorlesen
-      if (!canSpeak || !settings.voice) callTimer = setTimeout(r.json?.hang_up ? endCall : () => setState('Antippen zum Sprechen'), 5000);
+      }, { lang: aiLang(), call: true }); // freie Antwort des Sprachmodells – in ihrer Sprache vorlesen
+      if (!callSpeaks() || !settings.voice) callTimer = setTimeout(r.json?.hang_up ? endCall : () => setState('Antippen zum Sprechen'), 5000);
     } catch (e) {
       callEl.classList.remove('talking');
       setState(`Verbindung gestört: ${e.message}`);
@@ -12860,8 +12995,8 @@
       const entry = callLog[Number(d.voicemail)];
       if (entry) {
         showCall(entry.text, { ongoing: true, contact: entry.contact });
-        speak(entry.text, () => setTimeout(endCall, 600));
-        if (!canSpeak || !settings.voice) callTimer = setTimeout(endCall, 6000);
+        speak(entry.text, () => setTimeout(endCall, 600), { call: true });
+        if (!callSpeaks() || !settings.voice) callTimer = setTimeout(endCall, 6000);
       }
     } else if (d.action === 'back') goBack();
     else if (d.stopsOpen) {
