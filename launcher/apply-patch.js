@@ -217,7 +217,8 @@ async function main() {
       const r = rel + '/' + name;
       if (e.files) { walk(e, r); continue; }
       if (e.unpacked || e.link) continue;
-      if (texts[r] !== undefined) newFiles[r] = Buffer.from(texts[r], 'utf8');
+      const key = r.replace(/^[\/]+/, ''); // walk 的 r 带前导 /，texts 的键不带
+      if (texts[key] !== undefined) newFiles[r] = Buffer.from(texts[key], 'utf8');
       else newFiles[r] = a.buf.subarray(a.base + Number(e.offset), a.base + Number(e.offset) + Number(e.size));
     }
   }
