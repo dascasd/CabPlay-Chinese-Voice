@@ -629,9 +629,7 @@
         // in eine Kreuzung mündet, wäre sonst „Wenden“ kurz vor dem eigentlichen Abbiegen
         if (knowsTurns && !routePoints[s[k].i]?.branch && !Array.isArray(junctionTurnNear(s[k].i, 40, 40))) continue;
         let type = decide(classify(total), j);
-        // 没有路口转弯数据（jt）的几何转弯 = 只是道路弯道，不报成左转/右转（弯道不是路口转弯）
-        if (type && !Array.isArray(jt) && (type.kind === 'turn' || type.kind === 'sharp')) continue;
-        if (type && (bl === 'l' || bl === 'r') && type.side !== (bl === 'r' ? 'right' : 'left')) type = { kind: 'slight', side: bl === 'r' ? 'right' : 'left' };
+        if (type && !Array.isArray(jt) && (type.kind === 'turn' || type.kind === 'sharp')) continue;        if (type && (bl === 'l' || bl === 'r') && type.side !== (bl === 'r' ? 'right' : 'left')) type = { kind: 'slight', side: bl === 'r' ? 'right' : 'left' };
         if (!type) continue;
         const prev = routeTurns[routeTurns.length - 1];
         if (prev && s[k].cum - prev.cum < 60) {
@@ -924,7 +922,6 @@
       laneHint = hintAt(held.k);
       hintK = held.k;
     }
-    laneHold = hintK >= 0 ? { route: routePoints, k: hintK, la: routePoints[hintK].la } : null;
     // 第二机动的车道提示（用于「驶出岔路，然后按左侧两车道行驶」）
     let laneHint2 = null;
     if (turns[1]) {
@@ -936,7 +933,7 @@
           break;
         }
       }
-    }
+    }    laneHold = hintK >= 0 ? { route: routePoints, k: hintK, la: routePoints[hintK].la } : null;
     return {
       turns,
       laneHint2,
