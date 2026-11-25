@@ -4,6 +4,7 @@
   let laneWrongSince = 0;
   let laneLastAt = 0;
   const LANE_COOLDOWN = 10000;
+  let laneLockTurn = null; // 车道锁定：上一个车道提示的转弯还没过，先不播下一个
   function lanePhrase(count, goal) {
     // goal：从左边数(0-based)的推荐车道索引（已升序）
     if (goal.length === 1) {
@@ -23,14 +24,17 @@
   }
   function laneVoice(m) {
     const hint = m?.laneHint;
+    const curTurnIdx = m?.turns?.[0]?.index;
+    // 车道锁定：上一个车道提示的转弯还没过，就先不播下一个（避免提前播报混淆、走错路口）
+    if (laneLockTurn != null && curTurnIdx != null && curTurnIdx > laneLockTurn) laneLockTurn = null;
     if (!settings.navVoice || !hint?.key || hint.distance < 80 || hint.distance > 600) { laneWrongSince = 0; return; }
     const goal = [...Array(hint.lanes).keys()].filter((i) => (hint.mask >> i) & 1);
     if (!goal.length) { laneWrongSince = 0; return; }
     const now = performance.now();
     // 主动推荐（一次，且两次播报之间至少 10 秒）
-    if (!laneSaid.has(hint.key) && now - laneLastAt >= LANE_COOLDOWN) {
+    if (!laneSaid.has(hint.key) && now - laneLastAt >= LANE_COOLDOWN && laneLockTurn == null) { // 锁定时不播下一个
       const p = lanePhrase(hint.lanes, goal);
-      if (p) { laneSaid.add(hint.key); laneLastAt = now; speak(p, null, { priority: 2 }); }
+      if (p) { laneSaid.add(hint.key); laneLastAt = now; laneLockTurn = curTurnIdx ?? null; speak(p, null, { priority: 2 }); }
     }
     // 纠偏：需要知道当前车道（且车道数一致时才能判断是否走错）
     if (!hint.laneNow || hint.laneNow.own !== hint.lanes) { laneWrongSince = 0; return; }
