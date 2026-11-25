@@ -152,7 +152,8 @@ function applyPatch(content, p) {
     if (content.includes(p.to)) return { ok: true, out: content, skipped: true }; // 已打过
     return { ok: false, why: 'not found: ' + p.from.slice(0, 40) };
   }
-  const data = fs.readFileSync(path.join(PATCH_DIR, p.dataFile), 'utf8');
+  let data = fs.readFileSync(path.join(PATCH_DIR, p.dataFile), 'utf8');
+  if (!data.endsWith('\n')) data += '\n'; // 必须换行结尾，否则插入后会和下一行粘连（曾导致 toggle 被注释）
   if (p.kind === 'insert') {
     if (content.includes(data.trim().slice(0, 60))) return { ok: true, out: content }; // 已打过
     const i = content.indexOf(p.anchor);
