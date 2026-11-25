@@ -25,12 +25,11 @@
     if (!t) return;
     const v = num(telemetry?.speedKmh);
     const mps = v / 3.6; // 游戏内米 / 现实秒
-    const T_SPEECH = 3;   // 长句（L1/L2）语音时长补偿
-    const T_SPEECH_NOW = 1.5; // 「现在xx」句子短，补偿少一点，避免播太早
-    // 提前秒数（高速/主干路更长，城市更短）；执行层只提前 0.5 秒
-    const adv = v > 65 ? [45, 14, 0.5] : v > 35 ? [30, 10, 0.5] : [18, 7, 0.5];
+    const T_SPEECH = 3;  // 语音时长补偿
+    // 提前秒数（高速/主干路更长，城市更短）；执行层提前 1.5 秒
+    const adv = v > 65 ? [45, 14, 1.5] : v > 35 ? [30, 10, 1.5] : [18, 7, 1.5];
     const refs = adv.map((s) => Math.round(mps * s));
-    const trigs = adv.map((s, i) => Math.round(mps * s) + Math.round(mps * (i === 2 ? T_SPEECH_NOW : T_SPEECH)));
+    const trigs = refs.map((d) => d + Math.round(mps * T_SPEECH));
     // 0=L1 预告, 1=L2 准备, 2=L3 执行
     let lv = -1;
     for (let i = 0; i < 3; i++) if (t.distance <= trigs[i]) lv = i;
