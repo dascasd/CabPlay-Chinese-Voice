@@ -192,7 +192,7 @@
     // besuchte Seiten ({ url, title }), offene Tabs (Adressen, höchstens 5), Zoom je Seite (Host → %), Seiten in Handy-Ansicht
     browser: { driving: true, fullUrl: false, adblock: true, popups: true, editor: false, zoom: 125, favorites: [], recent: [], tabs: [], siteZoom: {}, mobileSites: [] }, // editor: auch im PC-Fenster (Test)
     spotify: false,      // Spotify-Mediathek (Playlists) in der Musik-App – braucht eine Client-ID
-    keyboard: 'auto',    // Bildschirmtastatur: auto = wie die App-Sprache, sonst de | en | pl | tr (Weltkugel-Taste)
+    keyboard: 'auto',    // Bildschirmtastatur: auto = wie die App-Sprache, sonst de | en | pl | tr | zh | zh-hant (Weltkugel-Taste)
     kbdSuggest: true,    // Wortvorschläge über der Bildschirmtastatur
     kbdAutocorrect: true, // Autokorrektur (nur sichere Tippfehler)
     kbdAutoCap: true,    // Auto-Großschreibung (Satzanfang) wie iOS
@@ -658,7 +658,7 @@
         mobileSites: (Array.isArray(b.mobileSites) ? b.mobileSites : []).filter((h) => typeof h === 'string' && /^[\w.-]{1,120}$/.test(h)).slice(0, 50),
       };
     }
-    s.keyboard = ['auto', 'de', 'en', 'pl', 'tr'].includes(src.keyboard) ? src.keyboard : 'auto';
+    s.keyboard = ['auto', 'de', 'en', 'pl', 'tr', 'zh', 'zh-hant'].includes(src.keyboard) ? src.keyboard : 'auto';
     s.kbdSuggest = bool(src.kbdSuggest, s.kbdSuggest);
     s.kbdAutocorrect = bool(src.kbdAutocorrect, s.kbdAutocorrect);
     s.kbdAutoCap = bool(src.kbdAutoCap, s.kbdAutoCap);
