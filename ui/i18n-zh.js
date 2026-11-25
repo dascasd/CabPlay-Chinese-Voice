@@ -1,11 +1,9 @@
-// Vereinfachtes Chinesisch (简体中文) – Übersetzung von KloseY (github.com/782553362), Issue #4, Patch v3.16.
+// Vereinfachtes Chinesisch (简体中文) – Übersetzung von KloseY (github.com/782553362), Issue #4, Patch v3.16, Ergänzungen v3.19.
 // Aufbau wie i18n-en.js: EXACT (ganze Texte), SENTENCES (Satzvorlagen), WORDS (Bausteine), DAYS (Wochentage).
 // Zahlen wie Englisch (1,451 / 8.0). Neue Texte: hier ergänzen (test/i18n-coverage.test.js prüft das).
 window.CarI18nZh = function (translate) {
-  // 车道数量词（集合，如「两车道」）与序数词（单条，如「第二车道」）分开，避免混淆
   const laneCard = (n) => ['零', '一', '两', '三', '四', '五', '六', '七', '八'][Number(n)] || String(n);
-  const laneOrd = (n) => ['零', '一', '二', '三', '四', '五', '六', '七', '八'][Number(n)] || String(n);
-  const EXACT = {
+  const laneOrd = (n) => ['零', '一', '二', '三', '四', '五', '六', '七', '八'][Number(n)] || String(n);  const EXACT = {
     "简体中文": "简体中文",
     "Das Spiel hat keine Blitzerliste. Bekannt sind Kameras und Mautstellen aus den Kartendaten; dazu lernt die App jeden Blitzer, der dich erwischt, und alle, die du in der Blitzer-App meldest.": "游戏没有测速摄像头列表。摄像头和收费站来自地图数据；此外，应用会记录每一个抓拍到你的测速摄像头，以及你在测速摄像头应用里上报的所有摄像头。",
     "z. B. youtube.com/watch?v=…, youtu.be/…, eine Playlist oder twitch.tv/kanal": "例如 youtube.com/watch?v=…、youtu.be/…、一个播放列表或 twitch.tv/kanal",
@@ -506,7 +504,13 @@ window.CarI18nZh = function (translate) {
     "Autokorrektur": "自动改正",
     "Gelernte Wörter löschen": "删除已学习的词语",
     "Gelernte Wörter gelöscht": "已删除学习的词语",
-    "Mit der Weltkugel auf der Tastatur wechselst du direkt. Chinesisch tippt mit der englischen Tastatur.": "用键盘上的地球键可直接切换。中文使用英文键盘输入。",
+    "Mit der Weltkugel auf der Tastatur wechselst du direkt. Chinesisch: Pinyin tippen, dann den Vorschlag antippen.": "按键盘上的地球图标可直接切换。中文：输入拼音，再点选候选词。",
+    "Prag/Praha": "布拉格",
+    "RYGA/RĪGA": "里加",
+    "RĪGA/RYGA": "里加",
+    "Biel/Bienne": "比尔",
+    "Stettin/Szczecin": "什切青",
+    "Toll/Customs": "收费/海关",
     "Vorschläge erscheinen über der Tastatur. Die Autokorrektur verbessert nur eindeutige Tippfehler beim Leerzeichen – antippen des Wortes in Anführungszeichen lässt es, wie du es geschrieben hast. Wörter, die du öfter tippst, lernt CabPlay auf diesem PC (nicht beim privaten Surfen, nie aus Passwortfeldern). Auto-Großschreibung: am Satzanfang groß. Kurzbefehl „.“: zweimal Leertaste setzt Punkt und Leerzeichen.": "建议显示在键盘上方。自动改正只在按空格时修正明显的拼写错误——轻点引号中的词可保留你输入的写法。CabPlay 会在这台电脑上学习你常输入的词语（无痕浏览时不会，也绝不从密码栏学习）。 自动大写：句首字母大写。\".\" 快捷键：连按两下空格键输入句号和空格。",
     "Auto-Großschreibung": "自动大写",
     "Kurzbefehl „.“": "\".\" 快捷键",
@@ -517,6 +521,7 @@ window.CarI18nZh = function (translate) {
     "Diesen Tab schließen": "关闭此标签页",
     "Alle {n} Tabs schließen": "关闭全部 {n} 个标签页",
     "Keine Treffer.": "无结果。",
+    "Gilt für die Karte und die Straßenszene der App Assistenz. Weniger Bilder entlasten schwächere PCs – im Stand zeichnet CabPlay ohnehin seltener.": "适用于地图和辅助驾驶应用中的道路场景。较低的帧数可减轻性能较弱电脑的负担——静止时 CabPlay 本来就会减少绘制。",
     "Nächste Tastatur": "下一个键盘",
     "Tastatur ausblenden": "隐藏键盘",
     "Datenschutzbericht": "隐私报告",
@@ -742,8 +747,7 @@ window.CarI18nZh = function (translate) {
     "Jetzt aus dem Kreisverkehr ausfahren.": "现在驶出环岛。",
     "Sie haben die Route verlassen, die Route wird neu berechnet.": "您已偏航，正在重新规划路线。",
     "Sie nähern sich dem Ziel.": "前方即将到达目的地。",
-    "Sie haben das Ziel erreicht.": "已到达目的地附近。",
-    "Vor engen Kurven warnen": "急弯前提醒",
+    "Sie haben das Ziel erreicht.": "已到达目的地附近。",    "Vor engen Kurven warnen": "急弯前提醒",
     "Enge Kurve": "急弯",
     "Aktuelle Spur markieren": "标记当前车道",
     "Firmengelände": "公司场地",
@@ -1608,14 +1612,13 @@ window.CarI18nZh = function (translate) {
   };
 
   const SENTENCES = [
-    // 两步联合播报的「然后 X 米后 …」必须最先处理，否则后面的环岛/出口子句会先把机动文字换成中文，导致这里匹配不上
+    // 两步联合播报的「然后 X 米后 …」必须最先处理
     [/Danach in ([\d.,]+ (?:m|km|ft|yd|mi)) (links halten|rechts halten|die Ausfahrt (?:links|rechts) nehmen|(?:scharf )?(?:links|rechts) abbiegen|wenden|im Kreisverkehr die \d+\. Ausfahrt nehmen|die Fähre nehmen)\./g, (m, dist, turn) => `然后${translate(dist)}后${translate(turn)}。`],
     // 车道提示（集合用数量词「两车道」，单条用序数词「第二车道」）
     [/Bitte die (\d+)\. Spur von links nehmen\./g, (m, n) => `请走左侧第${laneOrd(n)}车道。`],
     [/Bitte die (\d+)\. Spur von rechts nehmen\./g, (m, n) => `请走右侧第${laneOrd(n)}车道。`],
     [/Bitte die (\d+) linken Spuren nehmen\./g, (m, n) => `请走左侧${laneCard(n)}车道。`],
-    [/Bitte die (\d+) rechten Spuren nehmen\./g, (m, n) => `请走右侧${laneCard(n)}车道。`],
-    [/^Halt (\d+) von (\d+)$/g, '第 $1 站，共 $2 站'], // Fortschritt der Buslinie
+    [/Bitte die (\d+) rechten Spuren nehmen\./g, (m, n) => `请走右侧${laneCard(n)}车道。`],    [/^Halt (\d+) von (\d+)$/g, '第 $1 站，共 $2 站'], // Fortschritt der Buslinie
     // Buslinie: Haltestellen-Ansagen (05-telemetrie.js busAnnounce) – mit Punkt; die Anzeige „Nächster Halt: X“ (ohne) weiter unten
     [/^Nächster Halt: (.+)\.$/g, '下一站：$1。'],
     [/^Wir erreichen gleich unsere Endhaltestelle (.+)\. Bitte alle aussteigen\.$/g, '即将到达终点站 $1，请全体乘客下车。'],
