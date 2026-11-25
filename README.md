@@ -1,6 +1,11 @@
 # CabPlay 中文语音导航增强
 
-基于 CabPlay **1.22.0** 的中文语音导航增强，把语音播报改成了更详细、更自然的中文播报。
+基于 CabPlay **1.22.1** 的中文语音导航增强，把语音播报改成了更详细、更自然的中文播报。
+
+## 🆕 1.22.1 更新说明
+
+- **修复补丁器 bug**：之前会显示「补丁已应用」但实际没写进 app.asar（路径匹配问题），已修复
+- **调整「现在xx」提前量**：1.5s → 0.5s，短句语音补偿 1.5s，不再播太早
 
 ## ✨ 特点
 
@@ -19,17 +24,18 @@
 
 ```
 CabPlay-Voice-Launcher/
-  启动 CabPlay(语音增强).bat   ← 双击这个
-  launcher.ps1                 启动逻辑
-  apply-patch.js               补丁器（用 CabPlay 自带 Node）
-  *.txt                        补丁数据（代码片段 + 翻译）
-  patched-version.txt          记录已适配版本
+  CabPlayVoice.exe              ← 双击这个（真程序，可固定到开始屏幕/任务栏）
+  apply-patch.js                补丁器（用 CabPlay 自带 Node）
+  启动 CabPlay(语音增强).bat    备用入口
+  launcher.ps1                  启动逻辑
+  *.txt                         补丁数据（代码片段 + 翻译）
+  patched-version.txt           记录已适配版本
 ```
 
 **工作流程**：
 
 ```
-双击启动器
+双击 CabPlayVoice.exe
   ↓
 检查 app.asar 版本 vs 已适配版本
   ├─ 一致      → 直接启动（带语音增强）
@@ -45,9 +51,9 @@ CabPlay-Voice-Launcher/
 
 | 文件 | 用途 |
 |---|---|
-| `CabPlay-zh-voice-v1.22.0.zip` | 完整包（程序 + ETS2 模组 + 教程 + 启动器） |
 | `app.asar` | 仅语音引擎（覆盖 `resources\app.asar`） |
 | `CabPlay-Voice-Launcher.zip` | 仅启动器（自动打补丁） |
+| `CabPlay-zh-voice-v1.22.0.zip` | 完整包（程序 + ETS2 模组 + 教程 + 启动器） |
 
 ## 📖 教程
 
@@ -57,9 +63,10 @@ CabPlay-Voice-Launcher/
 
 - CabPlay 会自动更新，更新后语音增强会被覆盖。**请用启动器**，它会自动重新打补丁。
 - 如果自动适配失败（官方大改），需要重新适配补丁代码。
+- 装好后**完全退出 CabPlay 再启动**才会生效。
 
 ## 🔧 手动安装（不用启动器）
 
 1. 备份 `CabPlay\resources\app.asar`
-2. 用本仓库的 `app.asar` 覆盖它
+2. 用本仓库 Release 里的 `app.asar` 覆盖它
 3. 重启 CabPlay
