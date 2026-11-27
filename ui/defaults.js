@@ -78,6 +78,8 @@
   };
 
   const WIDGETS = { map: 'Karte', nav: 'Navigation', places: 'Ziele', music: 'Musik', calendar: 'Kalender', weather: 'Wetter', radar: 'Blitzer', truck: 'Fahrzeug', job: 'Auftrag', messages: 'Mitteilungen', stops: 'Tanken & Rasten', trip: 'Fahrtenbuch', sport: 'Live-Ticker' };
+  // Widget-Seite links vom Dashboard (wie CarPlay ab iOS 26): Stapel nebeneinander, je Stapel senkrecht blättern
+  const PAGE_WIDGETS = { clock: 'Uhr II', clock1: 'Uhr I', clockdigital: 'Uhr digital', date: 'Datum', calendar: 'Termine', weather: 'Wetter', forecast: 'Tägliche Vorhersage', sun: 'Sonnenaufgang und -untergang', music: 'Jetzt läuft', fuel: 'Tank', levels: 'Füllstände', messages: 'Mitteilungen', sport: 'Meine Teams', job: 'Auftrag', trip: 'Diese Fahrt' };
   const CORNERS = ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'hidden'];
   // Erlaubte Positionen der Karten-Overlays
   const OVERLAYS = {
@@ -99,7 +101,12 @@
     glass: 'full',      // alt (bis 1.21): full | clear | reduced | off – nur noch zur Übernahme in glassTint/glassReduce
     glassTint: 50,      // Liquid Glass wie iOS 27: 0 Ultraklar … 50 Normal (Standard) … 100 Voll getönt
     glassReduce: false, // Unschärfe reduzieren: über Karte und Dashboard ohne Weichzeichner (spart Rechenzeit)
-    iconTheme: 'brands', // Symbol-Set: brands (Google Maps, Spotify) | apple (Karten, Musik) | classic
+    iconTheme: 'brands', // Symbol-Set: brands (wie die echten Apps) | classic – bis 1.22: apple (Karten, Musik)
+    // Navi- und Musik-Symbol unabhängig voneinander (26.11.): vorher hingen sie am Kartenstil – Apple Karten brachte
+    // immer auch das Apple-Musik-Symbol, obwohl Spotify lief
+    gameDirs: { ets2: '', ats: '' }, // selbst gewählte Spielordner (nur wenn Steam das Spiel nicht kennt)
+    mapsIcon: 'auto',  // auto (passend zum Kartenstil) | google | apple
+    musicIcon: 'auto', // auto (nach der App, die gerade spielt) | spotify | apple
     iconStyle: 'color', // color | dark | clear
     sidebar: 'left',
     sidebarMode: 'auto', // auto = zuletzt benutzte Navi-, Audio- und andere App; fixed = feste Auswahl
@@ -274,6 +281,9 @@
     apps: {}, // { appId: { name, color } } – nur Abweichungen; eigene Icons liegen als Datei in data/icons
     // wie CarPlay: Musik unten rechts. stacks: weitere Widgets je Platz (Stapel zum Durchwischen)
     dashboard: { widgets: ['map', 'places', 'music'], stacks: [[], ['nav', 'calendar', 'messages'], []] },
+    // wie iOS: je Stapel bis zu fünf, dasselbe Widget darf in beiden Stapeln liegen; smart = Smart-Reihenfolge
+    // cols: Stapel nebeneinander (wie CarPlay je nach Display 2 oder 3); der dritte Stapel liegt bereit
+    widgetPage: { on: true, smart: false, cols: 2, stacks: [['clock', 'date', 'music', 'forecast'], ['weather', 'messages', 'clockdigital', 'levels', 'sport'], ['music', 'sun', 'fuel', 'calendar']] },
     musicArt: 'right', // Cover rechts (CarPlay) oder links (Spotify)
     overlays: { banner: 'top-left', eta: 'bottom', speed: 'bottom-left', compass: 'top-right' },
     overlayFree: { banner: false, speed: false }, // Kartenstil Google/Apple: eigene Position statt „fest wie im Original“
@@ -446,7 +456,7 @@
   // blinker_l/l_blk (ETS2/ATS 1.62, 13.11.2026). Mit Pfeilen: Volvo FH 2021/2024, 9700, Renault T 2024/E-Tech, Scania Smartdash,
   // Cascadia digital, Western Star 57X, Ford F-150 – dort bleiben sie (Einstellung clusterBlinkers: auto)
   const CLUSTER_NO_BLINKERS = new Set(['man.tgx_2020', 'man.lions_24', 'daf.2021', 'daf.xd', 'daf.xf_electric', 'iveco.sway', 'kenworth.t680_2022', 'volvo.vnl2025', 'ford.bronco_24']);
-  const catalog = { CLUSTER_AREAS, CLUSTER_ROUND, CLUSTER_NO_BLINKERS, DISPLAY_AREAS, isGameNight, clusterDesignNow, APPS, COLORS, WALLPAPERS, WIDGETS, CORNERS, OVERLAYS, POSITION_NAMES, MAP_STYLES, DEFAULTS, parseVideo, cleanVideo, isShortVideoLink, webEmbedUrl };
+  const catalog = { CLUSTER_AREAS, CLUSTER_ROUND, CLUSTER_NO_BLINKERS, DISPLAY_AREAS, isGameNight, clusterDesignNow, APPS, COLORS, WALLPAPERS, WIDGETS, PAGE_WIDGETS, CORNERS, OVERLAYS, POSITION_NAMES, MAP_STYLES, DEFAULTS, parseVideo, cleanVideo, isShortVideoLink, webEmbedUrl };
 
   // Apps in der Seitenleiste (oben Navi, Mitte Audio, unten zuletzt benutzte andere App)
   // count: 3 oder 4 – bei „zuletzt benutzt“ kommt als vierte die vorletzte andere App dazu (wie CarPlay auf hohen Displays)
@@ -455,6 +465,9 @@
     : s.dock.slice(0, count));
 
   // Fremde/alte Einstellungen auf gültige Werte bringen
+  // Schlüssel wirklich im Katalog (nicht geerbt): „toString“, „constructor“, „__proto__“ hielten sonst als gültige Farbe,
+  // Hintergrund oder Widget – die Oberfläche stürzte danach bei jedem Zeichnen ab (Durchsicht 25.11.)
+  const own = (map, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(map, key);
   catalog.sanitize = function sanitize(input) {
     const s = JSON.parse(JSON.stringify(DEFAULTS));
     const src = input && typeof input === 'object' ? input : {};
@@ -462,7 +475,7 @@
     const bool = (value, fallback) => (typeof value === 'boolean' ? value : fallback);
     const appIds = Object.keys(APPS);
 
-    s.wallpaper = src.wallpaper === 'custom' || WALLPAPERS[src.wallpaper] || /^file:[\w .()-]{1,80}$/.test(src.wallpaper || '') ? src.wallpaper : s.wallpaper;
+    s.wallpaper = src.wallpaper === 'custom' || own(WALLPAPERS, src.wallpaper) || /^file:[\w .()-]{1,80}$/.test(src.wallpaper || '') ? src.wallpaper : s.wallpaper;
     s.appearance = pick(src.appearance, ['dark', 'light', 'auto', 'lights'], s.appearance);
     s.glass = pick(src.glass, ['full', 'clear', 'reduced', 'off'], s.glass);
     // Liquid-Glass-Regler (22.11.): ohne gespeicherten Wert aus der alten Wahl übernehmen – Klar 20, Normal/Sparsam 50, Aus 100
@@ -470,6 +483,16 @@
     s.glassTint = Number.isFinite(Number(src.glassTint)) && src.glassTint !== null && src.glassTint !== '' ? Math.max(0, Math.min(100, Math.round(Number(src.glassTint)))) : oldTint;
     s.glassReduce = typeof src.glassReduce === 'boolean' ? src.glassReduce : s.glass === 'reduced' || s.glass === 'off';
     s.iconTheme = pick(src.iconTheme, ['brands', 'apple', 'classic'], s.iconTheme);
+    // Übernahme: wer bis 1.22 das Apple-Set gewählt hatte, behält das Apple-Musik-Symbol
+    s.musicIcon = pick(src.musicIcon, ['auto', 'spotify', 'apple'], s.iconTheme === 'apple' ? 'apple' : s.musicIcon);
+    s.mapsIcon = pick(src.mapsIcon, ['auto', 'google', 'apple'], s.mapsIcon);
+    if (src.gameDirs && typeof src.gameDirs === 'object') {
+      for (const id of ['ets2', 'ats']) {
+        const v = src.gameDirs[id];
+        s.gameDirs[id] = typeof v === 'string' && v.length < 400 && !/[\u0000-\u001f]/.test(v) ? v : '';
+      }
+    }
+    if (s.iconTheme === 'apple') s.iconTheme = 'brands';
     s.iconStyle = pick(src.iconStyle, ['color', 'dark', 'clear'], s.iconStyle);
     s.sidebar = pick(src.sidebar, ['left', 'right', 'top', 'bottom'], s.sidebar);
     s.sidebarMode = pick(src.sidebarMode, ['auto', 'fixed'], s.sidebarMode);
@@ -709,7 +732,7 @@
     s.mirrorTarget = pick(src.mirrorTarget, ['gps', 'cluster', 'both'], s.mirrorTarget);
     s.musicArt = pick(src.musicArt, ['right', 'left'], s.musicArt);
     s.startScreen = pick(src.startScreen, ['last', 'home', ...appIds.filter((id) => id !== 'standby')], s.startScreen);
-    s.lastScreen = pick(src.lastScreen, ['home', ...appIds.filter((id) => id !== 'settings' && id !== 'standby')], 'dashboard');
+    s.lastScreen = pick(src.lastScreen, ['home', 'widgets', ...appIds.filter((id) => id !== 'settings' && id !== 'standby')], 'dashboard');
 
     if (Array.isArray(src.home)) {
       const home = [...new Set(src.home.filter((id) => appIds.includes(id)))];
@@ -721,10 +744,10 @@
     if (src.recents && typeof src.recents === 'object') {
       for (const kind of ['nav', 'audio', 'other']) {
         const id = src.recents[kind];
-        if (APPS[id] && APPS[id].kind === kind) s.recents[kind] = id;
+        if (own(APPS, id) && APPS[id].kind === kind) s.recents[kind] = id;
       }
       const second = src.recents.other2;
-      if (APPS[second] && APPS[second].kind === 'other' && second !== s.recents.other) s.recents.other2 = second;
+      if (own(APPS, second) && APPS[second].kind === 'other' && second !== s.recents.other) s.recents.other2 = second;
       s.recents.next = src.recents.next === 'other' ? 'other' : 'other2';
     }
 
@@ -734,14 +757,14 @@
         if (!o || typeof o !== 'object') continue;
         const entry = {};
         if (typeof o.name === 'string' && o.name.trim()) entry.name = o.name.trim().slice(0, 20);
-        if (COLORS[o.color]) entry.color = o.color;
+        if (own(COLORS, o.color)) entry.color = o.color;
         if (Object.keys(entry).length) s.apps[id] = entry;
       }
     }
 
     const widgets = src.dashboard && Array.isArray(src.dashboard.widgets) ? src.dashboard.widgets : null;
     if (widgets) {
-      const valid = [...new Set(widgets.filter((w) => WIDGETS[w]))];
+      const valid = [...new Set(widgets.filter((w) => own(WIDGETS, w)))];
       for (const w of DEFAULTS.dashboard.widgets) if (valid.length < 3 && !valid.includes(w)) valid.push(w);
       s.dashboard.widgets = valid.slice(0, 3);
       // Bis Version 2 lag Musik oben rechts – bei CarPlay liegt sie unten rechts
@@ -750,9 +773,20 @@
       }
     }
 
+    // Widget-Seite: zwei Stapel mit je bis zu fünf Widgets, im Stapel jedes nur einmal; ein leerer Stapel bleibt leer
+    const wp = src.widgetPage && typeof src.widgetPage === 'object' ? src.widgetPage : null;
+    if (wp) {
+      s.widgetPage = {
+        on: typeof wp.on === 'boolean' ? wp.on : true,
+        smart: typeof wp.smart === 'boolean' ? wp.smart : false,
+        cols: Number(wp.cols) === 3 ? 3 : 2,
+        stacks: [0, 1, 2].map((i) => [...new Set((Array.isArray(wp.stacks?.[i]) ? wp.stacks[i] : DEFAULTS.widgetPage.stacks[i]).filter((w) => own(PAGE_WIDGETS, w)))].slice(0, 5)),
+      };
+    }
+
     const stacks = src.dashboard && Array.isArray(src.dashboard.stacks) ? src.dashboard.stacks : null;
     if (stacks) {
-      s.dashboard.stacks = [0, 1, 2].map((i) => (Array.isArray(stacks[i]) ? [...new Set(stacks[i].filter((w) => WIDGETS[w]))].slice(0, 6) : []));
+      s.dashboard.stacks = [0, 1, 2].map((i) => (Array.isArray(stacks[i]) ? [...new Set(stacks[i].filter((w) => own(WIDGETS, w)))].slice(0, 6) : []));
     } else if (widgets) {
       s.dashboard.stacks = [[], [], []]; // ältere Einstellungen: keine Stapel
     }
