@@ -1,0 +1,1 @@
+      laneSaid.clear(); laneLockTurn = null; arrivalStage = 0; // 车道推荐/到达播报重新来
