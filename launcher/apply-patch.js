@@ -139,6 +139,8 @@ insert('ui/map.js', '    laneHold = hintK >= 0 ?', 'before', 'lanehint2.txt');
 replace('ui/map.js', '      turns,\n      laneHint,', '      turns,\n      laneHint2,\n      laneHint,');
 replace('ui/defaults.js', 'navVoice: false,', 'navVoice: true,');
 replace('ui/defaults.js', 'curveWarn: false,', 'curveWarn: true,');
+// 官方更新会把 pickAsset 改回「优先 Setup」，导致装到别的目录；这里每次都改回「优先 ZIP」（解压到程序所在目录）
+replace('updater.js', '  return installed && setup ? setup : zip;', '  return zip || setup;');
 insert('ui/i18n-zh.js', 'window.CarI18nZh = function (translate) {', 'after', 'lanehelpers-zh.txt');
 insert('ui/i18n-zh.js', '    "Bitte rechts einordnen.":', 'after', 'i18n-exact-zh.txt');
 insert('ui/i18n-zh.js', '  const SENTENCES = [', 'after', 'i18n-sent-zh.txt');
