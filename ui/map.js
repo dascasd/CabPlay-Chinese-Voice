@@ -643,7 +643,6 @@
         // in eine Kreuzung mündet, wäre sonst „Wenden“ kurz vor dem eigentlichen Abbiegen
         if (knowsTurns && !routePoints[s[k].i]?.branch && !Array.isArray(junctionTurnNear(s[k].i, 40, 40))) continue;
         let type = decide(classify(total), j);
-        if (type && !Array.isArray(jt) && (type.kind === 'turn' || type.kind === 'sharp')) continue;
         if (type && (bl === 'l' || bl === 'r') && type.side !== (bl === 'r' ? 'right' : 'left')) type = { kind: 'slight', side: bl === 'r' ? 'right' : 'left' };
         if (!type) continue;
         const prev = routeTurns[routeTurns.length - 1];
@@ -937,22 +936,9 @@
       laneHint = hintAt(held.k);
       hintK = held.k;
     }
-    // 第二机动的车道提示（用于「驶出岔路，然后按左侧两车道行驶」）
-    let laneHint2 = null;
-    if (turns[1]) {
-      const k2 = turns[1].index;
-      for (let k = Math.max(0, k2); k < routePoints.length && routePoints[k] && k <= k2 + 5; k++) {
-        const la2 = routePoints[k].la;
-        if (la2 && la2[2] && la2[0] >= 2) {
-          laneHint2 = { distance: Math.max(0, routeCum[k] - here), lanes: la2[0], mask: la2[1], key: la2[5] || null };
-          break;
-        }
-      }
-    }
     laneHold = hintK >= 0 ? { route: routePoints, k: hintK, la: routePoints[hintK].la } : null;
     return {
       turns,
-      laneHint2,
       laneHint,
       laneNow, // { lane, own }: Spur des Trucks (0 = links) und Spuren seiner Fahrtrichtung – oder null
       remaining,
