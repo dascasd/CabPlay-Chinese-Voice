@@ -5,6 +5,15 @@
 let fs;
 try { fs = require('original-fs'); } catch { fs = require('fs'); }
 const path = require('path');
+const crypto = require('crypto');
+function _sha256(buf) { return crypto.createHash('sha256').update(buf).digest('hex'); }
+function integrityOf(buf) {
+  const blockSize = 4194304;
+  const blocks = [];
+  for (let i = 0; i < buf.length; i += blockSize) blocks.push(_sha256(buf.subarray(i, i + blockSize)));
+  if (!blocks.length) blocks.push(_sha256(Buffer.alloc(0)));
+  return { algorithm: 'SHA256', hash: _sha256(buf), blockSize, blocks };
+}
 
 const HERE = __dirname;
 const PATCH_DIR = fs.existsSync(path.join(HERE, 'announceTurn.txt')) ? HERE : path.join(HERE, 'patch-data');
@@ -235,7 +244,13 @@ async function main() {
       else if (e.unpacked) { const x = { size: e.size, unpacked: true }; if (e.executable !== undefined) x.executable = e.executable; out[name] = x; }
       else {
         const buf = newFiles[r];
-        out[name] = { size: buf.length, offset: String(offset) };
+        const key = r.replace(/^[\/]+/, '');
+        const x = { size: buf.length };
+        if (e.executable) x.executable = true;
+        // 保留 integrity：未修改的文件用原值，修改过的重算（1.23.0 会校验）
+        if (e.integrity) x.integrity = texts[key] !== undefined ? integrityOf(buf) : e.integrity;
+        x.offset = String(offset);
+        out[name] = x;
         offset += buf.length;
         packedOrder.push(buf);
       }
