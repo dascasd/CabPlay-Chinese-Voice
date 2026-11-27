@@ -1,1 +1,8 @@
+    // 偏航检测：剩余距离突然变大 = 游戏重新规划了更长的路线（车机瞬间重算时也能捕获）
+    const navKmNow = num(telemetry?.navDistanceKm);
+    if (lastNavKm != null && navKmNow > lastNavKm + 0.15 && onRouteSeen && !offSpoken) {
+      offSpoken = true;
+      speak('Sie haben die Route verlassen, die Route wird neu berechnet.', null, { priority: 0 });
+    }
+    if (navKmNow > 0) lastNavKm = navKmNow;
     if (!offRoute) offSpoken = false; // 回到路线：允许下次偏航再播
