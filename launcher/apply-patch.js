@@ -124,7 +124,7 @@ function packFromFiles(tree, outPath) {
 const P = []; // { file, kind:'block'|'insert'|'replace', from, to, data }
 function block(file, from, to, dataFile) { P.push({ file, kind: 'block', from: [].concat(from), to: [].concat(to), dataFile }); }
 function insert(file, anchor, pos, dataFile) { P.push({ file, kind: 'insert', anchor, pos, dataFile }); }
-function replace(file, from, to) { P.push({ file, kind: 'replace', from, to }); }
+function replace(file, from, to) { P.push({ file, kind: 'replace', from, to, dataFile: /\.txt$/.test(to) ? to : null }); }
 
 block('ui/app.js', '  let lastFirstTurn = null;', '  // ------------------------------------------------------------------ Video (YouTube, Twitch)', 'announceTurn.txt');
 block('ui/app.js', ['  // Ansage zum Einordnen', '  // 车道引导（高德式）'], '  let navActive = false;', 'laneVoice.txt');
@@ -133,7 +133,7 @@ insert('ui/app.js', '  let onRouteSeen = false;', 'after', 'decls.txt');
 insert('ui/app.js', '    naviEvents(m, offRoute);', 'after', 'offroute-reset.txt');
 insert('ui/app.js', '    if (offRoute) {', 'after', 'offroute-say.txt');
 insert('ui/app.js', '    if (!m) return;\n    const t = telemetry || {};', 'before', 'arrival.txt');
-insert('ui/app.js', '    spokenTurns.clear(); // neue Route: Ansagen neu', 'after', 'resets.txt');
+replace('ui/app.js', '      spokenTurns.clear();\n      lastFirstTurn = null;', 'resets.txt');
 insert('ui/map.js', '        let type = decide(classify(total), j);', 'after', 'curvefilter.txt');
 insert('ui/map.js', '    laneHold = hintK >= 0 ?', 'before', 'lanehint2.txt');
 replace('ui/map.js', '      turns,\n      laneHint,', '      turns,\n      laneHint2,\n      laneHint,');
@@ -148,8 +148,9 @@ insert('ui/i18n-zh-hant.js', '  const SENTENCES = [', 'after', 'i18n-sent-hant.t
 
 function applyPatch(content, p) {
   if (p.kind === 'replace') {
-    if (content.includes(p.from)) return { ok: true, out: content.split(p.from).join(p.to) };
-    if (content.includes(p.to)) return { ok: true, out: content, skipped: true }; // 已打过
+    const to = p.dataFile ? fs.readFileSync(path.join(PATCH_DIR, p.dataFile), 'utf8') : p.to;
+    if (content.includes(p.from)) return { ok: true, out: content.split(p.from).join(to) };
+    if (content.includes(to)) return { ok: true, out: content, skipped: true }; // 已打过
     return { ok: false, why: 'not found: ' + p.from.slice(0, 40) };
   }
   let data = fs.readFileSync(path.join(PATCH_DIR, p.dataFile), 'utf8');
