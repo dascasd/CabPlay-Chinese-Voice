@@ -126,21 +126,16 @@ function block(file, from, to, dataFile) { P.push({ file, kind: 'block', from: [
 function insert(file, anchor, pos, dataFile) { P.push({ file, kind: 'insert', anchor, pos, dataFile }); }
 function replace(file, from, to) { P.push({ file, kind: 'replace', from, to, dataFile: /\.txt$/.test(to) ? to : null }); }
 
+block('ui/app.js', '  function speak(text, onEnd0, {', '  function speakIn(lang, text, token, play, onEnd) {', 'speak.txt');
 block('ui/app.js', '  let lastFirstTurn = null;', '  // ------------------------------------------------------------------ Video (YouTube, Twitch)', 'announceTurn.txt');
-block('ui/app.js', ['  // Ansage zum Einordnen', '  // 车道引导（高德式）'], '  let navActive = false;', 'laneVoice.txt');
-block('ui/app.js', ['  function speak(text, onEnd0, {', '  // 播报优先级队列'], '  function speakIn(lang, text, token, play, onEnd) {', 'speak.txt');
+block('ui/app.js', '  // Ansage zum Einordnen', '  let navActive = false;', 'laneVoice-new.txt');
 insert('ui/app.js', '  let onRouteSeen = false;', 'after', 'decls.txt');
-insert('ui/app.js', '    naviEvents(m, offRoute);', 'after', 'offroute-reset.txt');
-insert('ui/app.js', '    if (offRoute) {', 'after', 'offroute-say.txt');
+insert('ui/app.js', '    naviEvents(m, offRoute);', 'after', 'offroute-safe.txt');
 insert('ui/app.js', '    if (!m) return;\n    const t = telemetry || {};', 'before', 'arrival.txt');
-replace('ui/app.js', '      spokenTurns.clear();\n      lastFirstTurn = null;', 'resets.txt');
-insert('ui/map.js', '        let type = decide(classify(total), j);', 'after', 'curvefilter.txt');
-insert('ui/map.js', '    laneHold = hintK >= 0 ?', 'before', 'lanehint2.txt');
-replace('ui/map.js', '      turns,\n      laneHint,', '      turns,\n      laneHint2,\n      laneHint,');
+insert('ui/app.js', '      laneSpoken.clear();', 'after', 'resets2.txt');
+replace('updater.js', '  return installed && setup ? setup : zip;', '  return zip || setup;');
 replace('ui/defaults.js', 'navVoice: false,', 'navVoice: true,');
 replace('ui/defaults.js', 'curveWarn: false,', 'curveWarn: true,');
-// 官方更新会把 pickAsset 改回「优先 Setup」，导致装到别的目录；这里每次都改回「优先 ZIP」（解压到程序所在目录）
-replace('updater.js', '  return installed && setup ? setup : zip;', '  return zip || setup;');
 insert('ui/i18n-zh.js', 'window.CarI18nZh = function (translate) {', 'after', 'lanehelpers-zh.txt');
 insert('ui/i18n-zh.js', '    "Bitte rechts einordnen.":', 'after', 'i18n-exact-zh.txt');
 insert('ui/i18n-zh.js', '  const SENTENCES = [', 'after', 'i18n-sent-zh.txt');
