@@ -49,8 +49,13 @@
     }
 
     update(x, z, headingDeg) {
+      // ungültige Werte (Spielstart, fehlendes Feld): einmal NaN blieb sonst für immer, weil jeder neue Startpunkt aus dem
+      // vorigen gerechnet wird – Karte und Kompass drehten nicht mehr (Durchsicht 25.11.)
+      if (!Number.isFinite(x) || !Number.isFinite(z)) return;
+      if (!Number.isFinite(headingDeg)) headingDeg = this.to && Number.isFinite(this.to.h) ? this.to.h : 0;
       const now = performance.now();
-      this.from = this.to ? this.current(now) : { x, z, h: headingDeg };
+      const prev = this.to ? this.current(now) : null;
+      this.from = prev && Number.isFinite(prev.x) && Number.isFinite(prev.z) && Number.isFinite(prev.h) ? prev : { x, z, h: headingDeg };
       this.to = { x, z, h: headingDeg };
       this.at = now;
     }
@@ -379,9 +384,18 @@
     }
   }
 
-  // Nächsten Punkt auf der Route finden (bevorzugt in der Nähe des letzten Treffers)
+  // Nächsten Punkt auf der Route finden (bevorzugt in der Nähe des letzten Treffers).
+  // Mehrere Aufrufe für dieselbe Position (je Karte, Kombi-Karte, track – im selben Bild) rechnen nur einmal: abseits der
+  // Route (Lücke in Mod-Gebieten) lief sonst je Aufruf die Suche über die ganze Route (Durchsicht 25.11.)
+  let snapCache = null; // { x, y, pts, idx, res }
   function snapToRoute(x, y) {
     if (!routePoints) return null;
+    if (snapCache && snapCache.pts === routePoints && snapCache.x === x && snapCache.y === y && snapCache.idx === routeIndex) return snapCache.res;
+    const res = snapToRouteNow(x, y);
+    snapCache = { x, y, pts: routePoints, idx: routeIndex, res };
+    return res;
+  }
+  function snapToRouteNow(x, y) {
     updateMotion(x, y);
     const n = routePoints.length;
     // Zuletzt gegen die Fahrtrichtung zugeordnet (vor dem ersten Bewegungswert): wieder auf der ganzen Route suchen
@@ -629,7 +643,8 @@
         // in eine Kreuzung mündet, wäre sonst „Wenden“ kurz vor dem eigentlichen Abbiegen
         if (knowsTurns && !routePoints[s[k].i]?.branch && !Array.isArray(junctionTurnNear(s[k].i, 40, 40))) continue;
         let type = decide(classify(total), j);
-        if (type && !Array.isArray(jt) && (type.kind === 'turn' || type.kind === 'sharp')) continue;        if (type && (bl === 'l' || bl === 'r') && type.side !== (bl === 'r' ? 'right' : 'left')) type = { kind: 'slight', side: bl === 'r' ? 'right' : 'left' };
+        if (type && !Array.isArray(jt) && (type.kind === 'turn' || type.kind === 'sharp')) continue;
+        if (type && (bl === 'l' || bl === 'r') && type.side !== (bl === 'r' ? 'right' : 'left')) type = { kind: 'slight', side: bl === 'r' ? 'right' : 'left' };
         if (!type) continue;
         const prev = routeTurns[routeTurns.length - 1];
         if (prev && s[k].cum - prev.cum < 60) {
@@ -933,7 +948,8 @@
           break;
         }
       }
-    }    laneHold = hintK >= 0 ? { route: routePoints, k: hintK, la: routePoints[hintK].la } : null;
+    }
+    laneHold = hintK >= 0 ? { route: routePoints, k: hintK, la: routePoints[hintK].la } : null;
     return {
       turns,
       laneHint2,
@@ -1019,6 +1035,17 @@
       const snapped = pose ? snapToRoute(pose.x, pose.z) : null;
       const view = pose ? this.smoothView(snapped ? { x: snapped.x, z: snapped.y } : pose, headingRadians(pose)) : null;
       const mapRotation = view && !options.north ? view.heading : 0;
+      // Verschieben wie bei Apple (Pfeile am Rand, „Fertig“): Versatz in Weltmetern; der Schritt kommt als Anteil der
+      // Bildgröße (panBy) und wird hier mit Maßstab, Neigung und Drehung in Meter umgerechnet
+      if (this.panReq && view) {
+        const r = this.panReq;
+        this.panReq = null;
+        const sx = (r.fx * w) / scale;
+        const sy = (r.fy * h) / squash / scale;
+        const a = -mapRotation;
+        this.pan = { x: (this.pan?.x || 0) + sx * Math.cos(a) - sy * Math.sin(a), z: (this.pan?.z || 0) + sx * Math.sin(a) + sy * Math.cos(a) };
+      }
+      const look = view && this.pan ? { ...view, x: view.x + this.pan.x, z: view.z + this.pan.z } : view;
 
       // Nur neu zeichnen, wenn sich sichtbar etwas geändert hat – spart im Stand fast die ganze CPU-Last
       this.showAreas = options.areas !== false;
@@ -1036,7 +1063,7 @@
       this.showRoadClasses = options.roadClasses === true;
       const styleKey = [options.busStops !== false, options.hiddenRoads === true, options.laneMarkings === true, options.secretRoads === true, options.sites !== false, options.siteNames !== false, options.style, themeName, options.highways, options.labels, options.pois, options.radar, this.showAreas, options.shields, options.lights, this.showBuildings, this.showWater, this.showInland, this.showForest, this.showMeadow, this.showGround, options.buildings3d === true, options.viewpoints === true, options.towns === true, options.rails === true, options.roadClasses === true, options.driven ? drivenVersion : 0].join(',');
       const signature = view
-        ? [view.x.toFixed(2), view.z.toFixed(2), view.heading.toFixed(4), mapRotation.toFixed(4), scale.toFixed(4), styleKey, squash, w, h, cy,
+        ? [look.x.toFixed(2), look.z.toFixed(2), view.heading.toFixed(4), mapRotation.toFixed(4), scale.toFixed(4), styleKey, squash, w, h, cy,
            routePoints ? routePoints.length : 0, snapped ? snapped.i : -1, mapData ? 1 : 0, places ? 1 : 0, extraVersion, lightsKey].join('|')
         : `none|${styleKey}|${w}|${h}`;
       if (signature === this.lastSignature) return;
@@ -1045,6 +1072,8 @@
       ctx.fillStyle = theme.ground;
       ctx.fillRect(0, 0, w, h);
 
+      let truckX = cx;
+      let truckY = cy;
       if (pose) {
         // gestauchte Ansicht zeigt nach vorne mehr Strecke → größerer Ausschnitt
         const reach = 1 / squash;
@@ -1054,25 +1083,43 @@
         ctx.scale(1, squash);   // 3D-Eindruck: Fahrtrichtung (oben) gestaucht
         ctx.rotate(mapRotation); // Fahrtrichtung zeigt nach oben (oder Norden im Norden-Modus)
         ctx.scale(scale, scale);
-        ctx.translate(-view.x, -view.z);
+        ctx.translate(-look.x, -look.z);
         const toScreen = ctx.getTransform();
         if (mapData) {
-          this.drawRoadsCached(view, w, h, scale, squash, theme, options.highways, styleKey);
+          this.drawRoadsCached(look, w, h, scale, squash, theme, options.highways, styleKey);
           // 3D-Gebäude (Option): nur geneigt und nah – flach von oben gäbe es nichts zu sehen
-          if (options.buildings3d && options.tilt && this.showBuildings && this.metersPerPx < 1.5) this.draw3dBuildings(ctx.getTransform(), view, w, h, scale, theme);
-          if (options.driven) this.drawDriven(view, w, h, scale, squash);
+          if (options.buildings3d && options.tilt && this.showBuildings && this.metersPerPx < 1.5) this.draw3dBuildings(ctx.getTransform(), look, w, h, scale, theme);
+          if (options.driven) this.drawDriven(look, w, h, scale, squash);
           if (routePoints) this.drawRoute(scale, snapped ? snapped.i : 0, snapped, theme);
           else if (options.trail) this.drawTrail(scale, theme); // gefahrene Strecke nur auf Wunsch
         } else {
-          this.drawGrid(view, w, h, scale, theme);
-          if (options.driven) this.drawDriven(view, w, h, scale, squash);
+          this.drawGrid(look, w, h, scale, theme);
+          if (options.driven) this.drawDriven(look, w, h, scale, squash);
           if (options.trail) this.drawTrail(scale, theme);
         }
         ctx.restore();
-        if (places) this.drawPlaces(toScreen, view, w, h, scale, theme, options, reach);
+        if (places) this.drawPlaces(toScreen, look, w, h, scale, theme, options, reach);
+        // verschoben: der Pfeil bleibt dort, wo der Truck wirklich ist (oder außerhalb des Bilds)
+        if (this.pan && view) {
+          const p = toScreen.transformPoint(new DOMPoint(view.x, view.z));
+          truckX = p.x;
+          truckY = p.y;
+        }
         if (trailerSpot) this.drawTrailerMarker(toScreen, w, h);
       }
-      this.drawTruck(cx, cy, Math.min(w, h * 1.4) * (options.truckScale || 1), squash, theme, view ? mapRotation - view.heading : 0);
+      this.drawTruck(truckX, truckY, Math.min(w, h * 1.4) * (options.truckScale || 1), squash, theme, view ? mapRotation - view.heading : 0);
+    }
+
+    // Verschieben (Apple-Pfeile): fx/fy = Anteil der Bildbreite/-höhe; resetPan = zurück zum Truck („Fertig“)
+    panBy(fx, fy) {
+      this.panReq = { fx: (this.panReq?.fx || 0) + fx, fy: (this.panReq?.fy || 0) + fy };
+      this.lastSignature = '';
+    }
+
+    resetPan() {
+      this.pan = null;
+      this.panReq = null;
+      this.lastSignature = '';
     }
 
     drawOverview(pose, themeName, theme, options, w, h) {
@@ -1768,26 +1815,40 @@
       if (rotation) ctx.rotate(rotation); // Norden-Modus: Pfeil zeigt in Fahrtrichtung
       ctx.scale(1, 0.55 + 0.45 * squash); // in 3D liegt der Pfeil flach auf der Straße
       if (theme.puck === 'arrow') {
-        // Apple Karten: blaue Scheibe mit weißem Ring, darin ein weißer Pfeil
-        ctx.shadowColor = 'rgba(0,0,0,0.4)';
-        ctx.shadowBlur = s * 0.8;
+        // Apple Karten: aufrechte Scheibe (in 3D nur leicht geneigt), weißer Ring mit weichem Schatten, Blau mit Verlauf,
+        // weißer Navigationspfeil mit Kerbe – wie der Positionspfeil in CarPlay
+        ctx.scale(1, 1 / (0.55 + 0.45 * squash)); // Stauchung von oben zurücknehmen …
+        ctx.scale(1, 0.86 + 0.14 * squash); // … nur ein Hauch Neigung bleibt
+        const R = s * 1.08;
+        ctx.shadowColor = 'rgba(0,0,0,0.45)';
+        ctx.shadowBlur = s * 1.1;
+        ctx.shadowOffsetY = s * 0.12;
         ctx.beginPath();
-        ctx.arc(0, 0, s * 1.25, 0, Math.PI * 2);
+        ctx.arc(0, 0, R, 0, Math.PI * 2);
         ctx.fillStyle = '#ffffff';
         ctx.fill();
+        ctx.shadowColor = 'transparent';
         ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+        const blue = ctx.createLinearGradient(0, -R, 0, R);
+        blue.addColorStop(0, '#3d9bff');
+        blue.addColorStop(1, '#0a6cf0');
         ctx.beginPath();
-        ctx.arc(0, 0, s * 1.02, 0, Math.PI * 2);
-        ctx.fillStyle = '#0a84ff';
+        ctx.arc(0, 0, R * 0.84, 0, Math.PI * 2);
+        ctx.fillStyle = blue;
         ctx.fill();
         ctx.beginPath();
-        ctx.moveTo(0, -s * 0.66);
-        ctx.lineTo(s * 0.5, s * 0.52);
-        ctx.lineTo(0, s * 0.24);
-        ctx.lineTo(-s * 0.5, s * 0.52);
+        ctx.moveTo(0, -R * 0.56);
+        ctx.lineTo(R * 0.42, R * 0.42);
+        ctx.lineTo(0, R * 0.22);
+        ctx.lineTo(-R * 0.42, R * 0.42);
         ctx.closePath();
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = R * 0.06;
+        ctx.strokeStyle = '#ffffff';
         ctx.fillStyle = '#ffffff';
         ctx.fill();
+        ctx.stroke();
         ctx.restore();
         return;
       }
