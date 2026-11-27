@@ -7915,15 +7915,14 @@
     if (m) naviTurn = t ? { index: t.index, kind: t.kind, side: t.side, distance: t.distance, road: t.road, towards: t.towards } : null;
   }
 
-  // 车道引导（高德式）：80–600 m 前主动播报推荐车道；走错 3 秒后纠偏；两次播报至少间隔 10 秒
-  const laneSaid = new Set();   // 主动推荐已播（一次）
-  const laneWarned = new Set(); // 纠偏已播（一次）
+  // Ansage zum Einordnen (mit eigenen Abbiegeansagen, Einstellung navVoice): 150–900 m vor einer Spurvorgabe, wenn
+  // der Truck 3 s lang auf einer nicht empfohlenen Spur fährt – einmal je Kreuzung, Richtung zur nächsten richtigen Spur
+  const laneSpoken = new Set();
   let laneWrongSince = 0;
-  let laneLastAt = 0;
-  const LANE_COOLDOWN = 10000;
-  let laneLockTurn = null; // 车道锁定：上一个车道提示的转弯还没过，先不播下一个
+  // 主动推荐车道（中文，每处一次）+ 车道锁定：当前机动提示播完后，未通过该机动前不播下一个
+  const laneSaid = new Set();
+  let laneLockTurn = null;
   function lanePhrase(count, goal) {
-    // goal：从左边数(0-based)的推荐车道索引（已升序）
     if (goal.length === 1) {
       const idx = goal[0];
       const fromLeft = idx + 1;
@@ -7931,48 +7930,46 @@
       if (fromLeft <= fromRight) return `Bitte die ${fromLeft}. Spur von links nehmen.`;
       return `Bitte die ${fromRight}. Spur von rechts nehmen.`;
     }
-    if (goal.length === count) return ''; // 全车道可走，不提示
-    const leftCount = goal.length;
-    const fromLeftEdge = goal[0];
-    const fromRightEdge = count - 1 - goal[goal.length - 1];
-    if (fromLeftEdge === 0 && fromRightEdge === 0) return ''; // 两侧都有空，不报
-    if (fromLeftEdge <= fromRightEdge) return `Bitte die ${leftCount} linken Spuren nehmen.`;
-    return `Bitte die ${leftCount} rechten Spuren nehmen.`;
+    const first = goal[0] + 1;
+    const last = goal[goal.length - 1] + 1;
+    const fromLeft = first === 1;
+    if (fromLeft) {
+      if (goal.length === count) return `Bitte alle ${count} Spuren nehmen.`;
+      return `Bitte die ${goal.length} linken Spuren nehmen.`;
+    }
+    return `Bitte die ${goal.length} rechten Spuren nehmen.`;
   }
   function laneVoice(m) {
     const hint = m?.laneHint;
     const curTurnIdx = m?.turns?.[0]?.index;
-    // 车道锁定：上一个车道提示的转弯还没过，就先不播下一个（避免提前播报混淆、走错路口）
+    // 过了锁定的机动就解锁
     if (laneLockTurn != null && curTurnIdx != null && curTurnIdx > laneLockTurn) laneLockTurn = null;
-    if (!settings.navVoice || !hint?.key || hint.distance < 80 || hint.distance > 600) { laneWrongSince = 0; return; }
+    if (!settings.navVoice || !hint?.key || hint.distance < 150 || hint.distance > 900) { laneWrongSince = 0; return; }
     const goal = [...Array(hint.lanes).keys()].filter((i) => (hint.mask >> i) & 1);
     if (!goal.length) { laneWrongSince = 0; return; }
-    const now = performance.now();
-    // 主动推荐（一次，且两次播报之间至少 10 秒）
-    if (!laneSaid.has(hint.key) && now - laneLastAt >= LANE_COOLDOWN && laneLockTurn == null) { // 锁定时不播下一个
+    // 主动推荐（每处一次；锁定时不播下一个）—— 不需要知道当前车道
+    if (!laneSaid.has(hint.key) && laneLockTurn == null) {
       const p = lanePhrase(hint.lanes, goal);
-      if (p) { laneSaid.add(hint.key); laneLastAt = now; laneLockTurn = curTurnIdx ?? null; speak(p, null, { priority: 2 }); }
+      if (p) { laneSaid.add(hint.key); laneLockTurn = curTurnIdx ?? null; speak(p); return; }
     }
     // 纠偏：需要知道当前车道（且车道数一致时才能判断是否走错）
     if (!hint.laneNow || hint.laneNow.own !== hint.lanes) { laneWrongSince = 0; return; }
     const lane = hint.laneNow.lane;
     if ((hint.mask >> lane) & 1) { laneWrongSince = 0; return; } // 已在推荐车道
-    if (laneWarned.has(hint.key)) { laneWrongSince = 0; return; }
+    if (laneSpoken.has(hint.key)) { laneWrongSince = 0; return; }
     // blinkt schon in Richtung der richtigen Spur: wechselt gerade – nicht dazwischenreden
     const blink = blinkSide();
-    if (blink && ((blink === 'l' && goal[0] < lane) || (blink === 'r' && goal[goal.length - 1] > lane))) { laneWrongSince = 0; return; }
+    if (blink && goal.length && ((blink === 'l' && goal[0] < lane) || (blink === 'r' && goal[goal.length - 1] > lane))) { laneWrongSince = 0; return; }
+    const now = performance.now();
     if (!laneWrongSince) { laneWrongSince = now; return; }
     if (now - laneWrongSince < 3000) return;
-    if (now - laneLastAt < LANE_COOLDOWN) return; // 限流
     let best = -1;
     for (let i = 0; i < hint.lanes; i++) if ((hint.mask >> i) & 1 && (best < 0 || Math.abs(i - lane) < Math.abs(best - lane))) best = i;
     if (best < 0) return;
-    laneWarned.add(hint.key);
-    laneLastAt = now;
+    laneSpoken.add(hint.key);
     laneWrongSince = 0;
-    speak(best < lane ? 'Bitte links einordnen.' : 'Bitte rechts einordnen.', null, { priority: 2 });
+    speak(best < lane ? 'Bitte links einordnen.' : 'Bitte rechts einordnen.');
   }
-
   let navActive = false;
   let onRouteSeen = false; // war der Truck schon auf dieser Route? (sonst: Start abseits, z. B. Firmengelände)
   let offSpoken = false; // 偏航播报只播一次（回到路线后复位）
@@ -8001,11 +7998,9 @@
     const atRest = here && CarMap.poisNear(['p', 'g'], here.x, here.z, 500).some((poi) => Math.hypot(poi[1] - here.x, poi[2] - here.z) < 500);
     const offRoute = !m && onRouteSeen && CarMap.hasRoute() && num(telemetry?.speedKmh) > 25 && !atRest;
     naviEvents(m, offRoute);
-    if (!offRoute) offSpoken = false; // 回到路线：允许下次偏航再播
+    if (!offRoute) offSpoken = false; // 回到路线：允许下次偏航再播（播报暂时关闭）
     toggle('maneuver', 'idle', !m && !offRoute);
     if (offRoute) {
-      // 偏航：P0 紧急播报一次
-      if (!offSpoken) { offSpoken = true; speak('Sie haben die Route verlassen, die Route wird neu berechnet.', null, { priority: 0 }); }
       html('mv-arrow', 'recalc', `<span class="turn recalc">${ICONS.reset || ''}</span>`);
       text('mv-dist', 'Route wird neu berechnet …');
       html('mv-road', 'recalc', '');
@@ -8020,9 +8015,9 @@
       if (navActive) surfaceWidget('nav');
     }
     // 到达播报：接近目的地 / 到达
-    if (m.remaining != null && settings.navVoice) {
-      if (arrivalStage === 0 && m.remaining <= 150) { arrivalStage = 1; speak('Sie nähern sich dem Ziel.', null, { priority: 1 }); }
-      else if (arrivalStage === 1 && m.remaining <= 20) { arrivalStage = 2; speak('Sie haben das Ziel erreicht.', null, { priority: 1 }); }
+    if (m && m.remaining != null && settings.navVoice) {
+      if (arrivalStage === 0 && m.remaining <= 150) { arrivalStage = 1; speak('Sie nähern sich dem Ziel.', null, { priority: 3 }); }
+      else if (arrivalStage === 1 && m.remaining <= 20) { arrivalStage = 2; speak('Sie haben das Ziel erreicht.', null, { priority: 3 }); }
     }
     if (!m) return;
     const t = telemetry || {};
@@ -8959,6 +8954,7 @@
       shownRoad.clear();
       dismissedRoad.clear();
       laneSpoken.clear(); // „links einordnen“ je Kreuzung: auf einer neuen Route wieder (07a)
+      laneSaid.clear(); laneLockTurn = null; arrivalStage = 0; // 车道推荐/到达播报重新来
       spokenCurves.clear(); // Kurven je Routenmeter: neue Route, neue Meter (07a)
     }
     if (!nodeInfo || !hex.length) return;
@@ -9313,11 +9309,8 @@
     const curveOf = hex.map(() => null);
     const laneOff = hex.map(() => null);
     if (!routeIsRepeat) { // neue Route: Ansagen neu (dieselbe erneut: nichts doppelt ansagen)
-    spokenTurns.clear(); // neue Route: Ansagen neu
-    laneSaid.clear(); laneWarned.clear(); laneLockTurn = null; // 车道推荐也重新来
-    arrivalStage = 0; // 新路线：到达播报重新开始
-    lastFirstTurn = null;
-
+      spokenTurns.clear();
+      lastFirstTurn = null;
     }
     if (!curveData) return { curveOf, laneOff };
     const choice = hex.map(() => null); // Kreuzung: { inLane, outLane, nIn, nOut }
