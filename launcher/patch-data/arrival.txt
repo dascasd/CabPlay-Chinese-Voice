@@ -1,5 +1,5 @@
     // 到达播报：接近目的地 / 到达
     if (m && m.remaining != null && settings.navVoice) {
-      if (arrivalStage === 0 && m.remaining <= 150) { arrivalStage = 1; speak('Sie nähern sich dem Ziel.', null, { priority: 1 }); }
-      else if (arrivalStage === 1 && m.remaining <= 20) { arrivalStage = 2; speak('Sie haben das Ziel erreicht.', null, { priority: 1 }); }
+      if (arrivalStage === 0 && m.remaining <= 150) { arrivalStage = 1; speak('Sie nähern sich dem Ziel.', null, { priority: 3 }); }
+      else if (arrivalStage === 1 && m.remaining <= 20) { arrivalStage = 2; speak('Sie haben das Ziel erreicht.', null, { priority: 3 }); }
     }
