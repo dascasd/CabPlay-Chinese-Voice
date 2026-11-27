@@ -1,0 +1,55 @@
+  // Ansage zum Einordnen (mit eigenen Abbiegeansagen, Einstellung navVoice): 150–900 m vor einer Spurvorgabe, wenn
+  // der Truck 3 s lang auf einer nicht empfohlenen Spur fährt – einmal je Kreuzung, Richtung zur nächsten richtigen Spur
+  const laneSpoken = new Set();
+  let laneWrongSince = 0;
+  // 主动推荐车道（中文，每处一次）+ 车道锁定：当前机动提示播完后，未通过该机动前不播下一个
+  const laneSaid = new Set();
+  let laneLockTurn = null;
+  function lanePhrase(count, goal) {
+    if (goal.length === 1) {
+      const idx = goal[0];
+      const fromLeft = idx + 1;
+      const fromRight = count - idx;
+      if (fromLeft <= fromRight) return `Bitte die ${fromLeft}. Spur von links nehmen.`;
+      return `Bitte die ${fromRight}. Spur von rechts nehmen.`;
+    }
+    const first = goal[0] + 1;
+    const last = goal[goal.length - 1] + 1;
+    const fromLeft = first === 1;
+    if (fromLeft) {
+      if (goal.length === count) return `Bitte alle ${count} Spuren nehmen.`;
+      return `Bitte die ${goal.length} linken Spuren nehmen.`;
+    }
+    return `Bitte die ${goal.length} rechten Spuren nehmen.`;
+  }
+  function laneVoice(m) {
+    const hint = m?.laneHint;
+    const curTurnIdx = m?.turns?.[0]?.index;
+    // 过了锁定的机动就解锁
+    if (laneLockTurn != null && curTurnIdx != null && curTurnIdx > laneLockTurn) laneLockTurn = null;
+    if (!settings.navVoice || !hint?.key || hint.distance < 150 || hint.distance > 900) { laneWrongSince = 0; return; }
+    const goal = [...Array(hint.lanes).keys()].filter((i) => (hint.mask >> i) & 1);
+    if (!goal.length) { laneWrongSince = 0; return; }
+    // 主动推荐（每处一次；锁定时不播下一个）—— 不需要知道当前车道
+    if (!laneSaid.has(hint.key) && laneLockTurn == null) {
+      const p = lanePhrase(hint.lanes, goal);
+      if (p) { laneSaid.add(hint.key); laneLockTurn = curTurnIdx ?? null; speak(p); return; }
+    }
+    // 纠偏：需要知道当前车道（且车道数一致时才能判断是否走错）
+    if (!hint.laneNow || hint.laneNow.own !== hint.lanes) { laneWrongSince = 0; return; }
+    const lane = hint.laneNow.lane;
+    if ((hint.mask >> lane) & 1) { laneWrongSince = 0; return; } // 已在推荐车道
+    if (laneSpoken.has(hint.key)) { laneWrongSince = 0; return; }
+    // blinkt schon in Richtung der richtigen Spur: wechselt gerade – nicht dazwischenreden
+    const blink = blinkSide();
+    if (blink && goal.length && ((blink === 'l' && goal[0] < lane) || (blink === 'r' && goal[goal.length - 1] > lane))) { laneWrongSince = 0; return; }
+    const now = performance.now();
+    if (!laneWrongSince) { laneWrongSince = now; return; }
+    if (now - laneWrongSince < 3000) return;
+    let best = -1;
+    for (let i = 0; i < hint.lanes; i++) if ((hint.mask >> i) & 1 && (best < 0 || Math.abs(i - lane) < Math.abs(best - lane))) best = i;
+    if (best < 0) return;
+    laneSpoken.add(hint.key);
+    laneWrongSince = 0;
+    speak(best < lane ? 'Bitte links einordnen.' : 'Bitte rechts einordnen.');
+  }
