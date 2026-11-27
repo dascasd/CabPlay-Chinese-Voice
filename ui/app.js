@@ -184,11 +184,32 @@
     }).join('');
   }
 
+  // Symbol-Set je App: Navi-Symbol passend zum Kartenstil (oder fest), Musik-Symbol nach der App, die gerade spielt
+  // (Apple Music/iTunes → Apple Musik, sonst Spotify; zuletzt erkannte bleibt gemerkt) oder fest gewählt
+  let musicAppSeen = 'spotify';
+  try { if (localStorage.getItem('musicApp') === 'apple') musicAppSeen = 'apple'; } catch {}
+  function noteMusicApp(app) {
+    const kind = /applemusic|itunes|apple music/i.test(app) ? 'apple' : /spotify/i.test(app) ? 'spotify' : null;
+    if (!kind || kind === musicAppSeen) return false;
+    musicAppSeen = kind;
+    try { localStorage.setItem('musicApp', kind); } catch {}
+    return settings.musicIcon === 'auto';
+  }
+  function appTheme(id) {
+    if (settings.iconTheme === 'classic') return 'classic';
+    if (id === 'maps') {
+      const style = params.get('mapstyle') || settings.mapStyle;
+      return (settings.mapsIcon === 'auto' ? (style === 'apple' ? 'apple' : 'google') : settings.mapsIcon) === 'apple' ? 'apple' : 'brands';
+    }
+    if (id === 'music') return (settings.musicIcon === 'auto' ? musicAppSeen : settings.musicIcon) === 'apple' ? 'apple' : 'brands';
+    return 'brands';
+  }
+
   function appInfo(id) {
     const base = catalog.APPS[id];
     const custom = settings.apps[id] || {};
     const [c1, c2] = catalog.COLORS[custom.color || base.color];
-    const themed = (APP_NAMES[settings.iconTheme] || {})[id];
+    const themed = (APP_NAMES[appTheme(id)] || {})[id];
     return { id, name: custom.name || themed || base.name, c1, c2, image: customIcons[id] || null };
   }
 
@@ -214,7 +235,7 @@
     // Vollflächige Icons im Stil der echten Apps (Google Maps, Spotify …), außer eigene Farbe gewählt
     const iconStyle = params.get('icons') || settings.iconStyle;
     const art = !a.image && !(settings.apps[id] || {}).color
-      ? (APP_ICONS[`${settings.iconTheme}-${iconStyle}`] || {})[id] || (APP_ICONS[settings.iconTheme] || {})[id] : null;
+      ? (APP_ICONS[`${appTheme(id)}-${iconStyle}`] || {})[id] || (APP_ICONS[appTheme(id)] || {})[id] : null;
     // --tint: Farbe der App – im Symbolstil „Dunkel“ wird die weiße Glyphe damit eingefärbt
     if (art) return `<div class="icon art-icon" style="--tint:${a.c1}">${uniqueIds(art)}</div>`;
     const image = a.image ? `background-image:url('${a.image}')` : '';
@@ -277,7 +298,7 @@
   // Karten-Menü wie in CarPlay: Raster aus großen Kacheln (Schalter leuchten blau, die anderen öffnen eine Unterseite)
   let mapSheetOpen = false;
   let mapSheetPage = 'main';
-  const onOff = (v) => (v ? 'An' : 'Aus');
+  const onOff = (v) => (v ? 'Ein' : 'Aus');
   function mapSheet() {
     const tile = (icon, label, value, attrs, on = false) => `<button class="mm-tile ${on ? 'on' : ''}" data-focus ${attrs}>
         <span class="mm-icon">${ICONS[icon] || ''}</span><b>${label}</b><small>${escape(value)}</small></button>`;
@@ -365,6 +386,44 @@
     const o = settings.overlays;
     // Google/Apple: in eine Ecke gelegt statt fest wie im Original (03-ios-stil.css, [data-free])
     const free = (k) => ((mapStyle() === 'google' || mapStyle() === 'apple') && settings.overlayFree?.[k] ? ' data-free' : '');
+    // Apple Karten wie in CarPlay: rechts oben Routenübersicht, Ansagen und Melden, unten 3D/2D, + und − (Apple-Anleitung
+    // „Kartenansicht in CarPlay ändern“ / „Wegbeschreibungen“). „…“ für die Karteneinstellungen ist eine CabPlay-Ergänzung.
+    if (mode === 'full' && mapStyle() === 'apple') {
+      // Verschieben wie bei Apple: Kreuz-Knopf über + und −, dann Pfeile an den Rändern und „Fertig“ oben rechts.
+      // Melden: Blatt links wie bei Apple – CabPlay kennt nur Blitzer (andere Meldungen sähe im Spiel niemand).
+      return mapViewHtml(mode, o, free, `<div class="map-controls apple-ctl">
+          <div class="ac-top">
+            <button class="map-btn glass ${mapOverview ? 'active' : ''}" data-map-cmd="overview" data-focus data-bind="overview-btn" aria-label="Übersicht der Route"><svg viewBox="0 0 24 24"><circle cx="6.2" cy="4.6" r="2.3" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" d="M8.4 5.2c5.6.6 10.4 2.4 10.4 5.6 0 3.4-11.6 2-11.6 6.2 0 1.2.9 2.1 2.6 2.6"/><path fill="currentColor" d="m15.9 13.8 3.6 8.4-3.6-2-3.6 2z"/></svg></button>
+            <button class="map-btn glass" data-map-cmd="voice" data-focus data-bind="voice-btn" aria-label="Ansagen">${voiceIcon()}</button>
+            <button class="map-btn glass" data-map-cmd="report" data-focus aria-label="Melden">${REPORT_ICON}</button>
+            <button class="map-btn glass ac-more" data-map-cmd="sheet" data-focus aria-label="Karteneinstellungen">${ICONS.more}</button>
+          </div>
+          <div class="ac-bottom">
+            <button class="map-btn glass auto-btn" data-map-cmd="auto" data-focus data-bind="auto-btn" ${settings.mapZoom ? '' : 'hidden'}>Auto</button>
+            <div class="zoom-pill glass show apple-zoom">
+              <button data-map-cmd="pan" data-focus class="ac-pan" aria-label="Karte verschieben"><svg viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5.5v4.2M12 14.3v4.2M5.5 12h4.2M14.3 12h4.2"/></g><g fill="currentColor"><path d="m12 1.6 3.1 4.3H8.9zM12 22.4l3.1-4.3H8.9zM1.6 12l4.3-3.1v6.2zM22.4 12l-4.3-3.1v6.2z"/></g></svg></button>
+              <button data-map-cmd="in" data-focus class="ac-in" aria-label="Näher"><svg viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M12 4v16M4 12h16"/></svg></button>
+              <button data-map-cmd="out" data-focus aria-label="Weiter weg"><svg viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M4 12h16"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="pan-ui">
+          <button class="pan-arrow glass up" data-map-cmd="pan-up" data-focus aria-label="Nach oben"><svg viewBox="0 0 24 24" style="transform:rotate(0deg)"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="m6 15 6-6 6 6"/></svg></button>
+          <button class="pan-arrow glass down" data-map-cmd="pan-down" data-focus aria-label="Nach unten"><svg viewBox="0 0 24 24" style="transform:rotate(180deg)"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="m6 15 6-6 6 6"/></svg></button>
+          <button class="pan-arrow glass left" data-map-cmd="pan-left" data-focus aria-label="Nach links"><svg viewBox="0 0 24 24" style="transform:rotate(-90deg)"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="m6 15 6-6 6 6"/></svg></button>
+          <button class="pan-arrow glass right" data-map-cmd="pan-right" data-focus aria-label="Nach rechts"><svg viewBox="0 0 24 24" style="transform:rotate(90deg)"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="m6 15 6-6 6 6"/></svg></button>
+          <button class="pan-done glass" data-map-cmd="pan-done" data-focus>Fertig</button>
+        </div>
+        <div class="report-sheet sound-sheet glass">
+          <div class="rs-head"><button class="rs-close glass" data-map-cmd="voice-close" data-focus aria-label="Schließen"><svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg></button><b>Ton</b></div>
+          ${[['all', 'Ton an', SPK_ICONS.all], ['alerts', 'Nur Hinweise', SPK_ICONS.alerts], ['off', 'Ton aus', SPK_ICONS.off]].map(([v, l, ic]) =>
+            `<button class="rs-row snd ${voiceMode() === v ? 'on' : ''}" data-map-cmd="voice-${v}" data-focus data-voice="${v}"><span class="rs-ic">${ic}</span><span>${l}</span></button>`).join('')}
+        </div>
+        <div class="report-sheet glass">
+          <div class="rs-head"><button class="rs-close glass" data-map-cmd="report-close" data-focus aria-label="Schließen"><svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg></button><b>Melden</b></div>
+          <button class="rs-row" data-map-cmd="report-camera" data-focus><span class="rs-ic" style="--c:#ff3b30">${ICONS.camera}</span><span>Blitzer</span></button>
+        </div>`);
+    }
     const controls = mode === 'full'
       ? `<div class="map-controls">
           <div class="zoom-pill glass ${zoomVisible ? 'show' : ''}" data-bind="zoom-pill">
@@ -377,6 +436,18 @@
         </div>
 `
       : '';
+    return mapViewHtml(mode, o, free, controls);
+  }
+
+  // Ansagen wie bei Apple: alle, nur Hinweise (Blitzer-/Warntöne, Lautsprecher mit !) oder stumm
+  const voiceMode = () => (settings.navVoice ? 'all' : settings.radarSound ? 'alerts' : 'off');
+  // Lautsprecher wie die SF-Symbole bei Apple (gefüllt): an, mit Warndreieck, durchgestrichen
+  const SPK_ICONS = { all: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3.5 9h3.6l4.7-4.2c.5-.4 1.2-.1 1.2.5v13.4c0 .6-.7.9-1.2.5L7.1 15H3.5c-.6 0-1-.4-1-1v-4c0-.6.4-1 1-1z"/><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" d="M16 9a4.2 4.2 0 0 1 0 6M18.8 6.4a8 8 0 0 1 0 11.2"/></svg>', alerts: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M2.5 9h3.4l4.4-4.1c.5-.4 1.2-.1 1.2.5v13.2c0 .6-.7.9-1.2.5L5.9 15H2.5c-.6 0-1-.4-1-1v-4c0-.6.4-1 1-1z"/><path fill="currentColor" fill-rule="evenodd" d="M18.1 7.6c.4-.7 1.4-.7 1.8 0l3.9 7c.4.7-.1 1.5-.9 1.5h-7.8c-.8 0-1.3-.8-.9-1.5zM18.3 9.9h1.4v3.1h-1.4zM19 13.7a.8.8 0 1 1 0 1.6.8.8 0 0 1 0-1.6z"/></svg>', off: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3.5 9h3.6l4.7-4.2c.5-.4 1.2-.1 1.2.5v13.4c0 .6-.7.9-1.2.5L7.1 15H3.5c-.6 0-1-.4-1-1v-4c0-.6.4-1 1-1z"/><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" d="m16 9.5 5 5m0-5-5 5"/></svg>' };
+  const voiceIcon = () => SPK_ICONS[voiceMode()];
+  // Melden wie bei Apple (Sprechblase mit !) – CabPlay kennt nur Blitzer
+  const REPORT_ICON = '<svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M12 2.8c-5.3 0-9.5 3.5-9.5 7.9 0 2.5 1.4 4.8 3.6 6.2l-.6 3.4c-.1.6.5 1 1 .7l3.7-2.4c.6.1 1.2.1 1.8.1 5.3 0 9.5-3.5 9.5-8S17.3 2.8 12 2.8zM11 6.4h2l-.3 6h-1.4zm1 8.1a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg>';
+
+  function mapViewHtml(mode, o, free, controls) {
     return `<div class="map map-${mode}">
       <canvas data-map></canvas>
       <div class="map-note glass" data-bind="map-note" hidden></div>
@@ -397,11 +468,11 @@
       ${mode === 'full' ? mapSheet() : ''}
       ${mode === 'full' ? '<div class="along glass" data-bind="along" hidden><div class="along-head">Entlang der Route</div><div class="along-rows" data-list="along"></div></div>' : ''}
       ${mapStyle() === 'apple'
-        ? `<div class="ov eta apple-eta glass" data-ov="eta" data-pos="${o.eta}" data-bind="eta">
+        ? `<${mode === 'full' ? 'button' : 'div'} class="ov eta apple-eta glass" data-ov="eta" data-pos="${o.eta}" data-bind="eta"${mode === 'full' ? ' data-map-cmd="sheet" data-focus' : ''}>
             <div><b data-bind="eta-arrive">–</b><small data-bind="eta-label">Ankunft</small></div>
             <div><b data-bind="eta-num">–</b><small data-bind="eta-unit">Min.</small></div>
             <div><b data-bind="eta-kmnum">–</b><small>km</small></div>
-          </div>`
+          </${mode === 'full' ? 'button' : 'div'}>`
         : mapStyle() === 'google'
           ? `<div class="ov eta google-eta glass" data-ov="eta" data-pos="${o.eta}" data-bind="eta">
             <div class="ge-top"><b data-bind="eta-arrive">–</b><span data-bind="eta-label">Ankunft</span></div>
@@ -582,7 +653,8 @@
     setTimeout(render, 0); // nicht mitten in der Telemetrie neu aufbauen
   }
   // Alle Widgets, die irgendwo auf dem Dashboard liegen (auch verdeckt im Stapel)
-  const dashboardWidgets = () => [0, 1, 2].flatMap(stackFor);
+  // dazu die Widgets der Widget-Seite (Vorhersage braucht dieselben Wetterdaten)
+  const dashboardWidgets = () => [...[0, 1, 2].flatMap(stackFor), ...pageWidgets().map((t) => (t === 'forecast' || t === 'sun' ? 'weather' : t))];
 
   function slotHtml(type, slot) {
     const list = stackFor(slot);
@@ -620,10 +692,18 @@
     return pages;
   }
 
+  // „Symbole anpassen“ (wie CarPlay): Zurück-Knopf oben links, unten ein Glasblatt mit drei Vorschau-Icons
+  let iconSheetOpen = false;
+  let iconSheetReturn = null; // Einstellungsseiten beim Öffnen – „Zurück“ führt wieder dorthin
+  function iconSheetHtml() {
+    return `<button class="isw-back glass" data-focus data-action="icon-sheet-close" aria-label="Zurück">${ICONS.back}</button>
+      <div class="icon-sheet glass">${Object.entries({ color: 'Standard', dark: 'Dunkel', clear: 'Klar' }).map(([v, l]) => `<button class="isp-opt ${settings.iconStyle === v ? 'selected' : ''}" data-focus data-choose="iconStyle" data-value="${v}"><span class="isp-ic ${v}">${ISP_PHONE}</span><span class="isp-l">${escape(l)}</span></button>`).join('')}</div>`;
+  }
+
   function homeHtml() {
     const pages = homePages();
     homePage = Math.min(homePage, pages.length - 1);
-    const dots = `<div class="page-dots glass"><button data-open="dashboard" class="dash-dot" aria-label="Dashboard"></button>${pages.map((_, i) => `<button data-page-dot="${i}" class="${i === homePage ? 'on' : ''}" aria-label="Seite ${i + 1}"></button>`).join('')}</div>`;
+    const dots = pageDotsHtml('home') + (iconSheetOpen ? iconSheetHtml() : '');
     return `<div class="home-pages">${pages.map((p, i) => `<div class="home-grid ${i === homePage ? 'active' : ''}" data-home-page="${i}">${p.map(appIcon).join('')}</div>`).join('')}</div>${dots}`;
   }
 
@@ -634,7 +714,7 @@
     homePage = Math.min(index, count - 1);
     if (slide && before !== homePage) slideIn(stage.querySelector(`[data-home-page="${homePage}"]`), homePage > before ? 'left' : 'right');
     for (const el of stage.querySelectorAll('[data-home-page]')) el.classList.toggle('active', Number(el.dataset.homePage) === homePage);
-    for (const el of stage.querySelectorAll('[data-page-dot]')) el.classList.toggle('on', Number(el.dataset.pageDot) === homePage);
+    for (const el of stage.querySelectorAll('[data-screen="home"] [data-page-dot]')) el.classList.toggle('on', Number(el.dataset.pageDot) === homePage);
     nav.reset();
   }
 
@@ -660,8 +740,10 @@
       return { 0: 'Ab dem Limit', 3: `Ab +3 ${u}`, 5: `Ab +5 ${u}`, 10: `Ab +10 ${u}`, 15: `Ab +15 ${u}`, '-1': 'Aus' };
     },
     glass: { full: 'Normal', clear: 'Klar', reduced: 'Sparsam', off: 'Weniger Transparenz' },
-    iconTheme: { brands: 'Google Maps & Spotify', apple: 'Apple (Karten, Musik)', classic: 'Klassisch' },
-    iconStyle: { color: 'Farbig', dark: 'Dunkel', clear: 'Klar' },
+    iconTheme: { brands: 'Wie die echten Apps', classic: 'Klassisch' },
+    mapsIcon: { auto: 'Passend zum Kartenstil', google: 'Google Maps', apple: 'Apple Karten' },
+    musicIcon: { auto: 'Nach laufender App', spotify: 'Spotify', apple: 'Apple Musik' },
+    iconStyle: { color: 'Standard', dark: 'Dunkel', clear: 'Klar' }, // Namen wie bei Apple
     textScale: { small: 'Klein', normal: 'Normal', large: 'Groß', xlarge: 'Sehr groß' },
     displayFormat: { auto: 'Automatisch', '16:9': '16:9', '16:10': '16:10', '4:3': '4:3', '5:4': '5:4', '2:1': '2:1 (breit)', '8:3': '8:3 (sehr breit)' },
     gamma: { off: 'Aus', light: 'Leicht', balanced: 'Ausgewogen (empfohlen)', dim: 'Gedämpft (helles Display)', strong: 'Stark', custom: 'Eigene Einstellung' },
@@ -716,7 +798,7 @@
   }
   const TITLES = {
     mirrorTarget: 'Zeigen im', mapNextLimitStyle: 'Position', clusterDesign: 'Design', clusterAccent: 'Farbe', clusterBackground: 'Hintergrund', clusterTint: 'Hintergrundfarbe', clusterGauge: 'Instrumente', clusterBootStyle: 'Begrüßung', clusterCenter: 'Mitte', clusterFps: 'Bildrate', clusterArrows: 'Blinkerpfeile', clusterBlinkers: 'Blinker im Display', clusterWidgetMode: 'Wechsel', clusterDialRight: 'Rechts unten', clusterInfoStyle: 'Stil der Leiste', clusterFocus: 'Größer anzeigen',
-    displayFormat: 'Displayformat', keyboard: 'Tastatur', language: 'Sprache', units: 'Einheiten', clock: 'Uhrzeit', appearance: 'Darstellung', appearanceAuto: 'Automatisch', glassTint: 'Tönung', radarTolerance: 'Tempo-Warnung', gradeMin: 'Steigungen', glass: 'Liquid Glass', iconTheme: 'Symbol-Set', iconStyle: 'Symbolstil', textScale: 'Textgröße', gamma: 'Bildkorrektur', mapTheme: 'Farbschema', volumeVoice: 'Sprachansagen', volumeAnnounce: 'Durchsagen im Bus', volumeAlerts: 'Warntöne', volumeSiri: 'Sprachbefehl-Töne', volumeVideo: 'Video', volumeRadio: 'Radio', gammaValue: 'Kontrast (Gamma)', whiteLevel: 'Weißpunkt',
+    displayFormat: 'Displayformat', keyboard: 'Tastatur', language: 'Sprache', units: 'Einheiten', clock: 'Uhrzeit', appearance: 'Darstellung', appearanceAuto: 'Automatisch', glassTint: 'Tönung', radarTolerance: 'Tempo-Warnung', gradeMin: 'Steigungen', glass: 'Liquid Glass', iconTheme: 'Symbol-Set', mapsIcon: 'Navi-Symbol', musicIcon: 'Musik-Symbol', iconStyle: 'Symbolstil', textScale: 'Textgröße', gamma: 'Bildkorrektur', mapTheme: 'Farbschema', volumeVoice: 'Sprachansagen', volumeAnnounce: 'Durchsagen im Bus', volumeAlerts: 'Warntöne', volumeSiri: 'Sprachbefehl-Töne', volumeVideo: 'Video', volumeRadio: 'Radio', gammaValue: 'Kontrast (Gamma)', whiteLevel: 'Weißpunkt',
     sidebar: 'Position', sidebarCount: 'Anzahl Apps', phoneBattery: 'Handy-Akku', logoStore: 'Logos', phoneSignal: 'Mobilfunk', musicArt: 'Musik-Ansicht', dispatcher: 'Disponent', mirrorView: 'Spiegel', mirrorFps: 'Bildrate', voiceName: 'Stimme', voiceLang: 'Sprache der Ansagen', voiceZh: 'Chinesische Stimme', sidebarMode: 'Apps in der Seitenleiste', iconSize: 'Symbolgröße', startScreen: 'Startbildschirm',
     mapStyle: 'Kartenstil', mapFps: 'Bildrate der Karte', mapTruckSize: 'Truck-Symbol', 'overlays.banner': 'Abbiegehinweis', 'overlays.eta': 'Ankunftszeit', 'overlays.speed': 'Tempo-Anzeige',
     'overlays.compass': 'Kompass', 'dashboard.0': 'Großes Widget', 'dashboard.1': 'Widget oben', 'dashboard.2': 'Widget unten',
@@ -729,6 +811,7 @@
     voiceName: 'Empfohlen: Olivia. Für sie ist die Aussprache gemacht und mit Spracherkennung geprüft – Zahlen, Kilometer, Geld, Städte und Firmen klingen bei ihr am natürlichsten. Die anderen AI-Stimmen nutzen dieselben Regeln, sprechen aber nicht alles so sauber.',
     glass: 'Wie bei iOS: nach links klarer und durchsichtiger, nach rechts stärker getönt und besser lesbar. In der Mitte die Standard-Einstellung. „Unschärfe reduzieren“ schaltet auch die Lichtbrechung an den Glaskanten aus und spart über der Karte und im Dashboard Rechenzeit.',
     iconTheme: 'Wie die echten Apps. Nachbauten – die Original-Icons kannst du als eigenes Bild festlegen.',
+    appIcons: 'Navi-Symbol: Google Maps oder Apple Karten, automatisch passend zum Kartenstil. Musik-Symbol: automatisch Spotify oder Apple Musik – je nachdem, welche App am PC gerade spielt.',
     gamma: 'Das Spiel lässt den Bildschirm im Truck leuchten und legt Bloom darüber – er wirkt überbelichtet. „Ausgewogen“ dunkelt die Mitteltöne etwas ab und dimmt Weiß, damit helle Flächen nicht überstrahlen. „Stark“ macht Farben dunkel und satt, Weiß strahlt aber weiter. Gilt nur im Truck, nicht im Editor.',
     sidebarMode: 'Zuletzt benutzt: oben die letzte Navi-App, in der Mitte die letzte Audio-App, unten die zuletzt geöffnete andere App.',
     iconStyle: 'Farbig, dunkel (farbiges Symbol auf Schwarz) oder klar aus Glas. Gilt für alle Symbol-Sets und auch für eigene Bilder.',
@@ -858,11 +941,6 @@
     }
     else if (key === 'radarTolerance' || key === 'gradeMin' || key === 'gammaValue' || key === 'whiteLevel' || key === 'clusterFps' || key.startsWith('volume')) s[key] = Number(value);
     else s[key] = value;
-    // Kartenstil und Symbol-Set gehören zusammen: Apple Karten ↔ Apple-Symbole, Google ↔ Google Maps & Spotify
-    if (key === 'mapStyle' && value === 'apple') s.iconTheme = 'apple';
-    else if (key === 'mapStyle' && value === 'google') s.iconTheme = 'brands';
-    else if (key === 'iconTheme' && value === 'apple') s.mapStyle = 'apple';
-    else if (key === 'iconTheme' && value === 'brands') s.mapStyle = 'google';
   }
 
   function prettyAccelerator(acc) {
@@ -871,6 +949,8 @@
     return acc.split('+').map((k) => names[k] || k).join(' + ');
   }
 
+  // Telefon-Glyphe für die Symbolstil-Vorschau (wie das Telefon-Icon im Original)
+  const ISP_PHONE = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M7.2 3.5c.6-.3 1.3-.1 1.7.4l2.3 3.1c.4.5.4 1.2 0 1.7l-1.3 1.6c1 2 2.6 3.6 4.6 4.6l1.6-1.3c.5-.4 1.2-.4 1.7 0l3.1 2.3c.5.4.7 1.1.4 1.7l-1 2.1c-.4.8-1.3 1.2-2.2 1-7.1-1.6-11.8-6.3-13.4-13.4-.2-.9.2-1.8 1-2.2z"/></svg>';
   function srow({ icon, color, label, value = '', attrs = '', chevron = true, sw = null, cls = '' }) {
     const lead = icon ? (icon.startsWith('<') ? icon : badge(icon, color)) : '';
     const tail = sw !== null ? `<span class="switch ${sw ? 'on' : ''}"></span>` : `<span class="row-value">${value}</span>${chevron ? `<span class="row-chevron">${ICONS.chevron}</span>` : ''}`;
@@ -967,7 +1047,7 @@
   };
   const choiceRow = (key, icon, color, label = TITLES[key]) => link(`choice:${key}`, icon, color, label,
     // Sprachen als Wert: Name in der Sprache der Oberfläche („Chinesisch, vereinfacht“), die eigene Sprache mit ihrem Namen
-    ((key === 'language' || key === 'voiceLang') && LANG_SUB[CarI18n.lang]?.[getOption(key)]) || OPTIONS[key][getOption(key)] || (key.startsWith('volume') ? `${getOption(key)} %` : ''));
+    ((key === 'language' || key === 'voiceLang' || key === 'keyboard') && LANG_SUB[CarI18n.lang]?.[getOption(key)]) || OPTIONS[key][getOption(key)] || (key.startsWith('volume') ? `${getOption(key)} %` : ''));
   // tag: kleiner Hinweis hinter dem Namen (z. B. „Experimentell“ bei unsicheren Daten)
   const toggleRow = (key, icon, color, label, tag = '') => srow({ icon, color, label: tag ? `${label}<em class="tag-beta">${tag}</em>` : label, sw: !!settings[key], attrs: `data-toggle="${key}"` });
   const infoRow = (label, value, icon, color) => srow({ icon, color, label, value: escape(value), chevron: false, cls: 'static' });
@@ -1046,8 +1126,39 @@
         .filter(([value]) => !key.startsWith('overlayShow.') || value === settings.mapStyle || (value !== 'google' && value !== 'apple'))
         .filter(([value]) => key !== 'voiceName' || value === current
         || (value.startsWith('st-') ? aiStatus?.supertonic : true)).map(([value, label]) =>
-        `<button class="row" data-focus data-choose="${key}" data-value="${value}"><span class="row-label">${key === 'language' || key === 'voiceLang' ? langChoiceLabel(value, label) : escape(label)}</span><span class="row-check">${String(value) === String(current) ? ICONS.check : ''}</span></button>`);
+        `<button class="row" data-focus data-choose="${key}" data-value="${value}"><span class="row-label">${key === 'language' || key === 'voiceLang' || key === 'keyboard' ? langChoiceLabel(value, label) : escape(label)}</span><span class="row-check">${String(value) === String(current) ? ICONS.check : ''}</span></button>`);
       return { title: TITLES[key] || TITLES[key.replace('overlayShow.', 'overlays.')], body: group(rows, NOTES[key]) };
+    }
+    // Widgets (Widget-Seite) wie in den iOS-Einstellungen: Stapel-Reiter, Vorschau, rotes Minus, Griff zum Verschieben,
+    // „Widget hinzufügen“ (bis zu fünf je Stapel), Smart-Reihenfolge, Zurücksetzen
+    if (id === 'wpage') {
+      if (wpEditCol >= wpCols()) wpEditCol = 0;
+      const col = wpEditCol;
+      const list = settings.widgetPage.stacks[col] || [];
+      const seg = `<div class="wp-seg-wrap"><div class="segmented glass wp-seg">${Array.from({ length: wpCols() }, (_, c) => c).map((c) => `<button data-focus data-wp-col="${c}" class="${c === col ? 'on' : ''}">Stapel ${c + 1}</button>`).join('')}</div></div>`;
+      const rows = list.map((t, i) => `<div class="row wp-row" data-wp-row="${i}">
+          <button class="wp-minus" data-focus data-wp-remove="${col}:${i}" aria-label="Entfernen"></button>${wpThumb(t)}
+          <span class="row-label">${escape(wpAppName(t))}<em class="row-sub">${escape(PAGE_WIDGET_INFO[t].sub)}</em></span>
+          <span class="wp-handle" data-wp-handle="${col}:${i}" aria-label="Verschieben"><i></i><i></i><i></i></span></div>`);
+      const full = list.length >= WP_MAX;
+      const add = `<button class="row wp-row wp-add ${full ? 'off' : ''}" data-focus ${full ? '' : 'data-page="wpadd"'}><span class="wp-thumb wp-plus">${ICONS.plus}</span><span class="row-label">Widget hinzufügen</span></button>`;
+      return {
+        title: 'Widgets',
+        body: group([srow({ icon: 'widgets', color: 'indigo', label: 'Widgets einblenden', sw: wpOn(), attrs: 'data-action="wp-on"' }),
+          srow({ icon: 'layers', color: 'blue', label: 'Stapel nebeneinander', value: String(wpCols()), attrs: 'data-action="wp-cols"', chevron: false })],
+        'Wie bei CarPlay: links vom Dashboard eine Seite mit Widgets – Uhr, Datum, Wetter, Musik, Füllstände und mehr. Hin und zurück wischen oder das Mausrad drehen; in einem Stapel nach oben oder unten wischen.')
+          + `<p class="group-note">Du kannst einen Stapel mit bis zu fünf Widgets anpassen. Drei Stapel passen gut auf breite Displays.</p>`
+          + seg + `<div class="group wp-list">${rows.join('')}${add}</div>`
+          + group([srow({ label: 'Smart-Reihenfolge', sw: !!settings.widgetPage.smart, attrs: 'data-action="wp-smart"' })], 'Holt das passende Widget im Stapel nach vorne – zum Beispiel „Jetzt läuft“, sobald Musik startet, oder den Tank, wenn er fast leer ist.')
+          + group([srow({ label: '<span class="danger">Zurücksetzen</span>', attrs: 'data-action="wp-reset"', chevron: false })]),
+      };
+    }
+    if (id === 'wpadd') {
+      const col = wpEditCol;
+      const list = settings.widgetPage.stacks[col] || [];
+      const rows = Object.keys(PAGE_WIDGET_INFO).filter((t) => !list.includes(t)).map((t) => `<button class="row wp-row" data-focus data-wp-add="${col}:${t}">${wpThumb(t)}
+          <span class="row-label">${escape(wpAppName(t))}<em class="row-sub">${escape(PAGE_WIDGET_INFO[t].sub)}</em></span><span class="wp-plus-btn">${ICONS.plus}</span></button>`);
+      return { title: 'Widget hinzufügen', body: `<p class="group-note" style="padding-top:0">Für Stapel ${col + 1}</p><div class="group wp-list">${rows.join('') || '<div class="list-empty">Alle Widgets liegen schon in diesem Stapel.</div>'}</div>` };
     }
     if (id.startsWith('stack:')) {
       const slot = Number(id.slice(6));
@@ -1123,10 +1234,12 @@
       case 'homescreen':
         return {
           title: 'Home-Bildschirm & App-Icons',
-          body: editRow('Beim Bearbeiten wackeln die Icons: ziehen zum Verschieben, antippen für Name, Farbe und Icon. Änderungen erscheinen sofort im Truck.') + group([
-            choiceRow('iconTheme', 'home', 'green'),
-            choiceRow('iconStyle', 'palette', 'pink'),
-          ], `${NOTES.iconStyle} ${NOTES.iconTheme}`)
+          // Symbolstil wie in CarPlay: drei Vorschau-Icons (Telefon) Standard, Dunkel, Klar zum Antippen
+          body: editRow('Beim Bearbeiten wackeln die Icons: ziehen zum Verschieben, antippen für Name, Farbe und Icon. Änderungen erscheinen sofort im Truck.')
+            // wie CarPlay: „Symbole anpassen“ öffnet den Home-Bildschirm mit dem Blatt Standard / Dunkel / Klar
+            + group([srow({ icon: 'palette', color: 'blue', label: 'Symbole anpassen', value: escape(OPTIONS.iconStyle[settings.iconStyle] || ''), attrs: 'data-action="icon-sheet"' })], NOTES.iconStyle)
+            + group([choiceRow('iconTheme', 'home', 'green')], NOTES.iconTheme)
+            + (settings.iconTheme !== 'classic' ? group([choiceRow('mapsIcon', 'maps', 'blue'), choiceRow('musicIcon', 'music', 'red')], NOTES.appIcons) : '')
             + `<div class="group icon-preview">${['maps', 'music', 'radar', 'weather', 'settings'].map((id) => `<span class="row-app big">${iconHtml(id)}</span>`).join('')}</div>`
             + group([
               choiceRow('iconSize', 'home', 'blue'),
@@ -1639,6 +1752,11 @@
                 </div>
               </div>`;
           }).join('') + (more.length ? `<p class="group-note">Klappt der Code nicht? Weitere Adressen dieses PCs: ${more.map((u) => `<code data-no-i18n>${escape(u)}</code>`).join(' ')}</p>` : '');
+          // nur am PC: im Truck ließe sich der Code sonst versehentlich tauschen (und das Handy ist danach getrennt)
+          if (role === 'editor' && api?.remoteRenew && info.urls?.length) {
+            codes += group([srow({ icon: 'reset', color: 'gray', label: 'Neuen Code erzeugen', chevron: false, attrs: 'data-action="remote-renew"' })],
+              'Gekoppelte Handys verlieren dann den Zugriff und müssen den neuen Code scannen – z. B. wenn die Adresse weitergegeben wurde.');
+          }
         }
         return {
           title: 'Handy-Steuerung',
@@ -1831,6 +1949,7 @@
           infoRow('Navi-Route', CarMap.hasRoute() ? 'aktiv' : 'keine', 'turn-turn', 'green'),
         ];
         if (api && pluginFile && pluginFile.bundled && pluginFile.state !== 'installed') rows.push(srow({ icon: 'plus', color: 'blue', label: 'Plugin ins Spiel installieren', attrs: 'data-action="install-plugin"', chevron: false }));
+        if (role === 'editor' && api?.pickGame) rows.push(srow({ icon: 'truck', color: 'gray', label: 'Spielordner wählen …', attrs: 'data-action="pick-game"', chevron: false }));
         return {
           title: 'Plugin & Spiel',
           body: group(rows, 'Das Plugin zeigt CabPlay auf dem Navi-Bildschirm im Truck, liest Route und Kamera aus dem Spiel und startet die App mit dem Spiel. Die App installiert es selbst, wenn das Spiel nicht läuft.')
@@ -1886,7 +2005,8 @@
               link('display', 'appearance', 'blue', 'Anzeige & Helligkeit', OPTIONS.appearance[settings.appearance]),
               link('wallpaper', 'wallpaper', 'cyan', 'Hintergrundbild', wpName),
               link('homescreen', 'home', 'indigo', 'Home-Bildschirm & App-Icons'),
-              link('dashboard', 'widgets', 'purple', 'Dashboard'),
+              link('wpage', 'widgets', 'indigo', 'Widgets', wpOn() ? 'Ein' : 'Aus'),
+              link('dashboard', 'layers', 'purple', 'Dashboard'),
               link('cluster', 'display', 'teal', 'Kombiinstrument', clusterActive ? 'Aktiv' : ''),
             ])
             + group([
@@ -2139,7 +2259,7 @@
         const el = document.createElement('script');
         el.src = 'osk-zh.js';
         el.onload = () => { oskImeIdx = null; oskImeUpdate(); };
-        el.onerror = () => { oskImeLoading = false; }; // beim nächsten Mal erneut versuchen
+        el.onerror = () => { oskImeLoading = false; el.remove(); }; // beim nächsten Mal erneut versuchen
         document.head.appendChild(el);
       }
       return null;
@@ -2187,6 +2307,7 @@
   function oskImeUpdate() {
     const bars = document.querySelectorAll('[data-osk-ime]');
     if (!bars.length) return;
+    oskImeData(); // Wörterbuch schon beim Erscheinen der Tastatur laden, nicht erst beim ersten Buchstaben
     const cands = oskImeCands();
     const pages = Math.max(1, Math.ceil(cands.length / 6));
     if (oskImePage >= pages) oskImePage = pages - 1;
@@ -2236,6 +2357,40 @@
     return false;
   }
   const oskUpper = () => oskShift || oskCaps;
+
+  // ---- Echte Tastatur im Truck (Issue #4, Stufe 1): Ist hier eine Bildschirmtastatur zu sehen, meldet der Truck-Bildschirm
+  // das dem Plugin. Im Touch-Modus schickt es dann die getippten Zeichen hierher statt ans Spiel. Sie laufen durch dieselbe
+  // Verarbeitung wie die Bildschirmtasten (Pinyin, Vorschläge, Autokorrektur, Satzanfang).
+  // sichtbar = im Layout und nicht in einem ausgeblendeten Bereich (die Browser-Tastatur gleitet mit [hidden] nur hinaus)
+  // Display aus oder im Standby: liegt nur eine Fläche darüber – dann nicht als offen melden (sonst fing das Plugin Tasten ab)
+  const oskVisible = () => poweredOn && !standby && !!oskTarget && [...document.querySelectorAll('.osk')].some((el) => el.offsetParent && !el.closest('[hidden]'));
+  function oskHwKey(key) {
+    if (typeof key !== 'string' || !key || !oskVisible()) return;
+    oskSkip = false; // Sperre nach Gedrückthalten gilt nur für den Klick danach
+    if (key === 'Backspace') return oskKey('del');
+    if (key === 'Enter') return oskKey('enter');
+    if (key === 'Escape') {
+      if (oskTarget?.onHide) return oskKey('hide');
+      return void stage.querySelector('.screen.active [data-back]')?.click(); // z. B. Einstellungssuche: Suche verlassen
+    }
+    // Pinyin: Ziffern 1–6 wählen einen Vorschlag der angezeigten Seite (wie eine Hardware-Tastatur am iPad)
+    if (oskIme() && oskPy && /^[1-6]$/.test(key)) return oskKey(`ime:${oskImePage * 6 + Number(key) - 1}`);
+    // Pinyin mit echten Buchstaben auch von der Ziffernseite aus: zurück zu den Buchstaben
+    if (oskIme() && /^[a-zA-Z]$/.test(key) && oskPage !== 'abc') {
+      oskPage = 'abc';
+      oskRefresh();
+    }
+    oskKey(key);
+  }
+  if (role === 'game' && api?.oskActive) {
+    let oskSent = null; // null: beim Start einmal melden (neu geladenes Fenster – vorher evtl. noch „offen“)
+    setInterval(() => {
+      const on = oskVisible();
+      if (on !== oskSent) { oskSent = on; api.oskActive(on); }
+    }, 200);
+    api.onHwKey?.(oskHwKey);
+    api.onOskResync?.(() => { oskSent = null; }); // Fenster hing (Hauptprozess hat abgeschaltet): beim nächsten Takt neu melden
+  }
 
   function oskHtml() {
     const enter = oskTarget?.enter || 'Fertig';
@@ -2389,7 +2544,12 @@
     oskAlt.i = i;
     spans.forEach((sp, j) => sp.classList.toggle('on', j === i));
   }
-  const oskDelOne = () => { if (qtOn()) qtBefore('del'); oskTarget?.onKey('del'); oskQtUpdate(); };
+  const oskDelOne = () => {
+    if (oskIme() && oskImeKey('del')) return; // Pinyin: erst die getippten Buchstaben löschen
+    if (qtOn()) qtBefore('del');
+    oskTarget?.onKey('del');
+    oskQtUpdate();
+  };
   let oskPressed = null;
   let oskDownAt = 0;
   document.addEventListener('pointerdown', (e) => {
@@ -2681,7 +2841,8 @@
     const w = settings.dashboard.widgets;
     return `
       <section class="screen" data-screen="home">${homeHtml()}</section>
-      <section class="screen" data-screen="dashboard"><div class="dash">${w.map(slotHtml).join('')}</div></section>
+      <section class="screen" data-screen="widgets">${widgetPageHtml()}</section>
+      <section class="screen" data-screen="dashboard"><div class="dash">${w.map(slotHtml).join('')}</div>${pageDotsHtml('dashboard')}</section>
       <section class="screen screen-map" data-screen="maps"><div class="card map-card">${mapView('full')}</div></section>
       <section class="screen nowplaying art-${settings.musicArt}" data-screen="music" data-no-names data-tab="${musicTab}">
         <div class="np-bg" data-bind="np-bg"></div>
@@ -3102,6 +3263,7 @@
       return view;
     });
     for (const view of oldMaps.values()) view.dispose?.();
+    for (const m of maps) if (m.pan) m.resetPan?.(); // neu aufgebaut: Pfeile und „Fertig“ sind weg – Karte zurück zum Truck
     compasses = [...stage.querySelectorAll('canvas[data-compass]')];
     if (telemetry) onTelemetry(telemetry);
     onMedia(media || { available: false }, true);
@@ -3109,10 +3271,26 @@
     renderRadio();
     renderSport();
     renderLists();
+    updateWidgetClock(telemetry?.available ? telemetry.gameTimeMin : NaN); // Zeiger der Widget-Uhr gleich richtig
+    if (pageWidgets().some((t) => t === 'weather' || t === 'forecast' || t === 'sun')) renderWeather();
     updateTheme();
     updateMapNote();
     restoreView(view); // zuletzt: erst jetzt sind die Listen wieder gefüllt
   }
+
+  // Seitenpunkte (Widget-Seite, Dashboard) kurz zeigen – wie CarPlay nach dem Wischen, dann weich ausblenden
+  let dotsTimer = 0;
+  function flashPageDots() {
+    const sec = stage.querySelector(`.screen[data-screen="${screen}"]`);
+    if (!sec) return;
+    for (const el of stage.querySelectorAll('.screen.dots-show')) if (el !== sec) el.classList.remove('dots-show');
+    sec.classList.add('dots-show');
+    clearTimeout(dotsTimer);
+    dotsTimer = setTimeout(() => sec.classList.remove('dots-show'), 1600);
+  }
+  document.addEventListener('pointerdown', (e) => {
+    if ((screen === 'widgets' || screen === 'dashboard') && e.target instanceof Element && e.target.closest('.screen.active') && !e.target.closest('.map-card')) flashPageDots();
+  });
 
   // Seite gleitet beim Wischen herein (left = kommt von rechts)
   function slideIn(el, from) {
@@ -3130,7 +3308,8 @@
     if (stage.scrollTop || stage.scrollLeft) stage.scrollTo(0, 0);
     if (id === 'standby') return setStandby(true); // „Display aus“: nur die Uhr, der Bildschirm darunter bleibt
     if (id === 'nowplaying') id = catalog.APPS[settings.recents?.audio] ? settings.recents.audio : 'music'; // „Jetzt läuft“: die laufende Audio-App
-    if (!catalog.APPS[id] && id !== 'home') id = 'home';
+    if (id === 'widgets' && !wpOn()) id = 'dashboard'; // Widget-Seite ausgeschaltet
+    if (!catalog.APPS[id] && id !== 'home' && id !== 'widgets') id = 'home';
     // Einstellungen neu betreten: auf der Übersicht beginnen – auch im DOM (sonst stand dort noch die letzte Unterseite)
     if (id === 'settings' && screen !== 'settings' && screen !== null) {
       settingsStack = ['main'];
@@ -3152,6 +3331,7 @@
     for (const s of stage.querySelectorAll('.screen')) s.classList.toggle('active', s.dataset.screen === id);
     shell.dataset.screen = id; // App-Hintergrund (unscharfes Hintergrundbild) wie iOS-26-CarPlay
     if (slide) slideIn(stage.querySelector(`.screen[data-screen="${id}"]`), slide);
+    if (id === 'widgets' || id === 'dashboard') flashPageDots();
     rememberRecent(id, quiet);
     renderSidebar();
     if (id === 'stops' || id === 'logbook' || id === 'messages' || id === 'calendar') renderLists();
@@ -3164,6 +3344,16 @@
     if (videoPip) videoFull = false;
     if (id !== 'video') videoStopped = false;
     if (id !== 'maps' && mapOverview) setOverview(false);
+    // Home verlassen: das Blatt „Symbole anpassen“ schließen
+    if (id !== 'home' && iconSheetOpen) {
+      iconSheetOpen = false;
+      stage.querySelectorAll('.icon-sheet, .isw-back').forEach((el) => el.remove());
+    }
+    // Karten-App verlassen: Verschieben und Melden-Blatt beenden (wie bei Apple steht die Karte danach wieder am Truck)
+    if (id !== 'maps') {
+      for (const el of stage.querySelectorAll('.map-full.panning, .map-full.reporting, .map-full.sounding')) el.classList.remove('panning', 'reporting', 'sounding');
+      for (const m of maps) if (m.pan) m.resetPan?.(); // auch nach einem Neuaufbau (Klasse weg, Versatz noch da)
+    }
     // Kartenmenü beim Verlassen der Karte schließen – auch im DOM, sonst ist es beim Zurückkommen sichtbar,
     // gilt aber als zu („Zurück“ sprang dann zum Dashboard, Kacheln schlossen das Menü)
     if (id !== 'maps' && mapSheetOpen) {
@@ -3221,6 +3411,10 @@
       restoreSettingsScroll(top);
     }
     bound.clear();
+    if (section?.querySelector('.wp-thumb')) {
+      for (const name of ['agenda-mini', 'messages-mini', 'wxp-days', 'wp-sport', 'sport-widget']) lists.delete(name);
+      refreshWidgetData(); // Vorschau der Widgets gleich mit Daten
+    }
     const again = keep >= 0 && section.querySelectorAll('[data-focus]')[keep];
     if (focusSelector) nav.focusSelector(`.screen.active ${focusSelector}`);
     else if (again) nav.focusElement(again);
@@ -3262,6 +3456,9 @@
       if (screen === 'settings' && settingsStack[settingsStack.length - 1] === 'remote') rerenderSettings('[data-toggle="remote"]');
     }), delay);
   }
+
+  // Code in einem Fenster getauscht: das andere zeigt sonst den alten QR-Code weiter
+  if (api?.onRemoteChanged) api.onRemoteChanged(() => refreshRemoteInfo(300));
 
   function settingsBack() {
     // Aus dem Karten-Menü gekommen: von dessen Seite direkt zurück zur Karte mit offenem Menü
@@ -4103,6 +4300,249 @@
   document.addEventListener('scroll', (e) => {
     if (e.target?.matches?.(BAR_AREAS)) barSync(e.target);
   }, { capture: true, passive: true });
+  // ------------------------------------------------------------------ Widget-Seite (links vom Dashboard, wie CarPlay ab iOS 26)
+  // Apple: Widgets liegen auf der Seite ganz links, das Dashboard rechts daneben, danach die App-Seiten. Die Widgets
+  // stehen in Stapeln (je bis zu fünf) nebeneinander; in einem Stapel blättert man senkrecht. Ohne Kasten direkt auf dem
+  // Hintergrundbild (wie die echten CarPlay-Widgets). Füllstände: eigene Idee nach dem Batterien-Widget von iOS.
+  const wpIndex = [0, 0, 0];
+  const WP_MAX = 5; // wie iOS: „Du kannst einen Stapel mit bis zu fünf Widgets anpassen.“
+  // Standortpfeil hinter dem Ortsnamen (wie im Wetter-Widget von iOS)
+  const LOC_ARROW = '<svg class="wpw-loc" viewBox="0 0 24 24"><path fill="currentColor" d="M20.6 3.4 3.9 10.5c-.9.4-.8 1.7.2 1.9l6.6 1.3 1.3 6.6c.2 1 1.5 1.1 1.9.2l7.1-16.7c.3-.6-.3-1.2-.9-.9z"/></svg>';
+  const FUEL_SVG = '<svg viewBox="0 0 24 24"><path fill="#fff" d="M5 3.6C5 2.7 5.7 2 6.6 2h6.8c.9 0 1.6.7 1.6 1.6V20h1v1.6H4V20h1V3.6zM7.2 4.6v5h5.6v-5H7.2z"/><path fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M15 8.6h1.5c.8 0 1.4.6 1.4 1.4v6.2a1.3 1.3 0 0 0 2.6 0V7.6l-2.3-2.3"/></svg>';
+  const wpOn = () => settings.widgetPage?.on !== false;
+  const wpCols = () => (settings.widgetPage?.cols === 3 ? 3 : 2);
+  const wpStacks = () => (settings.widgetPage?.stacks || []).slice(0, wpCols()).filter((l) => l.length);
+  const pageWidgets = () => (wpOn() ? wpStacks().flat() : []);
+  // Katalog wie in den iOS-Einstellungen: App und Art („Wetter – Details“, „Uhr – Uhr II“); open = App beim Antippen
+  const PAGE_WIDGET_INFO = {
+    clock: { app: 'Uhr', sub: 'Uhr II', open: 'calendar' },
+    clock1: { app: 'Uhr', sub: 'Uhr I', open: 'calendar' },
+    clockdigital: { app: 'Uhr', sub: 'Digital', open: 'calendar' },
+    date: { app: 'Kalender', sub: 'Datum', open: 'calendar' },
+    calendar: { app: 'Kalender', sub: 'Termine', open: 'calendar' },
+    weather: { app: 'Wetter', sub: 'Details', open: 'weather' },
+    forecast: { app: 'Wetter', sub: 'Tägliche Vorhersage', open: 'weather' },
+    sun: { app: 'Wetter', sub: 'Sonnenaufgang und -untergang', open: 'weather' },
+    music: { app: '', sub: 'Jetzt läuft', open: 'music' },
+    fuel: { app: 'Fahrzeug', sub: 'Tank', open: 'truck' },
+    levels: { app: 'Fahrzeug', sub: 'Füllstände', open: 'truck' },
+    messages: { app: 'Mitteilungen', sub: 'Liste', open: 'messages' },
+    sport: { app: 'Sport', sub: 'Meine Teams', open: 'sports' },
+    job: { app: 'Auftrag', sub: 'Fortschritt', open: 'job' },
+    trip: { app: 'Fahrtenbuch', sub: 'Diese Fahrt', open: 'logbook' },
+  };
+  let wpEditCol = 0; // Einstellungen › Widgets: gewählter Stapel-Reiter
+  // kleine Vorschau in den Einstellungen: das echte Widget verkleinert, ohne eigene Knöpfe (lebt mit den Daten mit)
+  const wpThumb = (t) => `<span class="wp-thumb"><span class="wp-thumb-in wp-w wp-${t}">${pageWidgetBody(t).replace(/ data-(focus|open|cmd|music-now)(="[^"]*")?/g, '')}</span></span>`;
+  // App-Abzeichen oben rechts im Musik-Widget wie bei Apple: weißer Kreis, Logo in der Farbe der Karte (nicht das bunte Icon)
+  function musicBadge() {
+    const apple = appTheme('music') === 'apple';
+    return apple
+      ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#fff"/><path fill="currentColor" d="M15.8 5.6 10 6.9c-.4.1-.7.4-.7.9v7.3a2.4 2.4 0 0 0-1.1-.2c-1.3 0-2.3.8-2.3 1.8s1 1.8 2.3 1.8 2.3-.8 2.3-1.8V10.3l5-1.1v4.6a2.4 2.4 0 0 0-1.1-.2c-1.3 0-2.3.8-2.3 1.8s1 1.8 2.3 1.8 2.3-.8 2.3-1.8V6.3c0-.5-.4-.8-.9-.7z"/></svg>'
+      : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#fff"/><g fill="none" stroke="currentColor" stroke-linecap="round"><path stroke-width="2.1" d="M6.4 9.1c3.9-1.2 8.2-.8 11.4 1.1"/><path stroke-width="1.8" d="M7 12.4c3.2-.9 6.6-.6 9.4 1"/><path stroke-width="1.5" d="M7.5 15.4c2.6-.7 5.2-.4 7.5.8"/></g></svg>';
+  }
+  const wpAppName = (type) => (type === 'music' ? appInfo('music').name : PAGE_WIDGET_INFO[type]?.app || '');
+
+  function clockFaceSvg(numbers) {
+    const ticks = Array.from({ length: numbers ? 60 : 12 }, (_, i) => {
+      if (!numbers) return `<line x1="50" y1="5" x2="50" y2="${i % 3 ? 12 : 13.5}" transform="rotate(${i * 30} 50 50)"/>`;
+      return `<line class="${i % 5 ? 'fine' : ''}" x1="50" y1="3" x2="50" y2="${i % 5 ? 5.5 : 7}" transform="rotate(${i * 6} 50 50)"/>`;
+    }).join('');
+    const nums = numbers ? Array.from({ length: 12 }, (_, i) => {
+      const a = ((i + 1) * 30 * Math.PI) / 180;
+      return `<text x="${(50 + Math.sin(a) * 36).toFixed(1)}" y="${(50 - Math.cos(a) * 36 + 4).toFixed(1)}">${i + 1}</text>`;
+    }).join('') : '';
+    return `<svg class="wpc-face ${numbers ? 'numbers' : ''}" viewBox="0 0 100 100">
+        <g class="wpc-ticks">${ticks}</g><g class="wpc-nums">${nums}</g>
+        <line class="wpc-hour" data-bind="wp-hour" x1="50" y1="50" x2="50" y2="29"/>
+        <line class="wpc-min" data-bind="wp-min" x1="50" y1="50" x2="50" y2="13"/>
+        <circle class="wpc-hub" cx="50" cy="50" r="2.6"/><circle class="wpc-pin" cx="50" cy="50" r="1"/>
+      </svg>`;
+  }
+  const wpWeatherHead = () => `<div><div class="wpw-city"><span data-bind="wx-city">Wetter</span>${LOC_ARROW}</div><b class="wpw-temp" data-bind="wx-temp">–</b></div>
+    <div class="wpw-side"><span class="wx-icon" data-bind="wx-icon"></span><span class="wpw-hl"><span data-bind="wxp-hi"></span><span data-bind="wxp-lo"></span></span></div>`;
+  const ring = (bind, icon) => `<div class="wpl-ring"><svg viewBox="0 0 100 100"><circle class="wpt-track" cx="50" cy="50" r="42"/><circle class="wpt-fill" data-bind="${bind}" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="0 100"/></svg><span class="wpt-icon">${icon}</span></div>`;
+
+  function pageWidgetBody(type) {
+    switch (type) {
+      case 'clock':
+        return clockFaceSvg(false);
+      case 'clock1':
+        return clockFaceSvg(true);
+      case 'clockdigital':
+        return `<div class="wpdg"><svg class="wpdg-ring" viewBox="0 0 100 100">${Array.from({ length: 60 }, (_, i) => `<line x1="50" y1="2" x2="50" y2="${i % 5 ? 5 : 7}" transform="rotate(${i * 6} 50 50)"/>`).join('')}</svg>
+            <div class="wpdg-in"><small data-bind="wp-city"></small><b data-bind="wp-digital">--:--</b><small data-bind="wp-gameday"></small></div></div>`;
+      case 'date':
+        return `<div class="wpd-head"><b class="wpd-day" data-bind="wp-wday">–</b> <span data-bind="wp-month"></span></div><div class="wpd-num" data-bind="wp-mday">–</div>`;
+      case 'weather':
+        return `<div class="wpw-grid">${wpWeatherHead()}
+            <div class="wpw-label">Niederschlag</div><div></div>
+            <div class="wpw-val" data-bind="wxp-rain">–</div><div></div>
+            <div class="wpw-label">Wind</div><div></div>
+            <div class="wpw-val" data-bind="wxp-wind">–</div><div></div>
+          </div>`;
+      case 'forecast':
+        return `<div class="wpf-top">${wpWeatherHead()}</div><div class="wpf-days" data-list="wxp-days"></div>`;
+      case 'sun':
+        return `<div class="wpsun"><div class="wpsun-label"><svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M3 18h18M7.5 18a4.5 4.5 0 0 1 9 0M12 5v3M5.2 9.2l1.6 1.6M18.8 9.2l-1.6 1.6"/></svg><span data-bind="wxp-sun-label">Sonnenuntergang</span></div>
+            <b class="wpsun-time" data-bind="wxp-sun-time">–</b>
+            <svg class="wpsun-curve" viewBox="0 0 200 60" preserveAspectRatio="none"><path d="M0 52 C40 52 60 8 100 8 S160 52 200 52"/><line x1="0" y1="34" x2="200" y2="34"/><circle data-bind="wxp-sun-dot" r="5" cx="100" cy="8"/></svg>
+            <small data-bind="wxp-sun-other"></small></div>`;
+      case 'music':
+        return `<div class="wpm-card" data-focus data-open="music" data-music-now="1">
+            <div class="wpm-bg" data-bind="np-bg"></div>
+            <div class="wpm-app" data-bind="wpm-app">${musicBadge()}</div>
+            <div class="art wpm-art" data-bind="art"></div>
+            <div class="wpm-row"><div class="wpm-info" data-no-names><div class="t-title" data-bind="title"></div><div class="t-artist" data-bind="artist"></div></div>
+              <button class="wpm-play play" data-cmd="toggle" data-focus data-bind="play" aria-label="Wiedergabe">${ICONS.play}</button></div>
+          </div>`;
+      case 'fuel':
+        return `<div class="wpt-ring"><svg viewBox="0 0 100 100"><circle class="wpt-track" cx="50" cy="50" r="42"/><circle class="wpt-fill" data-bind="wp-fuel-ring" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="0 100"/></svg>
+            <span class="wpt-icon">${FUEL_SVG}</span></div>
+          <div class="wpt-pct" data-bind="wp-fuel-pct">–</div>
+          <div class="wpt-range" data-bind="fuel-text"></div>`;
+      case 'levels':
+        // vier Ringe wie „Batterien“: Tank, AdBlue, Zustand (Verschleiß), Zeit bis zur Pause
+        return `<div class="wpl-grid">
+            <div>${ring('wp-lv-fuel', FUEL_SVG)}<small>Tank</small></div>
+            <div>${ring('wp-lv-adblue', '<svg viewBox="0 0 24 24"><path fill="#fff" d="M12 2.5s-6 6.9-6 11.2a6 6 0 0 0 12 0C18 9.4 12 2.5 12 2.5z"/></svg>')}<small>AdBlue</small></div>
+            <div>${ring('wp-lv-wear', ICONS.service)}<small>Zustand</small></div>
+            <div>${ring('wp-lv-rest', ICONS.rest)}<small>Bis zur Pause</small></div>
+          </div>`;
+      case 'calendar':
+        return `<div class="wpk-head"><b data-bind="cal-weekday">–</b><span data-bind="cal-time">--:--</span></div><div class="mini-list" data-list="agenda-mini"></div>`;
+      case 'messages':
+        return `<div class="wpk-head"><b class="blue">Mitteilungen</b><span data-bind="wp-msg-count"></span></div><div class="mini-list" data-list="messages-mini"></div>`;
+      case 'sport':
+        // wie Apples Sport-Widget: oben Stern und Spielfeld, darunter je Team Liga, Wappen, Ergebnis bzw. Anstoß
+        return `<div class="wpsp"><div class="wpsp-head"><span class="wpsp-star">★</span><svg class="wpsp-field" viewBox="0 0 24 16"><g fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="1" width="22" height="14" rx="1.5"/><path d="M12 1v14"/><circle cx="12" cy="8" r="2.4"/><path d="M1 5h3v6H1M23 5h-3v6h3"/></g></svg></div><div class="wpsp-rows" data-list="wp-sport"></div></div>`;
+      case 'job':
+        return `<div class="wps-head">${iconHtml('job')}<b>Auftrag</b></div>
+          <div class="wj-route"><span data-bind="from">–</span><span class="arrow">→</span><span data-bind="to">–</span></div>
+          <div class="wj-left" data-bind="job-left">Kein Auftrag</div>
+          <div class="bar"><div class="bar-fill blue" data-bind="job-bar"></div></div>
+          <div class="wj-meta"><span data-bind="cargo">–</span><span data-bind="deadline">–</span></div>`;
+      default:
+        return `<div class="wps-head">${iconHtml('logbook')}<b>Diese Fahrt</b></div>
+          <div class="trip-mini">
+            <div><b data-bind="trip-km">0 km</b><small>gefahren</small></div>
+            <div><b data-bind="trip-time">0 Min.</b><small>Fahrzeit</small></div>
+            <div><b data-bind="trip-money">${money(0)}</b><small>Bilanz</small></div>
+          </div>`;
+    }
+  }
+
+  // Seitenpunkte für Widget-Seite, Dashboard und App-Seiten: Widgets (falls an), Dashboard (Quadrat), dann die App-Seiten
+  function pageDotsHtml(current) {
+    const pages = homePages();
+    const wp = wpOn() ? `<button data-open="widgets" class="wp-dot ${current === 'widgets' ? 'on' : ''}" aria-label="Widgets"></button>` : '';
+    return `<div class="page-dots glass">${wp}<button data-open="dashboard" class="dash-dot ${current === 'dashboard' ? 'on' : ''}" aria-label="Dashboard"></button>${pages.map((_, i) => `<button data-page-dot="${i}" class="${current === 'home' && i === homePage ? 'on' : ''}" aria-label="Seite ${i + 1}"></button>`).join('')}</div>`;
+  }
+
+  const wpWidgetHtml = (t, extra = '') => `<div class="wp-w wp-${t} ${extra}" data-wp-widget="${t}"${t === 'music' ? '' : ` data-focus data-open="${PAGE_WIDGET_INFO[t]?.open || 'home'}"`}>${pageWidgetBody(t)}</div>`;
+
+  function widgetPageHtml() {
+    const stacks = wpStacks();
+    const body = stacks.length
+      ? stacks.map((list, col) => {
+        const index = Math.min(wpIndex[col] || 0, list.length - 1);
+        return `<div class="wp-stack" data-wp-stack="${col}">
+            ${list.map((t, i) => wpWidgetHtml(t, i === index ? '' : 'stack-hidden')).join('')}
+            ${list.length > 1 ? `<div class="stack-dots wp-stack-dots">${list.map((_, i) => `<button data-wp-dot="${col}:${i}" class="${i === index ? 'on' : ''}" aria-label="Widget ${i + 1}"></button>`).join('')}</div>` : ''}
+          </div>`;
+      }).join('')
+      : '<div class="wp-empty">Keine Widgets – unter Einstellungen › Dashboard › Widgets hinzufügen.</div>';
+    return `<div class="wp-page" data-cols="${Math.max(1, stacks.length)}">${body}</div>${pageDotsHtml('widgets')}`;
+  }
+
+  function setWpStack(col, index) {
+    const el = stage.querySelector(`[data-wp-stack="${col}"]`);
+    if (!el) return;
+    const cards = [...el.querySelectorAll(':scope > [data-wp-widget]')];
+    if (!cards.length) return;
+    const before = wpIndex[col] || 0;
+    wpIndex[col] = (index + cards.length) % cards.length;
+    cards.forEach((c, i) => c.classList.toggle('stack-hidden', i !== wpIndex[col]));
+    if (before !== wpIndex[col]) cards[wpIndex[col]].classList.add(wpIndex[col] > before ? 'wp-from-below' : 'wp-from-above');
+    setTimeout(() => cards[wpIndex[col]]?.classList.remove('wp-from-below', 'wp-from-above'), 320);
+    el.querySelectorAll('[data-wp-dot]').forEach((d, i) => d.classList.toggle('on', i === wpIndex[col]));
+    // Kachel-Umriss kurz zeigen (wie beim Blättern in CarPlay), nach 1,2 s weich ausblenden
+    el.classList.add('wp-swiping');
+    clearTimeout(el.wpSwipeTimer);
+    el.wpSwipeTimer = setTimeout(() => el.classList.remove('wp-swiping'), 1200);
+  }
+
+  // Smart-Reihenfolge (wie iOS): bei passenden Ereignissen das Widget im Stapel nach vorne holen – Musik startet,
+  // Tank fast leer, Spiel läuft gerade
+  function surfacePageWidget(type) {
+    if (!settings.widgetPage?.smart || !wpOn()) return;
+    wpStacks().forEach((list, col) => {
+      const i = list.indexOf(type);
+      if (i >= 0 && i !== (wpIndex[col] || 0)) setWpStack(col, i);
+    });
+  }
+
+  // Uhr (Spielzeit wie die Seitenleiste) und Datum (echtes Datum wie das Kalender-Icon)
+  const pcMinutes = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60; };
+  // ohne Spiel (keine Telemetrie) läuft die Widget-Uhr mit der Uhr des PCs weiter
+  setInterval(() => { if (!telemetry?.available) updateWidgetClock(NaN); }, 15000);
+  function updateWidgetClock(min) {
+    if (!pageWidgets().length && !stage.querySelector('.wp-thumb')) return; // auch für die Vorschau in den Einstellungen
+    const game = Number.isFinite(min);
+    if (!game) min = pcMinutes();
+    {
+      const m = min % 60;
+      const h = (Math.floor(min / 60) % 12) + m / 60;
+      for (const el of nodes('wp-hour')) el.setAttribute('transform', `rotate(${h * 30} 50 50)`);
+      for (const el of nodes('wp-min')) el.setAttribute('transform', `rotate(${m * 6} 50 50)`);
+      text('wp-digital', clock(min).replace(/ [AP]M$/, ''));
+      text('wp-gameday', game ? DAYS[Math.floor(min / 1440) % 7] : DAYS[(new Date().getDay() + 6) % 7]); // ohne Spiel: echter Wochentag
+      const p = pose.current?.();
+      const city = p && CarMap.hasPlaces() ? CarMap.nearestCity(p.x, p.z) : null;
+      text('wp-city', city ? String(city.name).toUpperCase() : '');
+    }
+    const now = new Date();
+    const lang = CarI18n.lang === 'de' ? 'de-DE' : CarI18n.lang;
+    text('wp-wday', now.toLocaleDateString(lang, { weekday: 'short' }).replace(/\.$/, ''));
+    text('wp-month', now.toLocaleDateString(lang, { month: 'short' }).replace(/\.$/, ''));
+    text('wp-mday', String(now.getDate()));
+  }
+
+  function setRing(bind, frac) {
+    const pct = Math.max(0, Math.min(100, Math.round(frac * 100)));
+    for (const el of nodes(bind)) {
+      const v = `${pct} ${100 - pct}`;
+      if (el.getAttribute('stroke-dasharray') !== v) el.setAttribute('stroke-dasharray', v);
+      el.classList.toggle('low', pct < 15);
+    }
+    return pct;
+  }
+  let fuelSurfaced = false;
+  function updateWidgetLevels(t, fuel) {
+    const w = pageWidgets();
+    if (!w.includes('fuel') && !w.includes('levels') && !stage.querySelector('.wp-thumb')) return;
+    text('wp-fuel-pct', `${setRing('wp-fuel-ring', fuel)} %`);
+    setRing('wp-lv-fuel', fuel);
+    const hasAdblue = num(t.adblueCapacity) > 0;
+    setRing('wp-lv-adblue', hasAdblue ? num(t.adblue) / t.adblueCapacity : 0);
+    for (const el of nodes('wp-lv-adblue')) { const cell = el.closest('.wpl-grid > div'); if (cell) cell.hidden = !hasAdblue; }
+    const wear = Math.max(...['wearEngine', 'wearTransmission', 'wearCabin', 'wearChassis', 'wearWheels'].map((k) => num(t[k])));
+    setRing('wp-lv-wear', 1 - wear);
+    setRing('wp-lv-rest', t.restStopMin > 0 ? Math.min(1, t.restStopMin / 660) : 0); // volle Lenkzeit am Stück: 11 Std.
+    if (fuel < 0.15 && !fuelSurfaced) surfacePageWidget(w.includes('fuel') ? 'fuel' : 'levels');
+    fuelSurfaced = fuel < 0.15;
+  }
+
+  // Neu gezeichnete Widgets (Vorschau in den Einstellungen) sofort füllen – sonst erst mit dem nächsten geänderten Wert
+  function refreshWidgetData() {
+    updateWidgetClock(telemetry?.available ? telemetry.gameTimeMin : NaN);
+    if (weatherData) renderWeather();
+    onMedia(media || { available: false }, true);
+    applyArtColor();
+    if (telemetry) onTelemetry(telemetry);
+    renderLists();
+    renderSport();
+  }
   // ------------------------------------------------------------------ Einstellungen anwenden
   const ask = (question) => window.confirm(CarI18n.translate(question));
 
@@ -4664,6 +5104,7 @@
     if (clockEl.textContent !== clockText) {
       clockEl.textContent = clockText;
       clockEl.title = DAYS[Math.floor(t.gameTimeMin / 1440) % 7];
+      updateWidgetClock(t.gameTimeMin);
       renderStandby();
     }
     // Farbschema (Licht, Uhrzeit) bei jedem Paket prüfen – billig; Akku und Netz haben eigene Takte (30 s / 4 s),
@@ -4693,6 +5134,7 @@
     const fuel = t.fuelCapacity > 0 ? t.fuel / t.fuelCapacity : 0;
     width('fuel-bar', fuel);
     toggle('fuel-bar', 'low', fuel < 0.15);
+    updateWidgetLevels(t, fuel);
     text('fuel-text', t.fuelRangeKm > 0 ? `${volume(t.fuel)} · ≈ ${distance(t.fuelRangeKm)}` : volume(t.fuel));
     const adblue = num(t.adblueCapacity) > 0 ? num(t.adblue) / t.adblueCapacity : 0;
     width('adblue-bar', adblue);
@@ -4943,9 +5385,14 @@
   function trackSession(t) {
     const now = performance.now();
     if (!session.started) {
-      Object.assign(session, { started: true, odo0: num(t.odometerKm), lastAt: now, lastFuel: t.fuel });
+      Object.assign(session, { started: true, odo0: num(t.odometerKm), lastOdo: num(t.odometerKm), lastAt: now, lastFuel: t.fuel });
       return;
     }
+    // Lkw oder Profil gewechselt (jeder Lkw hat seinen eigenen Kilometerzähler): Sprung nicht als gefahren zählen
+    const odo = num(t.odometerKm);
+    const jump = odo - (session.lastOdo ?? odo);
+    if (jump < -0.05 || jump > 5) session.odo0 += jump;
+    session.lastOdo = odo;
     const dt = Math.min(1, (now - session.lastAt) / 1000);
     session.lastAt = now;
     if (!t.paused && t.speedKmh > 2) session.driveSec += dt;
@@ -5095,6 +5542,15 @@
 
   function trackEvents(t) {
     if (!Array.isArray(t.events)) return;
+    // Das Plugin zählt die Ereignisse bei jedem Spielstart wieder ab 1. Kommen nur noch kleinere Nummern als bekannt,
+    // wurde das Spiel neu gestartet (App lief weiter): sonst gingen die ersten Strafen, Mauten und Lieferungen verloren
+    if (t.events.length && allEvents.size) {
+      const maxNew = Math.max(...t.events.map((e) => Number(e.id) || 0));
+      const maxKnown = Math.max(...allEvents.keys());
+      if (maxNew < maxKnown && !t.events.some((e) => allEvents.has(e.id) && allEvents.get(e.id).type === e.type && allEvents.get(e.id).gameTimeMin === e.gameTimeMin)) {
+        allEvents.clear(); // eventsPrimed bleibt: alles, was jetzt kommt, ist neu
+      }
+    }
     const fresh = [];
     for (const e of t.events) {
       if (allEvents.has(e.id)) continue;
@@ -5162,7 +5618,7 @@
     if (truckRunning(t) && num(t.speedKmh) > 5) {
       if (w.air || w.airEmergency) out.push({ id: 'air', icon: 'warning', color: 'red', title: w.airEmergency ? 'Bremsdruck kritisch' : 'Bremsdruck niedrig', text: `${(num(t.airPressure) * PSI_TO_BAR).toFixed(1).replace('.', ',')} bar – anhalten und Druck aufbauen lassen`, open: 'truck' });
       if (w.oil) out.push({ id: 'oil', icon: 'warning', color: 'red', title: 'Öldruck zu niedrig', text: 'Motor schonen, Werkstatt anfahren', open: 'truck' });
-      if (w.water) out.push({ id: 'water', icon: 'warning', color: 'red', title: 'Motor überhitzt', text: `Kühlwasser ${Math.round(num(t.waterTemp))} °C`, open: 'truck' });
+      if (w.water) out.push({ id: 'water', icon: 'warning', color: 'red', title: 'Motor überhitzt', text: `Kühlwasser ${temp(num(t.waterTemp))} ${unitMode() === 'us' ? '°F' : '°C'}`, open: 'truck' });
       if (w.battery) out.push({ id: 'battery', icon: 'warning', color: 'orange', title: 'Batterie lädt nicht', text: `${num(t.batteryVoltage).toFixed(1).replace('.', ',')} V`, open: 'truck' });
     }
     if (w.adblue) out.push({ id: 'adblue', icon: 'fuel', color: 'orange', title: 'AdBlue fast leer', text: t.adblueCapacity > 0 ? volume(t.adblue) : 'Bald nachfüllen', open: 'stops' });
@@ -5270,6 +5726,7 @@
     const empty = (textValue) => `<div class="list-empty">${escape(textValue)}</div>`;
     list('messages', items.length ? items.map((m) => messageRow(m)).join('') : empty('Keine Mitteilungen – Strafen, Maut, Fähren und gelieferte Aufträge erscheinen hier.'));
     list('messages-mini', items.length ? items.slice(0, 3).map((m) => messageRow(m)).join('') : empty('Keine Mitteilungen'));
+    text('wp-msg-count', String(items.length)); // Widget „Mitteilungen – Liste“: Anzahl oben rechts wie bei Erinnerungen
     renderStops();
     renderHistory();
     renderAgenda();
@@ -5724,7 +6181,7 @@
   const DEMO_WEATHER = {
     city: 'Kassel', current: { temp: 14.2, feels: 12.8, code: 2, wind: 18, day: true },
     hourly: Array.from({ length: 12 }, (_, i) => ({ time: `${String((14 + i) % 24).padStart(2, '0')}:00`, temp: 14 - i * 0.6, code: i > 6 ? 61 : 2, day: 14 + i < 20 })),
-    daily: Array.from({ length: 6 }, (_, i) => ({ date: new Date(Date.now() + i * 86400000).toISOString().slice(0, 10), max: 16 - i, min: 7 - i / 2, code: [2, 61, 3, 0, 80, 1][i], rain: [10, 70, 30, 0, 60, 20][i] })),
+    daily: Array.from({ length: 6 }, (_, i) => ({ date: new Date(Date.now() + i * 86400000).toISOString().slice(0, 10), max: 16 - i, min: 7 - i / 2, code: [2, 61, 3, 0, 80, 1][i], rain: [10, 70, 30, 0, 60, 20][i], sunrise: '07:22', sunset: '16:28' })),
   };
 
   function setWeather(data) {
@@ -5748,22 +6205,56 @@
     text('wx-temp', `${temp(w.current.temp)}°`);
     text('wx-cond', info.text);
     text('wx-hl', w.daily[0] ? `H: ${temp(w.daily[0].max)}°  T: ${temp(w.daily[0].min)}°` : '');
+    // Widget-Seite (wie das Wetter-Widget in CarPlay): ↑ Höchst-/↓ Tiefstwert, Niederschlag (Chance und wann), Wind
+    // zwei eigene Zeilen (ein Zeilenumbruch im Text ging bei der Übersetzung verloren – Chinesisch stand alles in einer Zeile)
+    text('wxp-hi', w.daily[0] ? `↑ ${temp(w.daily[0].max)}°` : '');
+    text('wxp-lo', w.daily[0] ? `↓ ${temp(w.daily[0].min)}°` : '');
+    const rainNow = w.hourly?.slice(0, 2).some((h) => ['rain', 'snow', 'storm'].includes(wxInfo(h.code).kind));
+    const rainDay = w.daily.findIndex((d) => d.rain >= 30);
+    text('wxp-rain', rainNow ? 'Jetzt' : rainDay < 0 ? 'Keiner' : `${w.daily[rainDay].rain} % ${rainDay === 0 ? 'heute' : `in ${rainDay} T.`}`);
+    text('wxp-wind', `${spd(w.current.wind)} ${spdUnit()}`);
+    // Sonnenaufgang und -untergang (echte Zeiten am Ort des Wetters): tagsüber der Untergang, sonst der nächste Aufgang;
+    // der Punkt auf der Kurve zeigt, wo die Sonne gerade steht
+    const sunMin = (hhmm) => (/^\d\d:\d\d$/.test(hhmm || '') ? Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)) : null);
+    const rise = sunMin(w.daily[0]?.sunrise);
+    const set = sunMin(w.daily[0]?.sunset);
+    if (rise !== null && set !== null) {
+      // „jetzt“ in der Ortszeit des Wetterorts (ATS in Kalifornien, PC in Europa …); ohne Angabe die Uhr des PCs
+      const d = Number.isFinite(w.utcOffset) ? new Date(Date.now() + w.utcOffset * 1000) : new Date();
+      const nowMin = Number.isFinite(w.utcOffset) ? d.getUTCHours() * 60 + d.getUTCMinutes() : d.getHours() * 60 + d.getMinutes();
+      const day = nowMin >= rise && nowMin < set;
+      text('wxp-sun-label', day ? 'Sonnenuntergang' : 'Sonnenaufgang');
+      text('wxp-sun-time', day ? w.daily[0].sunset : nowMin < rise ? w.daily[0].sunrise : w.daily[1]?.sunrise || w.daily[0].sunrise);
+      text('wxp-sun-other', day ? `Sonnenaufgang: ${w.daily[0].sunrise}` : `Sonnenuntergang: ${w.daily[0].sunset}`);
+      // Kurve: x über 24 Std., Höhe als Sinus zwischen Auf- und Untergang (Linie = Horizont)
+      const x = (nowMin / 1440) * 200;
+      const noon = (rise + set) / 2;
+      // tagsüber über dem Horizont (34), nachts darunter – auch bei kurzen Wintertagen im Norden
+      const y = day ? 34 - Math.cos(((nowMin - noon) / (set - rise)) * Math.PI) * 26 : 34 + Math.min(22, 6 + Math.abs(nowMin - noon > 720 ? 1440 - (nowMin - noon) : nowMin - noon) / 720 * 16);
+      for (const el of nodes('wxp-sun-dot')) { el.setAttribute('cx', x.toFixed(1)); el.setAttribute('cy', Math.max(6, Math.min(56, y)).toFixed(1)); }
+    } else {
+      text('wxp-sun-label', 'Sonnenuntergang');
+      text('wxp-sun-time', '–');
+      text('wxp-sun-other', '');
+    }
+    const dayNames = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+    list('wxp-days', w.daily.slice(1, 5).map((d) => `<div class="wpf-row"><b>${dayNames[new Date(`${d.date}T12:00`).getDay()]}</b><span class="wx-icon">${weatherIcon(d.code)}</span><span class="wpf-lo">${temp(d.min)}</span><b>${temp(d.max)}°</b></div>`).join(''));
     text('wx-note', `Gefühlt ${temp(w.current.feels)}° · Wind ${spd(w.current.wind)} ${spdUnit()} · echtes Wetter in ${w.city}`);
     html('wx-icon', `${w.current.code}-${w.current.day}`, weatherIcon(w.current.code, w.current.day));
     const sky = !w.current.day
       ? (info.kind === 'clear' || info.kind === 'partly' ? 'night' : info.kind === 'rain' || info.kind === 'storm' ? 'night-rain' : 'night-cloud')
       : info.kind;
     for (const el of nodes('wx-sky')) el.dataset.sky = sky;
-    list('wx-hours', w.hourly.map((h, i) => `<div class="wx-hour"><small>${i === 0 ? 'Jetzt' : h.time.slice(0, 2)}</small><span class="wx-icon">${weatherIcon(h.code, h.day)}</span><b>${Math.round(h.temp)}°</b></div>`).join(''));
+    list('wx-hours', w.hourly.map((h, i) => `<div class="wx-hour"><small>${i === 0 ? 'Jetzt' : h.time.slice(0, 2)}</small><span class="wx-icon">${weatherIcon(h.code, h.day)}</span><b>${temp(h.temp)}°</b></div>`).join(''));
     const lo = Math.min(...w.daily.map((d) => d.min));
     const hi = Math.max(...w.daily.map((d) => d.max));
     const names = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
     list('wx-days', w.daily.map((d, i) => {
       const left = ((d.min - lo) / (hi - lo || 1)) * 100;
       const right = 100 - ((d.max - lo) / (hi - lo || 1)) * 100;
-      return `<div class="wx-day"><b>${i === 0 ? 'Heute' : names[new Date(d.date).getDay()]}</b><span class="wx-icon">${weatherIcon(d.code)}</span>
-        <small class="wx-rain">${d.rain >= 30 ? `${d.rain} %` : ''}</small><small>${Math.round(d.min)}°</small>
-        <span class="wx-range"><i style="left:${left}%;right:${right}%"></i></span><b>${Math.round(d.max)}°</b></div>`;
+      return `<div class="wx-day"><b>${i === 0 ? 'Heute' : names[new Date(`${d.date}T12:00`).getDay()]}</b><span class="wx-icon">${weatherIcon(d.code)}</span>
+        <small class="wx-rain">${d.rain >= 30 ? `${d.rain} %` : ''}</small><small>${temp(d.min)}°</small>
+        <span class="wx-range"><i style="left:${left}%;right:${right}%"></i></span><b>${temp(d.max)}°</b></div>`;
     }).join(''));
   }
 
@@ -6145,7 +6636,7 @@
       api.aiTts(say, lang, stVoice ? stVoice[1] : undefined).then((r) => {
         if (token !== speakToken) return;
         if (r?.url) play(r.url);
-        else if (api.tts) api.tts(say, WIN_VOICE[lang] || 'Microsoft Katja', tag).then((url) => token === speakToken && (url ? play(url) : speakBrowser(say, onEnd, lang)));
+        else if (api.tts) api.tts(say, WIN_VOICE[lang] || 'Microsoft Katja', tag).then((url) => token === speakToken && (url ? play(url) : speakBrowser(say, onEnd, lang)), () => token === speakToken && speakBrowser(say, onEnd, lang));
         else speakBrowser(say, onEnd, lang);
       }, () => speakBrowser(say, onEnd, lang));
       return;
@@ -6191,6 +6682,39 @@
     else start();
   }
 
+  // Ansage im Anruf, danach genau einmal weiter (next): auch wenn die Ansage abgebrochen wird (eine Navi- oder Tempo-Ansage kam
+  // dazwischen – stopSpeaking meldet dann kein Ende, der Anruf hing für immer auf „Anruf läuft …“) oder die Sprachausgabe hängt:
+  // Sicherheits-Zeitgeber nach der geschätzten Sprechdauer. Ohne Stimme nur nach fallbackMs (Zeit zum Lesen; vorher lief
+  // next dann zweimal). Nach dem Auflegen (callSeq) passiert nichts mehr – auch nicht über die Warteschlange einer Durchsage.
+  let callSeq = 0;
+  // Anruf-Abgleich: im anderen Fenster angenommen → hier als angenommen eintragen und still beenden; abgelehnt → hier auch
+  // (bleibt als verpasst). Nur ein klingelnder Anruf desselben Kontakts – ein Gespräch hier läuft weiter.
+  api?.onCallSync?.((d) => {
+    if (!pendingCall || pendingCall.contact !== d?.contact || callView?.ongoing) return;
+    if (d.action === 'accepted') {
+      logCall(pendingCall.contact, 'in', pendingCall.text);
+      pendingCall = null;
+    }
+    endCall('elsewhere');
+  });
+  function callSay(text, next, { fallbackMs = 4000, lang = null } = {}) {
+    const seq = callSeq;
+    let done = false;
+    const go = () => {
+      if (done || seq !== callSeq) return;
+      done = true;
+      clearTimeout(callTimer);
+      next();
+    };
+    clearTimeout(callTimer);
+    if (!text || !callSpeaks() || !settings.voice || !(settings.volumeVoice > 0)) {
+      callTimer = setTimeout(go, fallbackMs);
+      return;
+    }
+    callTimer = setTimeout(go, 8000 + String(text).length * 120);
+    speak(text, go, { lang, call: true, seq });
+  }
+
   // Anruf wie bei CarPlay: kompakt als Pille unten (Annehmen/Ablehnen) – antippen öffnet den vollen Anrufbildschirm
   // mit großem Bild, Dauer, Knöpfen und (bei Gesprächen mit AI) der Mitschrift. Eigene Anrufe starten gleich groß.
   const callEl = document.getElementById('call');
@@ -6205,7 +6729,11 @@
     return `${Math.floor(s / 60)}:${pad(s % 60)}`;
   };
   function showCall(text, { ongoing = false, contact = 'dispatcher', talk = false, full } = {}) {
+    // neuer Anruf, während ein Gespräch läuft: das Gespräch bleibt, der neue landet als verpasst in der Anrufliste
+    if (!ongoing && callView?.ongoing) return void logCall(contact, 'missed', text);
     if (pendingCall && !ongoing) logCall(pendingCall.contact, 'missed', pendingCall.text); // vorheriger blieb unbeantwortet
+    // klingelnder Anruf, an dessen Stelle etwas anderes tritt (selbst angerufen, Mailbox): verpasst statt spurlos weg
+    if (pendingCall && ongoing && !callView?.ongoing) logCall(pendingCall.contact, 'missed', pendingCall.text);
     pendingCall = ongoing ? null : { contact, text };
     toastEl.hidden = true; // Anruf hat Vorrang vor Mitteilungen
     if (ongoing && !callView?.ongoing) callStartedAt = Date.now();
@@ -6229,7 +6757,7 @@
     const { ongoing, contact, talk } = callView;
     const c = CONTACTS[contact] || {};
     const status = callEl.querySelector('.call-state')?.dataset.keep === '1' ? callEl.querySelector('.call-state').textContent : '';
-    const state = status || (talk ? 'Antippen zum Sprechen' : ongoing ? 'Anruf läuft …' : escape(c.kind || 'Anruf'));
+    const state = status ? escape(status) : talk ? 'Antippen zum Sprechen' : ongoing ? 'Anruf läuft …' : escape(c.kind || 'Anruf');
     const end = `<button class="round red" data-focus data-action="${ongoing ? 'call-end' : 'call-decline'}" aria-label="${ongoing ? 'Auflegen' : 'Ablehnen'}">${ICONS.phone}</button>`;
     const accept = `<button class="round green" data-focus data-action="call-accept" aria-label="Annehmen">${ICONS.phone}</button>`;
     const mic = talk ? `<button class="round mic" data-focus data-action="call-talk" aria-label="Sprechen">${ICONS.mic}</button>` : '';
@@ -6291,14 +6819,15 @@
     renderCall();
   }
   function acceptCall() {
+    if (!pendingCall) return; // nichts klingelt (z. B. Karte gleitet nach dem Auflegen noch hinaus)
     const text = callEl.dataset.text || '';
     const contact = callEl.dataset.contact || 'dispatcher';
-    if (pendingCall) logCall(pendingCall.contact, 'in', pendingCall.text);
+    logCall(pendingCall.contact, 'in', pendingCall.text);
+    api?.callSync?.({ action: 'accepted', contact: pendingCall.contact }); // im anderen Fenster nicht weiterklingeln
     pendingCall = null;
+    callSeq++;
     showCall(text, { ongoing: true, contact });
-    clearTimeout(callTimer);
-    text && speak(text, () => afterGreeting(contact, text), { call: true });
-    if (!callSpeaks() || !settings.voice) callTimer = setTimeout(() => afterGreeting(contact, text), 4000);
+    callSay(text, () => afterGreeting(contact, text), { fallbackMs: 4000 });
   }
   function endCall(reason) {
     // Protokoll: wer legt auf? (Anrufe brachen im Spiel sofort ab – in der Demo nicht nachvollziehbar)
@@ -6307,15 +6836,19 @@
       api?.aiLog?.(`call end: ${caller} (${callView?.contact || pendingCall?.contact || '?'}, ${callView?.ongoing ? 'laufend' : 'klingelt'}, ${Math.round((Date.now() - callStartedAt) / 100) / 10} s, window ${role})`);
     }
     clearTimeout(callTimer);
+    callSeq++; // späte Rückmeldungen (Ansage, Sprachmodell) gehören zu keinem Anruf mehr
     callChat = null; // freies Gespräch (KI) beenden
     callEl.classList.remove('talking');
     if (recordStop) recordStop();
+    const wasOngoing = !!callView?.ongoing;
     if (pendingCall) {
       // nicht angenommen → Anrufliste (verpasst) und Mailbox
       logCall(pendingCall.contact, 'missed', pendingCall.text);
+      if (reason === 'Knopf call-decline') api?.callSync?.({ action: 'declined', contact: pendingCall.contact });
       pendingCall = null;
     }
-    stopSpeaking();
+    // Nur ein laufendes Gespräch spricht – ein klingelnder Anruf nicht: dann keine andere Ansage (Navi) abschneiden
+    if (wasOngoing || String(reason || '').startsWith('Knopf')) stopSpeaking(); // abgelehnt per Knopf: auch die Anruf-Ansage stoppen
     clearInterval(callClock);
     callView = null;
     callFull = false;
@@ -6386,7 +6919,8 @@
   }
   setInterval(refreshAppBadges, 2000); // neue Symbole (Home, Leiste) bekommen ihre Zahl spätestens nach 2 s
   if (demoMode) window.__missedCall = () => { logCall('dispatcher', 'missed', 'Test'); renderPhone(); }; // Test
-  if (demoMode) window.__dispatch = (text) => dispatch(text); // Test
+  if (demoMode) window.__dispatch = (text, opts) => dispatch(text, opts); // Test (opts.call: als Anruf)
+  if (demoMode) window.__speak = (text) => speak(text); // Test: eine Ansage, z. B. mitten in einen Anruf
   function renderChatApp() {
     const convs = conversations();
     const c = chatOpen && convs.find((x) => x.id === chatOpen);
@@ -6624,9 +7158,9 @@
     if (!c) return;
     const text = c.text();
     logCall(id, 'out', text);
+    callSeq++;
     showCall(text, { ongoing: true, contact: id, full: true }); // selbst angerufen: gleich der volle Anrufbildschirm
-    speak(text, () => afterGreeting(id, text), { call: true });
-    if (!callSpeaks() || !settings.voice) callTimer = setTimeout(() => afterGreeting(id, text), 6000);
+    callSay(text, () => afterGreeting(id, text), { fallbackMs: 6000 });
   }
 
   function renderPhone() {
@@ -6841,6 +7375,7 @@
 
   // ------------------------------------------------------------------ Musik
   const history = [];
+  let wasPlaying = false; // Smart-Reihenfolge: nur beim Start der Wiedergabe
   if (demoMode) window.__media = (patch) => onMedia({ ...media, ...patch }); // Test: Musik abwandeln (z. B. langer Titel)
   function onMedia(m, rebinding = false) {
     media = m;
@@ -6851,6 +7386,10 @@
     text('artist', has ? m.artist || '' : 'Spotify öffnen');
     text('album', has ? m.album || '' : '');
     const app = String(m.app || '').replace(/\.exe$/i, '');
+    if (noteMusicApp(app) && !rebinding) render(); // Musik-Symbol „nach laufender App“: Spotify ↔ Apple Musik (auch Widget-Abzeichen)
+    // Smart-Reihenfolge der Widget-Seite: Musik startet → „Jetzt läuft“ nach vorne
+    if (!rebinding && m.playing && !wasPlaying) surfacePageWidget('music');
+    if (!rebinding) wasPlaying = !!m.playing;
     text('source', /spotify/i.test(app) ? 'Spotify' : app || 'Musik');
     for (const el of nodes('art')) {
       const value = m.art ? `url("${m.art}")` : '';
@@ -6981,7 +7520,7 @@
 
   let artBlur = '';
   function applyArtColor() {
-    for (const el of stage.querySelectorAll('[data-screen="music"], .w-music')) el.style.setProperty('--art', artColor || '#2a2a2a');
+    for (const el of stage.querySelectorAll('[data-screen="music"], .w-music, .wpm-card')) el.style.setProperty('--art', artColor || '#2a2a2a');
     const value = artBlur ? `url("${artBlur}")` : '';
     for (const el of nodes('np-bg')) if (el.style.backgroundImage !== value) el.style.backgroundImage = value;
   }
@@ -7382,6 +7921,7 @@
   let laneWrongSince = 0;
   let laneLastAt = 0;
   const LANE_COOLDOWN = 10000;
+  let laneLockTurn = null; // 车道锁定：上一个车道提示的转弯还没过，先不播下一个
   function lanePhrase(count, goal) {
     // goal：从左边数(0-based)的推荐车道索引（已升序）
     if (goal.length === 1) {
@@ -7401,14 +7941,17 @@
   }
   function laneVoice(m) {
     const hint = m?.laneHint;
+    const curTurnIdx = m?.turns?.[0]?.index;
+    // 车道锁定：上一个车道提示的转弯还没过，就先不播下一个（避免提前播报混淆、走错路口）
+    if (laneLockTurn != null && curTurnIdx != null && curTurnIdx > laneLockTurn) laneLockTurn = null;
     if (!settings.navVoice || !hint?.key || hint.distance < 80 || hint.distance > 600) { laneWrongSince = 0; return; }
     const goal = [...Array(hint.lanes).keys()].filter((i) => (hint.mask >> i) & 1);
     if (!goal.length) { laneWrongSince = 0; return; }
     const now = performance.now();
     // 主动推荐（一次，且两次播报之间至少 10 秒）
-    if (!laneSaid.has(hint.key) && now - laneLastAt >= LANE_COOLDOWN) {
+    if (!laneSaid.has(hint.key) && now - laneLastAt >= LANE_COOLDOWN && laneLockTurn == null) { // 锁定时不播下一个
       const p = lanePhrase(hint.lanes, goal);
-      if (p) { laneSaid.add(hint.key); laneLastAt = now; speak(p, null, { priority: 2 }); }
+      if (p) { laneSaid.add(hint.key); laneLastAt = now; laneLockTurn = curTurnIdx ?? null; speak(p, null, { priority: 2 }); }
     }
     // 纠偏：需要知道当前车道（且车道数一致时才能判断是否走错）
     if (!hint.laneNow || hint.laneNow.own !== hint.lanes) { laneWrongSince = 0; return; }
@@ -7433,7 +7976,8 @@
   let navActive = false;
   let onRouteSeen = false; // war der Truck schon auf dieser Route? (sonst: Start abseits, z. B. Firmengelände)
   let offSpoken = false; // 偏航播报只播一次（回到路线后复位）
-  let arrivalStage = 0; // 到达播报阶段：0=未播, 1=已播"即将到达", 2=已播"已到达"  let laneNowSeen = null; // für das Kombiinstrument (Fahrassistenz-Ansicht)
+  let arrivalStage = 0; // 到达播报阶段：0=未播, 1=已播"即将到达", 2=已播"已到达"
+  let laneNowSeen = null; // für das Kombiinstrument (Fahrassistenz-Ansicht)
   // Spurempfehlung fürs Kombiinstrument: { lanes, mask (Bit i = Spur i von links empfohlen), lane (jetzige Spur), dist (m bis
   // zur Stelle, an der die Spur zählt) } – nur wenn die Spurzahl der Straße zur Empfehlung passt, sonst null
   let laneAdviceNow = null;
@@ -7457,10 +8001,12 @@
     const atRest = here && CarMap.poisNear(['p', 'g'], here.x, here.z, 500).some((poi) => Math.hypot(poi[1] - here.x, poi[2] - here.z) < 500);
     const offRoute = !m && onRouteSeen && CarMap.hasRoute() && num(telemetry?.speedKmh) > 25 && !atRest;
     naviEvents(m, offRoute);
-    if (!offRoute) offSpoken = false; // 回到路线：允许下次偏航再播    toggle('maneuver', 'idle', !m && !offRoute);
+    if (!offRoute) offSpoken = false; // 回到路线：允许下次偏航再播
+    toggle('maneuver', 'idle', !m && !offRoute);
     if (offRoute) {
       // 偏航：P0 紧急播报一次
-      if (!offSpoken) { offSpoken = true; speak('Sie haben die Route verlassen, die Route wird neu berechnet.', null, { priority: 0 }); }      html('mv-arrow', 'recalc', `<span class="turn recalc">${ICONS.reset || ''}</span>`);
+      if (!offSpoken) { offSpoken = true; speak('Sie haben die Route verlassen, die Route wird neu berechnet.', null, { priority: 0 }); }
+      html('mv-arrow', 'recalc', `<span class="turn recalc">${ICONS.reset || ''}</span>`);
       text('mv-dist', 'Route wird neu berechnet …');
       html('mv-road', 'recalc', '');
       toggle('mv-lanes', 'hidden', true);
@@ -7477,7 +8023,8 @@
     if (m.remaining != null && settings.navVoice) {
       if (arrivalStage === 0 && m.remaining <= 150) { arrivalStage = 1; speak('Sie nähern sich dem Ziel.', null, { priority: 1 }); }
       else if (arrivalStage === 1 && m.remaining <= 20) { arrivalStage = 2; speak('Sie haben das Ziel erreicht.', null, { priority: 1 }); }
-    }    if (!m) return;
+    }
+    if (!m) return;
     const t = telemetry || {};
     const destination = t.hasJob ? latin(t.destinationCity) : m.destination;
     const first = m.turns[0];
@@ -7597,14 +8144,23 @@
   // Zoom-Knöpfe wie in echt nur bei Bedarf: Karte antippen blendet sie ein, nach 6 s verschwinden sie wieder
   let zoomVisible = false;
   let zoomTimer = 0;
+  // Apple Karten: alle Knöpfe rechts kommen erst mit dem Tipp (Klasse ctl-shown an der Karte) und gehen nach 8 s wieder –
+  // nicht, solange verschoben wird oder ein Blatt (Ton, Melden) offen ist
   function showZoom() {
     zoomVisible = true;
     for (const el of nodes('zoom-pill')) el.classList.add('show');
+    for (const el of document.querySelectorAll('.map-full')) el.classList.add('ctl-shown');
     clearTimeout(zoomTimer);
-    zoomTimer = setTimeout(() => {
+    const hide = () => {
+      if (document.querySelector('.map-full.panning, .map-full.sounding, .map-full.reporting')) {
+        zoomTimer = setTimeout(hide, 2000);
+        return;
+      }
       zoomVisible = false;
       for (const el of nodes('zoom-pill')) el.classList.remove('show');
-    }, 6000);
+      for (const el of document.querySelectorAll('.map-full')) el.classList.remove('ctl-shown');
+    };
+    zoomTimer = setTimeout(hide, settings.mapStyle === 'apple' ? 8000 : 6000);
   }
   document.addEventListener('pointerdown', (e) => {
     if (e.target instanceof Element && e.target.closest('.map-full') && !e.target.closest('.map-menu')) showZoom();
@@ -7694,9 +8250,10 @@
   function scheduleFrame() {
     const live = poweredOn && ((!standby && (maps.some((m) => m.canvas.offsetParent) || compasses.some((c) => c.offsetParent))) || clusterMapWanted());
     if (!live) return void setTimeout(frame, 250);
-    // ein Display-Bild vor dem frühesten passenden um ein Bild bitten: wer erst kurz vorher fragt, verpasst es (gemessen 24.11.:
-    // bei „20“ kam das Kartenbild dann ein Bild später als der Szene gemeldet). Kommt es zu früh, fragt frame() gleich noch einmal.
-    const wait = lastMapFrame + mapFrameGap - mapFrameTol - 1000 / screenFps - performance.now();
+    // kurz vor dem frühesten passenden Bild (Fälligkeit minus Toleranz) um ein Bild bitten: wer erst knapp vor der Fälligkeit
+    // fragt, verpasst es (gemessen 24.11.: bei „20“ kam das Kartenbild ein Bild später als der Szene gemeldet). Früher fragen
+    // hieße im Editor bei 144–540 Hz wieder in jedem Bild nachsehen (Durchsicht 25.11.). Zu früh: frame() fragt noch einmal.
+    const wait = lastMapFrame + mapFrameGap - mapFrameTol - 4 - performance.now();
     if (wait > 0) setTimeout(() => requestAnimationFrame(frame), wait);
     else requestAnimationFrame(frame);
   }
@@ -7720,7 +8277,8 @@
     if (tick - lastMapFrame < mapFrameGap - mapFrameTol) return;
     // Fälligkeit fortschreiben statt „seit dem letzten Bild“: Das Display liefert Bilder im Raster (bei 30/s alle 33 ms) –
     // ab dem letzten Bild gezählt wurde aus „20“ jedes zweite Bild, also 15/s (gemessen 24.11.). Nach einer Pause neu anfangen.
-    lastMapFrame = tick - lastMapFrame > mapFrameGap * 2 ? tick : lastMapFrame + mapFrameGap;
+    // nach einem kurzen Hänger nicht mehrere Bilder direkt hintereinander nachholen (höchstens die Toleranz früh)
+    lastMapFrame = tick - lastMapFrame > mapFrameGap * 2 ? tick : Math.max(lastMapFrame + mapFrameGap, tick - mapFrameTol);
     const speed = telemetry ? telemetry.speedKmh : 0;
     const mapOptions = {
       zoom: settings.mapZoom,
@@ -8059,6 +8617,11 @@
         return '';
       }
     });
+    // Dieselbe Route noch einmal (das Plugin schickt sie nach jedem Neuverbinden, die App beim Neuaufbau des Fensters):
+    // Ansagen und weggeklickte Hinweise nicht zurücksetzen – sonst kamen dieselben
+    // Abbiege-, Grenz- und Steigungsansagen ein zweites Mal und geschlossene Hinweise wieder (Durchsicht 25.11.)
+    routeIsRepeat = isSameRoute(lastRouteHex, hex);
+    lastRouteHex = hex;
     // Spuren in Fahrtrichtung für das Stück vom vorigen zu diesem Knoten (0 = unbekannt/einspurig)
     const laneOf = items.map((_, k) => {
       if (!k || !lanesData) return 0;
@@ -8283,6 +8846,16 @@
   const spokenRoad = new Set();
   const shownRoad = new Set();
   const dismissedRoad = new Set(); // weggeklickt (✕) – bis zur nächsten Route
+  // dieselbe Route erneut (07c onRoute): Ansagen/Merklisten bleiben
+  let routeIsRepeat = false;
+  let lastRouteHex = [];
+  function isSameRoute(before, now) {
+    // nur genau dieselbe Route: die Merklisten zählen Abbiegungen nach ihrer Stelle in der Route – beim Rest einer Route
+    // zeigten sie auf andere Abbiegungen
+    if (!before.length || before.length !== now.length) return false;
+    for (let k = 0; k < now.length; k++) if (before[k] !== now[k]) return false;
+    return true;
+  }
   function dismissRoadNotice(id) {
     dismissedRoad.add(id);
     roadNoticeAt = 0;
@@ -8381,9 +8954,13 @@
   function analyzeRoad(hex, points) {
     roadEvents = [];
     roadProfile = null;
-    spokenRoad.clear();
-    shownRoad.clear();
-    dismissedRoad.clear();
+    if (!routeIsRepeat) {
+      spokenRoad.clear();
+      shownRoad.clear();
+      dismissedRoad.clear();
+      laneSpoken.clear(); // „links einordnen“ je Kreuzung: auf einer neuen Route wieder (07a)
+      spokenCurves.clear(); // Kurven je Routenmeter: neue Route, neue Meter (07a)
+    }
     if (!nodeInfo || !hex.length) return;
     const info = hex.map((h) => nodeInfoOf(h));
     // Grenzen: Land wechselt entlang der Routenknoten. Etwa jeder siebte Straßenknoten hat im Spiel kein Land (0) –
@@ -8735,9 +9312,13 @@
   function planRouteLanes(hex, laneOf, sideOf, aheadOf, leftHand, points = []) {
     const curveOf = hex.map(() => null);
     const laneOff = hex.map(() => null);
+    if (!routeIsRepeat) { // neue Route: Ansagen neu (dieselbe erneut: nichts doppelt ansagen)
     spokenTurns.clear(); // neue Route: Ansagen neu
-    laneSaid.clear(); laneWarned.clear(); // 车道推荐也重新来
-    arrivalStage = 0; // 新路线：到达播报重新开始    lastFirstTurn = null;
+    laneSaid.clear(); laneWarned.clear(); laneLockTurn = null; // 车道推荐也重新来
+    arrivalStage = 0; // 新路线：到达播报重新开始
+    lastFirstTurn = null;
+
+    }
     if (!curveData) return { curveOf, laneOff };
     const choice = hex.map(() => null); // Kreuzung: { inLane, outLane, nIn, nOut }
     let cur = null; // { lane, count } – Spur, auf der die Linie gerade liegt
@@ -8827,12 +9408,11 @@
     if (!t) return;
     const v = num(telemetry?.speedKmh);
     const mps = v / 3.6; // 游戏内米 / 现实秒
-    const T_SPEECH = 3;   // 长句（L1/L2）语音时长补偿
-    const T_SPEECH_NOW = 1.5; // 「现在xx」句子短，补偿少一点，避免播太早
-    // 提前秒数（高速/主干路更长，城市更短）；执行层只提前 0.5 秒
-    const adv = v > 65 ? [45, 14, 0.5] : v > 35 ? [30, 10, 0.5] : [18, 7, 0.5];
+    const T_SPEECH = 3;  // 语音时长补偿
+    // 提前秒数（高速/主干路更长，城市更短）；执行层提前 1.5 秒
+    const adv = v > 65 ? [45, 14, 1.5] : v > 35 ? [30, 10, 1.5] : [18, 7, 1.5];
     const refs = adv.map((s) => Math.round(mps * s));
-    const trigs = adv.map((s, i) => Math.round(mps * s) + Math.round(mps * (i === 2 ? T_SPEECH_NOW : T_SPEECH)));
+    const trigs = refs.map((d) => d + Math.round(mps * T_SPEECH));
     // 0=L1 预告, 1=L2 准备, 2=L3 执行
     let lv = -1;
     for (let i = 0; i < 3; i++) if (t.distance <= trigs[i]) lv = i;
@@ -9162,13 +9742,13 @@
     }
   }
   function videoSeek(seconds) {
-    if (api?.videoControl) return api.videoControl('seek', seconds).then(showVideoState);
+    if (api?.videoControl) return api.videoControl('seek', seconds).then(videoStateFor(videoKey));
     ytCommand('seekTo', [Math.max(0, ytInfo.time + seconds), true]);
   }
   function videoSeekTo(time) {
     videoTime = time;
     showVideoProgress();
-    if (api?.videoControl) return api.videoControl('seekto', time).then(showVideoState);
+    if (api?.videoControl) return api.videoControl('seekto', time).then(videoStateFor(videoKey));
     ytCommand('seekTo', [Math.max(0, time), true]);
   }
   // Geschwindigkeit: 1× → 1,25× → 1,5× → 2× → 0,75× → 1×
@@ -9177,7 +9757,7 @@
     const next = { 1: 1.25, 1.25: 1.5, 1.5: 2, 2: 0.75 }[videoRate] || 1;
     videoRate = next;
     showVideoProgress();
-    if (api?.videoControl) return api.videoControl('rate', next).then(showVideoState);
+    if (api?.videoControl) return api.videoControl('rate', next).then(videoStateFor(videoKey));
     ytCommand('setPlaybackRate', [next]);
   }
 
@@ -9478,6 +10058,8 @@
     const cover = videoLayer.querySelector('.video-cover');
     if (cover) setHidden(cover, settings.video.driving || !(t.speedKmh > 8));
   }
+  // Antwort nur übernehmen, wenn noch dasselbe Video läuft (sonst landete die alte Stelle im neuen Video)
+  const videoStateFor = (key) => (st) => { if (key === videoKey) showVideoState(st); };
   // „Verlauf löschen“ und „Cookies löschen“ (Video-Einstellungen): erstes Tippen fragt nach, zweites (binnen 4 s) löscht
   const videoClearArmed = { history: 0, cookies: 0 };
   function videoClear(what) {
@@ -9533,7 +10115,9 @@
       return syncVideo();
     }
     if (api?.videoControl) {
+      const key = videoKey;
       api.videoControl('toggle').then((st) => {
+        if (key !== videoKey) return; // inzwischen anderes Video
         if (st) return showVideoState(st);
         // andere Webseite ohne Video-Element (Player startet erst auf Klick): in die Mitte des Players klicken
         if (v.kind === 'web' && api.videoTap) return api.videoTap(0.5, 0.5);
@@ -9643,6 +10227,9 @@
       }
       radar.alert = ahead;
     } else radar.alert = null;
+    // Solange eine schon gemeldete Gefahr noch vor einem liegt (Stau, Stillstand), zählt die 2-Min.-Frist nicht – sonst
+    // piepte es im Stau vor demselben Blitzer alle 2 Minuten neu (Durchsicht 26.11.)
+    for (const h of radar.near) if (radar.alerted.has(h.id) && Math.cos(h.rel) > 0.2 && h.dist < HAZARD[h.type].warn + 150) radar.alerted.set(h.id, now);
     for (const [id, at] of radar.alerted) if (now - at > 120000) radar.alerted.delete(id); // nach 2 Min. wieder warnen
 
     // Tempo-Warnung
@@ -9998,6 +10585,9 @@
     bwShown = false;
     browserLayer.classList.remove('on');
     browserMedia = null;
+    bwKbd = '';
+    bwFull = false;
+    if (oskTarget?.onHide === bwHideKbd) oskTarget = null;
     api?.browserState?.(false);
   }
   const BW_MAX_TABS = 5;
@@ -10015,6 +10605,11 @@
   let bwMenuOpen = false;
   let bwKbd = ''; // '' | 'page' (Eingabefeld der Seite) | 'address'
   let bwAddress = ''; // Eingabe in der Adressleiste
+  let bwCaret = null; // Cursor in der Adresse (Zeichenindex); null = am Ende
+  const BW_ADDR_MAX = 2048; // lange Such-Adressen bleiben bearbeitbar (vorher 300: Tippen ging dort nicht mehr)
+  const isLowSurrogate = (s, i) => { const c = s.charCodeAt(i); return c >= 0xdc00 && c <= 0xdfff; };
+  let bwEditMenu = false; // Blase „Einsetzen / Alles auswählen“ über der Adresse
+  const bwCaretAt = () => (bwCaret == null ? bwAddress.length : Math.max(0, Math.min(bwAddress.length, bwCaret)));
   let bwFull = false; // Vollbild einer Seite (Video)
   let bwTabsMore = false; // „…“-Menü der Tab-Übersicht
   let bwTabsMoreAt = 0; // geöffnet um – nur dann aufgehen lassen (Übersicht zeichnet jede Sekunde neu)
@@ -10048,9 +10643,17 @@
       </div>
       <div class="bw-popup glass" hidden><span class="bw-popup-text"></span><button data-focus data-bw="popup-open"></button><button class="bw-popup-x" data-focus data-bw="popup-close" aria-label="Schließen">${BW_ICON.close}</button></div>
       <div class="bw-suggest glass" hidden></div>
+      <div class="bw-edit" hidden><button data-focus data-bw="edit-paste">Einsetzen</button><button data-focus data-bw="edit-all">Alles auswählen</button></div>
+      <div class="bw-loupe" hidden><div class="bw-loupe-in"></div></div>
       <div class="bw-lm" data-bw="lm-close" hidden><div class="bw-lm-card glass" data-bw="lm-noop"></div></div>
       <div class="bw-kbd" hidden></div>`;
     browserLayer.addEventListener('click', bwClick);
+    // Startseite: Tipp auf eine freie Stelle schließt die Adress-Tastatur (wie Safari); Favoriten öffnen wie gehabt
+    document.addEventListener('pointerdown', (e) => {
+      if (bwKbd !== 'address' || !bwShown || !(e.target instanceof Element)) return;
+      if (e.target.closest('.bw-kbd, .bw-bar, .bw-edit, .bw-suggest, .bw-loupe, .bw-menu, button, a, [data-bw], [data-osk], .sidebar')) return;
+      if (e.target.closest('.bw-start') || e.target.closest('.screen[data-screen="browser"]')) bwHideKbd();
+    }, true);
     // Tasten der Bildschirmtastatur und Vorschläge dürfen den Fokus nicht nehmen – sonst verliert das Eingabefeld der Seite
     // den Fokus, meldet „weg“ und die Tastatur schließt sich nach dem ersten Tastendruck wieder
     browserLayer.addEventListener('mousedown', (e) => { if (e.target?.closest?.('.bw-kbd, .bw-suggest')) e.preventDefault(); }, true);
@@ -10059,6 +10662,7 @@
     bwInput(browserLayer.querySelector('.bw-catch'));
     bwSwipeBar(browserLayer.querySelector('[data-bw-swipe]'));
     bwBarHold(browserLayer.querySelector('.bw-bar'));
+    bwAddrHold(browserLayer.querySelector('.bw-addr'));
     api?.onBrowserOpen?.(bwWindowOpen);
     api?.onBrowserCmd?.((cmd) => bwMediaCommand(cmd));
     // gespeicherte Tabs wiederherstellen – geladen wird erst, wenn man sie ansieht (spart Speicher beim Start)
@@ -10110,8 +10714,11 @@
         if (bwActive < 0) bwNewTab();
         bwShowTab(bwActive);
       } else {
+        if (bwKbd === 'page') bwBlurField(bwTab());
         bwKbd = '';
         bwMenuOpen = false;
+        // Vollbild (Video) beim Verlassen beenden – sonst käme der Browser als Vollbild zurück
+        if (bwFull) { bwFull = false; bwTab()?.view?.executeJavaScript('document.fullscreenElement && document.exitFullscreen()', true).catch(() => {}); }
         bwTabsMore = false;
         bwLinkMenuHide(); // Menüs schließen beim Verlassen (wie iOS) – sonst wären sie beim Zurückkommen noch offen
         for (const t of bwAll()) if (t.view) t.view.classList.remove('active');
@@ -10152,6 +10759,8 @@
     const t = bwTabs[i];
     if (!t) return;
     t.view?.remove();
+    t.view = null;
+    if (t.audible) { t.audible = false; setTimeout(bwMediaState, 0); } // spielte er? Lenkradtasten wieder freigeben
     bwTabs.splice(i, 1);
     if (bwActive >= bwTabs.length) bwActive = bwTabs.length - 1;
     else if (i < bwActive) bwActive--;
@@ -10165,6 +10774,7 @@
     bwLinkMenuHide();
     if (bwTab()) bwThumb(bwTab());
     for (const t of bwTabs) t.view?.classList.remove('active');
+    if (bwKbd === 'page') bwBlurField(bwTab());
     const cur = { tabs: bwTabs, active: bwActive };
     bwTabs = bwOther.tabs;
     bwActive = bwOther.active;
@@ -10174,7 +10784,13 @@
     bwMenuOpen = false;
     bwMini = false;
   }
+  // Eingabefeld der Seite loslassen, wenn die Tastatur ohne „Fertig“ verschwindet (Tab-Wechsel, Verlassen) – sonst bleibt es
+  // fokussiert, und erneutes Antippen löst kein focusin aus: die Tastatur käme nicht wieder (Durchsicht 25.11.)
+  function bwBlurField(t) {
+    t?.view?.executeJavaScript('(() => { const f = window.__cabplayField; window.__cabplayField = null; if (f && f.blur) f.blur(); })()', true).catch(() => {});
+  }
   function bwShowTab(i) {
+    if (bwKbd === 'page' && i !== bwActive) bwBlurField(bwTab());
     bwLinkMenuHide(); // Menü gehört zum bisherigen Tab (Verlauf, Link) – nicht auf einen anderen Tab anwenden
     if (i !== bwActive && bwTab()) bwThumb(bwTab()); // Vorschaubild der Seite, die man gerade verlässt (noch sichtbar)
     bwActive = i;
@@ -10246,14 +10862,19 @@
       if (tab === bwTab()) bwLinkMenuHide(); // Seite ist weitergegangen: Verlauf-/Link-Menü passt nicht mehr
       // andere Seite: Zoom der Seite, altes Seitensymbol vergessen (sonst trägt „Zuletzt besucht“ das Symbol der vorigen Seite)
       if (bwHost(e.url) !== hostBefore) { bwApplyZoom(tab); tab.icon = ''; tab.iconData = ''; }
-      bwSaveTabs();
+      clearTimeout(bwSaveTimer);
+      bwSaveTimer = setTimeout(bwSaveTabs, 2000); // Seiten mit vielen Adresswechseln (Apps): nicht bei jedem speichern
       bwRender();
     };
-    v.addEventListener('did-navigate', nav);
+    v.addEventListener('did-navigate', (e) => {
+      if (tab === bwTab() && bwKbd === 'page') { bwKbd = ''; oskTarget = null; } // neue Seite: das Feld gibt es nicht mehr
+      nav(e);
+    });
     v.addEventListener('did-navigate-in-page', (e) => { if (e.isMainFrame) nav(e); });
     v.addEventListener('page-title-updated', (e) => {
       tab.title = String(e.title || '').slice(0, 80);
-      bwRemember(tab);
+      clearTimeout(tab.rememberTimer);
+      tab.rememberTimer = setTimeout(() => bwRemember(tab), 3000); // Titel, die ticken („(3) Chat“): nicht jedes Mal speichern
       bwRender();
     });
     // Seitensymbol: der Hauptprozess holt es klein als data:-Bild (die App lädt keine fremden Bilder) – für Favoriten, zuletzt
@@ -10278,6 +10899,18 @@
     v.addEventListener('enter-html-full-screen', () => { bwFull = true; bwPlace(); bwRender(); });
     v.addEventListener('leave-html-full-screen', () => { bwFull = false; bwPlace(); bwRender(); });
     v.addEventListener('did-fail-load', (e) => { if (e.isMainFrame && e.errorCode !== -3) { tab.loading = false; bwRender(); } });
+    // Seite abgestürzt (Speicher, Grafik): Ton-Zustand freigeben und neu laden – höchstens zweimal, sonst leer lassen (beim
+    // nächsten Antippen des Tabs neuer Versuch). Vorher blieb „spielt“ stehen und der Tab dauerhaft leer (Durchsicht 25.11.)
+    v.addEventListener('render-process-gone', () => {
+      tab.audible = false;
+      tab.loading = false;
+      if (tab.view === v) { v.remove(); tab.view = null; }
+      if (bwFull && tab === bwTab()) { bwFull = false; bwPlace(); }
+      bwMediaState();
+      tab.crashes = (tab.crashes || 0) + 1;
+      if (tab.crashes <= 2 && tab === bwTab() && bwShown && tab.url) setTimeout(() => { if (bwShown && !tab.view && tab === bwTab()) bwShowTab(bwActive); }, 1000);
+      bwRender();
+    });
     browserLayer.querySelector('.bw-views').appendChild(v);
     v.classList.toggle('active', tab === bwTab() && bwShown);
   }
@@ -10286,8 +10919,10 @@
     try { t.view?.setZoomFactor(bwZoomOf(t) / 100); } catch { /* lädt gerade */ }
   }
   // zuletzt besuchte Seiten (Startseite) – Titel erst, wenn die Seite ihn kennt
+  let bwSaveTimer = 0;
   function bwRemember(t) {
     if (t.priv || !/^https:/.test(t.url) || !t.title) return; // privat: kein Verlauf
+    if (!bwAll().includes(t)) return; // Tab inzwischen geschlossen (Seitensymbol kam spät)
     const list = [{ url: t.url, title: t.title, ...(t.iconData ? { icon: t.iconData } : {}) }, ...settings.browser.recent.filter((p) => bwHost(p.url) !== bwHost(t.url))].slice(0, 8);
     if (JSON.stringify(list) !== JSON.stringify(settings.browser.recent)) quietSetting((s) => (s.browser.recent = list));
   }
@@ -10311,7 +10946,7 @@
     let url;
     if (/^https?:\/\//i.test(raw)) url = raw.replace(/^http:/i, 'https:');
     else if (/^[^\s]+\.[a-z]{2,}([/:?#].*)?$/i.test(raw)) url = `https://${raw}`;
-    else url = BW_SEARCH + encodeURIComponent(raw);
+    else url = BW_SEARCH + encodeURIComponent(raw.replace(/[\ud800-\udfff]/g, (ch, i, all) => (/[\ud800-\udbff][\udc00-\udfff]/.test(all.slice(i - 1, i + 1)) || /[\ud800-\udbff][\udc00-\udfff]/.test(all.slice(i, i + 2)) ? ch : '')));
     if (newTab || bwActive < 0) return bwNewTab(url);
     const t = bwTab();
     t.url = url;
@@ -10331,13 +10966,21 @@
   let bwGesture = 0;
   let bwPopupUrl = '';
   let bwPopupTimer = 0;
+  let bwPopupAt = 0;
   function bwWindowOpen(d) {
     const url = typeof d === 'string' ? d : d?.url;
     if (!url) return;
+    if (d?.from) {
+      const src = bwAll().find((t) => { try { return t.view?.getWebContentsId() === d.from; } catch { return false; } });
+      if (src && !bwTabs.includes(src)) return; // aus der anderen Gruppe (privat ↔ normal), die man gerade nicht sieht
+    }
     const block = settings.browser.popups !== false;
     const fromTap = performance.now() - bwGesture < 1500;
-    if (block && d?.ad) return;
+    if (block && d?.ad) return; // Werbung: still verwerfen, zählt nicht für die Bremse
     if (block && !fromTap) return bwPopupShow(url);
+    const now = performance.now();
+    if (now - bwPopupAt < 1000) return; // höchstens ein neuer Tab pro Sekunde
+    bwPopupAt = now;
     bwGesture = 0;
     bwOpen(url, { newTab: true });
   }
@@ -10376,10 +11019,36 @@
     const addr = q('.bw-addr-text');
     const typing = bwKbd === 'address';
     if (bwAddrSel && (!typing || !bwAddress)) bwAddrSel = false;
-    const text = typing ? (bwAddrSel ? bwAddress : `\u200E${bwAddress}|\u200E`) : empty ? CarI18n.translate('Suchen oder Adresse eingeben') : settings.browser.fullUrl && !mini ? bwShortUrl(t.url) : bwHost(t.url); // kleine Kapsel: immer nur die Domain (wie Safari)
-    if (addr.textContent !== text) addr.textContent = text;
+    const caretEnd = bwCaretAt() >= bwAddress.length;
+    if (typing && !bwAddrSel) {
+      // Eingabe mit Cursor an seiner Stelle (antippen/gedrückt halten setzt ihn, wie Safari)
+      const c = bwCaretAt();
+      const markup = `<span class="bw-t0">${escape(bwAddress.slice(0, c))}</span><i class="bw-caret"></i><span class="bw-t1">${escape(bwAddress.slice(c))}</span>`;
+      if (addr.dataset.markup !== markup) { addr.dataset.markup = markup; addr.innerHTML = markup; }
+    } else {
+      const text = typing ? bwAddress : empty ? CarI18n.translate('Suchen oder Adresse eingeben') : settings.browser.fullUrl && !mini ? bwShortUrl(t.url) : bwHost(t.url); // kleine Kapsel: immer nur die Domain (wie Safari)
+      if (addr.dataset.markup !== undefined || addr.textContent !== text) { delete addr.dataset.markup; addr.textContent = text; }
+    }
     addr.classList.toggle('sel', typing && bwAddrSel);
-    addr.classList.toggle('tail', typing && !bwAddrSel);
+    addr.classList.remove('tail');
+    if (typing && !bwAddrSel) {
+      // Cursor im sichtbaren Bereich halten (lange Adresse), ohne dass der Text springt
+      const caretEl = addr.querySelector('.bw-caret');
+      if (caretEl) {
+        const x = caretEl.offsetLeft;
+        const w = addr.clientWidth;
+        if (addr.scrollWidth <= w + 2) addr.scrollLeft = 0; // passt ganz: nie verschieben (vorher 2 px Zittern)
+        else if (caretEnd) addr.scrollLeft = addr.scrollWidth;
+        else if (x < addr.scrollLeft + 8) addr.scrollLeft = Math.max(0, x - 24);
+        else if (x > addr.scrollLeft + w - 8) addr.scrollLeft = x - w + 24;
+      }
+    } else addr.scrollLeft = 0;
+    if (!typing) bwEditMenu = false;
+    const em = q('.bw-edit');
+    if (em) {
+      em.hidden = !(typing && bwEditMenu);
+      em.querySelector('[data-bw="edit-all"]').hidden = !bwAddress || bwAddrSel;
+    }
     q('.bw-addr').classList.toggle('typing', bwKbd === 'address');
     q('.bw-addr').classList.toggle('placeholder', empty && bwKbd !== 'address');
     q('.bw-lock').hidden = empty || bwKbd === 'address';
@@ -10532,11 +11201,21 @@
   }
   function bwAddressKey(k) {
     // markierte Adresse (gerade angetippt): erstes Zeichen ersetzt sie, Löschen leert sie, Öffnen lädt sie neu
-    if (bwAddrSel && k !== 'enter') { bwAddrSel = false; bwAddress = k === 'del' ? '' : k; return bwRender(); }
+    bwEditMenu = false;
+    if (bwAddrSel && k !== 'enter') { bwAddrSel = false; bwAddress = k === 'del' ? '' : k; bwCaret = null; return bwRender(); }
     bwAddrSel = false;
-    if (k === 'del') bwAddress = bwAddress.slice(0, -1);
-    else if (k === 'enter') { const a = bwAddress; bwAddress = ''; bwKbd = ''; if (a.trim()) return bwOpen(a); }
-    else if (bwAddress.length < 300) bwAddress += k;
+    const c = bwCaretAt();
+    if (k === 'del') {
+      if (c > 0) {
+        const low = bwAddress.charCodeAt(c - 1);
+        const n = c > 1 && low >= 0xdc00 && low <= 0xdfff ? 2 : 1; // Emoji: beide Hälften löschen
+        bwAddress = bwAddress.slice(0, c - n) + bwAddress.slice(c);
+        bwCaret = c - n;
+      }
+    }
+    else if (k === 'enter') { const a = bwAddress; bwAddress = ''; bwCaret = null; bwKbd = ''; if (a.trim()) return bwOpen(a); }
+    else if (bwAddress.length + k.length <= BW_ADDR_MAX) { bwAddress = bwAddress.slice(0, c) + k + bwAddress.slice(c); bwCaret = c + k.length; }
+    if (bwCaret != null && bwCaret >= bwAddress.length) bwCaret = null;
     bwRender();
   }
   // Zeichen an das Eingabefeld der Seite (wie echte Tasten)
@@ -10604,15 +11283,23 @@
     bwLinkMenuHide();
     if (a === 'back') { if (t?.view && bwCanGoBack(t)) t.view.goBack(); else if (t?.url) { t.url = ''; t.view?.remove(); t.view = null; bwSaveTabs(); } }
     else if (a === 'forward') { if (t?.view && bwCanGoForward(t)) t.view.goForward(); }
-    else if (a === 'reload' && bwKbd === 'address') { bwAddress = ''; bwAddrSel = false; } // ⓧ: Adresse leeren, Tastatur bleibt
+    else if (a === 'reload' && bwKbd === 'address') { bwAddress = ''; bwAddrSel = false; bwCaret = null; bwEditMenu = false; }
+    else if (a === 'edit-paste') { bwPasteAddress(); return; }
+    else if (a === 'edit-all') { bwAddrSel = true; bwEditMenu = false; } // ⓧ: Adresse leeren, Tastatur bleibt
     else if (a === 'reload') { if (!t?.view) return; if (t.loading) t.view.stop(); else t.view.reload(); }
     else if (a === 'menu') bwMenuOpen = !bwMenuOpen;
     else if (a === 'address' && bwMini) bwMini = false; // kleine Kapsel antippen: Leiste wieder ganz
     else if (a === 'address') {
       // wie Safari: Antippen zeigt die ganze Adresse markiert (Tippen ersetzt sie); nochmal antippen = Markierung weg, Cursor ans Ende
-      if (bwKbd === 'address' && bwAddrSel) bwAddrSel = false;
-      else if (bwKbd === 'address') { bwKbd = ''; bwAddress = ''; }
-      else { bwKbd = 'address'; bwAddress = t?.url || ''; bwAddrSel = !!bwAddress; }
+      if (bwKbd === 'address') {
+        // wie Safari: Antippen setzt den Cursor an die Stelle (aus der Markierung heraus); leeres Feld: „Einsetzen“ anbieten
+        const wasSel = bwAddrSel;
+        bwAddrSel = false;
+        bwRender();
+        const at = e.detail === 0 && !e.clientX && !e.clientY ? bwAddress.length : bwCaretFromPoint(e.clientX, e.clientY);
+        bwEditMenu = !wasSel && (!bwAddress || at === bwCaretAt()); // nochmal auf den Cursor getippt bzw. leer: Blase
+        bwCaret = at;
+      } else { bwKbd = 'address'; bwAddress = t?.url || ''; bwAddrSel = !!bwAddress; bwCaret = null; bwEditMenu = false; }
       bwMode = 'page';
     }
     else if (a === 'tabs') { bwMode = bwMode === 'tabs' ? 'page' : 'tabs'; bwKbd = ''; if (bwMode === 'tabs') bwThumb(t || {}); }
@@ -10688,6 +11375,8 @@
     };
     catchEl.addEventListener('pointerdown', (e) => {
       cancelAnimationFrame(fling);
+      // wie Safari: Tipp auf die Seite schließt die Adress-Tastatur – der Tipp selbst geht nicht an die Seite
+      if (bwKbd === 'address') { down = null; bwHideKbd(); return; }
       try { catchEl.setPointerCapture(e.pointerId); } catch { /* egal */ } // Loslassen auch über dem Link-Menü/außerhalb hierher
       const p = local(e);
       const w = catchEl.offsetWidth;
@@ -10750,9 +11439,11 @@
       }
       // Nachlauf wie am Handy: Tempo beim Loslassen, sanft abbremsen
       let vx = d.vx * 16, vy = d.vy * 16;
+      const flingView = view(); // nur diese Seite: Tab gewechselt oder Browser verlassen – Nachlauf endet
       const step = () => {
         vx *= 0.94; vy *= 0.94;
         if (Math.abs(vx) < 0.6 && Math.abs(vy) < 0.6) return;
+        if (!bwShown || view() !== flingView) return;
         wheel(vx, vy, p);
         fling = requestAnimationFrame(step);
       };
@@ -10819,6 +11510,120 @@
   // ---- Lange drücken wie Safari: Zurück = zuletzt besuchte Seiten dieses Tabs, Tabs = Neuer Tab, Neuer privater Tab, Diesen
   // Tab schließen, Alle Tabs schließen. Menü als Karte über dem Knopf (gleiche Karte wie beim Link gedrückt halten). Das
   // Loslassen nach dem Öffnen löst den Knopf nicht mehr aus.
+  // Zeichenindex in der Adresse unter einem Punkt (Cursor setzen)
+  function bwCaretFromPoint(x) {
+    // Buchstabengrenze, die der Fingerposition am nächsten liegt. Gemessen mit Range je Grenze (caretRangeFromPoint traf
+    // sonst den Cursor selbst und setzte ihn ans Ende); per Halbierung, damit es auch bei langen Adressen flüssig bleibt.
+    const addr = browserLayer.querySelector('.bw-addr-text');
+    const t0 = addr.querySelector('.bw-t0')?.firstChild || null;
+    const t1 = addr.querySelector('.bw-t1')?.firstChild || null;
+    const n0 = t0?.textContent.length || 0;
+    const len = n0 + (t1?.textContent.length || 0);
+    if (!len) return 0;
+    const range = document.createRange();
+    const caretX = () => addr.querySelector('.bw-caret').getBoundingClientRect().left;
+    // x-Lage der Grenze vor Zeichen i (0 … len)
+    const xAt = (idx) => {
+      if (idx === n0) return caretX(); // Grenze am Cursor
+      const node = idx < n0 ? t0 : t1;
+      const k = idx < n0 ? idx : idx - n0;
+      range.setStart(node, k);
+      range.setEnd(node, k);
+      return (range.getClientRects()[0] || range.getBoundingClientRect()).left;
+    };
+    let lo = 0;
+    let hi = len;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (xAt(mid) < x) lo = mid + 1;
+      else hi = mid;
+    }
+    // lo = erste Grenze rechts vom Finger: mit der links davon vergleichen
+    let best = lo;
+    if (lo > 0 && Math.abs(xAt(lo - 1) - x) <= Math.abs(xAt(lo) - x)) best = lo - 1;
+    if (isLowSurrogate(bwAddress, best)) best -= 1; // nie mitten in eine Emoji
+    return Math.max(0, Math.min(len, best));
+  }
+  // Einsetzen aus der Zwischenablage an der Cursorstelle (eine Zeile, höchstens 300 Zeichen)
+  function bwPasteAddress() {
+    bwEditMenu = false;
+    Promise.resolve(api?.clipboardText?.()).then((raw) => {
+      const text = String(raw || '').replace(/[\r\n\t]+/g, ' ').trim();
+      if (!text || bwKbd !== 'address') return bwRender();
+      if (bwAddrSel) { bwAddress = ''; bwCaret = null; bwAddrSel = false; }
+      const c = bwCaretAt();
+      const room = Math.max(0, BW_ADDR_MAX - bwAddress.length);
+      let ins = text.slice(0, room);
+      if (ins && isLowSurrogate(text, ins.length)) ins = ins.slice(0, -1); // keine halbe Emoji am Ende
+      bwAddress = bwAddress.slice(0, c) + ins + bwAddress.slice(c);
+      bwCaret = c + ins.length >= bwAddress.length ? null : c + ins.length;
+      bwRender();
+    }, () => bwRender());
+  }
+  // Gedrückt halten auf der Adresse beim Tippen: Lupe über dem Finger, Cursor folgt; Loslassen zeigt „Einsetzen“ (wie iOS)
+  function bwAddrHold(btn) {
+    let st = null;
+    const loupe = browserLayer.querySelector('.bw-loupe');
+    const showLoupe = (x) => {
+      const c = bwCaretAt();
+      const inner = loupe.querySelector('.bw-loupe-in');
+      const markup = `<span>${escape(bwAddress.slice(0, c))}</span><i class="bw-caret"></i><span>${escape(bwAddress.slice(c))}</span>`;
+      if (inner.dataset.markup !== markup) { inner.dataset.markup = markup; inner.innerHTML = markup; }
+      const caretEl = inner.querySelector('.bw-caret');
+      inner.style.transform = `translateX(${Math.round(loupe.clientWidth / 2 - caretEl.offsetLeft)}px)`;
+      const lb = browserLayer.getBoundingClientRect();
+      const ab = btn.getBoundingClientRect();
+      loupe.hidden = false;
+      const lw = loupe.offsetWidth;
+      const lh = loupe.offsetHeight;
+      loupe.style.left = `${Math.round(Math.max(10, Math.min(lb.width - lw - 10, x - lb.left - lw / 2)))}px`;
+      loupe.style.top = `${Math.round(ab.top - lb.top - lh - lh * 0.15)}px`;
+    };
+    const end = (e) => {
+      if (!st) return;
+      if (e?.pointerId != null && e.pointerId !== st.id) return; // anderer Finger
+      clearTimeout(st.timer);
+      window.removeEventListener('pointermove', move, true);
+      window.removeEventListener('pointerup', end, true);
+      window.removeEventListener('pointercancel', end, true);
+      const held = st.held;
+      st = null;
+      loupe.hidden = true;
+      if (held) {
+        if (e?.type === 'pointerup') swallowNextClick();
+        bwEditMenu = true;
+        bwRender();
+      }
+    };
+    const move = (e) => {
+      if (!st || e.pointerId !== st.id) return;
+      if (!st.held) { if (Math.hypot(e.clientX - st.x, e.clientY - st.y) > 10) end(); return; }
+      bwCaret = bwCaretFromPoint(e.clientX, btn.getBoundingClientRect().top + btn.offsetHeight / 2);
+      bwRender();
+      showLoupe(e.clientX);
+    };
+    btn.addEventListener('pointerdown', (e) => {
+      end();
+      if (bwKbd !== 'address' || e.button > 0) return;
+      st = { id: e.pointerId, x: e.clientX, y: e.clientY, held: false };
+      const s0 = st;
+      st.timer = setTimeout(() => {
+        if (st !== s0) return;
+        if (bwKbd !== 'address' || !bwShown) return end(); // inzwischen Tastatur zu oder Browser weg
+        s0.held = true;
+        bwAddrSel = false;
+        bwEditMenu = false;
+        bwRender();
+        bwCaret = bwCaretFromPoint(s0.x, s0.y);
+        bwRender();
+        showLoupe(s0.x);
+      }, 450);
+      window.addEventListener('pointermove', move, true);
+      window.addEventListener('pointerup', end, true);
+      window.addEventListener('pointercancel', end, true);
+    });
+  }
+
   function bwBarHold(bar) {
     let st = null;
     const end = () => {
@@ -10938,8 +11743,10 @@
     const art = m && m.artwork && m.artwork.length ? m.artwork[m.artwork.length - 1].src : '';
     return { title: (m && m.title) || document.title || '', artist: (m && m.artist) || location.hostname.replace(/^www\\./, ''), art: /^https:/.test(art) ? art : '', playing: !!v, pos: v ? v.currentTime : 0, dur: v && isFinite(v.duration) ? v.duration : 0 }; })()`;
   const bwAudible = () => bwAll().find((t) => t.audible && t.view) || null;
+  let bwStateSent = false;
   function bwMediaState() {
     const t = bwAudible();
+    bwStateSent = !!t;
     api?.browserState?.(!!t);
     if (!t) { browserMedia = null; return; }
     t.view.executeJavaScript(BW_MEDIA_JS).then((m) => { browserMedia = m && m.playing ? m : null; }).catch(() => {});
@@ -10984,7 +11791,7 @@
     if (off && !bwPoweredOff) for (const t of bwAll()) if (t.audible && t.view) t.view.executeJavaScript(BW_PLAY_JS('pause')).catch(() => {});
     bwPoweredOff = off;
     if (bwAudible()) bwMediaState();
-    else if (browserMedia) { browserMedia = null; api?.browserState?.(false); }
+    else if (browserMedia || bwStateSent) { browserMedia = null; bwStateSent = false; api?.browserState?.(false); }
     if (bwShown) { bwPlace(); bwRender(); }
   }
   // „Browserdaten löschen“ (Einstellungen): erst nachfragen (zweites Tippen binnen 4 s), dann alles weg – auch offene Tabs
@@ -10999,8 +11806,13 @@
     bwActive = -1;
     bwOther = { tabs: [], active: -1 };
     bwPrivate = false;
+    bwKbd = '';
+    bwMode = 'page';
+    bwFull = false;
     quietSetting((s) => { s.browser.tabs = []; s.browser.recent = []; });
     api?.browserClear?.();
+    bwMediaState();
+    if (bwShown) { bwNewTab(); bwPlace(); bwRender(); }
     return true;
   }
   // Test (nur Demo): Seite öffnen, Zustand lesen (tools/browser-test.js)
@@ -11660,7 +12472,9 @@
   }
   // nach der Ansage: mit AI Leitung offen lassen, sonst auflegen – fehlt der Status (kam beim Start nicht an), erst nachfragen
   function afterGreeting(contact, text) {
+    const seq = callSeq;
     const go = () => {
+      if (seq !== callSeq) return; // inzwischen aufgelegt
       const open = aiCallsReady();
       api?.aiLog?.(`call ${contact}: ${open ? 'line stays open' : 'hung up'} (installed ${!!aiStatus?.installed}, assistant ${settings.aiAssistant}, calls ${settings.aiCalls}, window ${role})`);
       if (open) callKeepOpen(contact, text);
@@ -11682,6 +12496,8 @@
   async function callTalk() {
     if (!callChat || voiceBusy) return;
     const { contact } = callChat;
+    const seq = callSeq; // aufgelegt oder neuer Anruf, während wir warten → nichts mehr in diesen Anruf schreiben
+    const stale = () => seq !== callSeq;
     const setState = setCallStatus;
     clearTimeout(callTimer);
     voiceBusy = true;
@@ -11691,16 +12507,20 @@
     setState('Ich höre zu …');
     try {
       const wav = await recordSpeech({ startTimeoutMs: 7000 });
+      if (stale()) return;
       callEl.classList.remove('talking');
       if (!wav || !callChat) {
         setState('Antippen zum Sprechen');
+        if (callChat) callTimer = setTimeout(endCall, 60000);
         return;
       }
       setState('…');
       const tr = await api.aiTranscribe(wav, aiLang(), sttHint());
+      if (stale()) return;
       if (tr.error) throw new Error(tr.error);
       if (!tr.text || !callChat) {
         setState('Antippen zum Sprechen');
+        if (callChat) callTimer = setTimeout(endCall, 60000);
         return;
       }
       callChat.pending = tr.text;
@@ -11708,6 +12528,7 @@
       setState(callFull ? '…' : `„${tr.text}“`);
       const messages = [{ role: 'system', content: callPrompt(contact) }, ...callChat.history.slice(-8), { role: 'user', content: tr.text }];
       const r = await api.aiChat({ messages, schema: CALL_SCHEMA, maxTokens: 200 });
+      if (stale()) return;
       if (r.error) throw new Error(r.error);
       if (!callChat) return;
       const answer = String(r.json?.answer || '').trim() || '…';
@@ -11716,16 +12537,17 @@
       renderCallLog();
       setState(callFull ? 'Spricht …' : answer);
       logCall(contact, 'out', answer);
-      speak(answer, () => {
+      // freie Antwort des Sprachmodells – in ihrer Sprache vorlesen; danach genau einmal weiter (callSay, 06a)
+      callSay(answer, () => {
         if (!callChat) return;
         if (r.json?.hang_up) setTimeout(endCall, 600);
         else {
           setState('Antippen zum Sprechen');
           callTimer = setTimeout(endCall, 60000);
         }
-      }, { lang: aiLang(), call: true }); // freie Antwort des Sprachmodells – in ihrer Sprache vorlesen
-      if (!callSpeaks() || !settings.voice) callTimer = setTimeout(r.json?.hang_up ? endCall : () => setState('Antippen zum Sprechen'), 5000);
+      }, { lang: aiLang(), fallbackMs: 5000 });
     } catch (e) {
+      if (stale()) return;
       callEl.classList.remove('talking');
       setState(`Verbindung gestört: ${e.message}`);
       callTimer = setTimeout(endCall, 8000);
@@ -12086,7 +12908,7 @@
     if (step === 'game') {
       const pf = pluginFile;
       return `<h2>Spiel und Plugin</h2><p>Das Plugin zeigt CabPlay auf dem Navi-Bildschirm im Truck. Die App installiert es selbst, sobald das Spiel beendet ist.</p>
-        ${pf?.games?.length ? pf.games.map((g) => ok(`Spiel gefunden: ${g.name}`)).join('') : pf?.game ? ok(`Spiel gefunden: ${pf.game}`) : bad('Spiel nicht gefunden – ist Euro Truck Simulator 2 oder American Truck Simulator über Steam installiert?')}
+        ${pf?.games?.length ? pf.games.map((g) => ok(`Spiel gefunden: ${g.name}`)).join('') : pf?.game ? ok(`Spiel gefunden: ${pf.game}`) : `${bad('Spiel nicht gefunden – liegt es nicht in der Steam-Bibliothek, einfach den Ordner wählen.')}<button class="pill-button" data-focus data-action="pick-game">Spielordner wählen …</button>`}
         ${!pf ? '' : pf.state === 'installed' ? ok('Plugin installiert') : bad(pf.state === 'outdated' ? 'Plugin veraltet' : 'Plugin fehlt noch')}
         ${pf && pf.bundled && pf.state !== 'installed' ? '<button class="pill-button" data-focus data-action="install-plugin">Plugin installieren</button><p class="setup-note">Dafür muss das Spiel beendet sein.</p>' : ''}`;
     }
@@ -12274,6 +13096,7 @@
   // ------------------------------------------------------------------ Dashboard-Widget „Live-Ticker“
   // Zeigt das verfolgte Spiel (Glocke), sonst ein Spiel der Lieblingsteams: läuft eins, das; sonst das nächste,
   // sonst das letzte. Antippen öffnet die Sport-App bei der Liga.
+  const sportFtSeen = new Map(); // verfolgtes Spiel → wann erstmals „Ende“ gesehen
   function sportWidgetLeagues() {
     const ids = [...(settings.sportsMatches || []), ...sportFavs()].map((k) => k.split(':')[0]).filter((l) => l && l !== 'f1');
     return [...new Set(ids)];
@@ -12295,7 +13118,57 @@
     if (next.length) return next[0];
     return list.filter(({ m }) => m.state === 'ft').sort((a, b) => t(b.m) - t(a.m))[0] || null;
   }
+  // Widget-Seite „Meine Teams“ wie das Sport-Widget von Apple: je Lieblingsteam das wichtigste Spiel (läuft gerade,
+  // sonst Ergebnis der letzten zwei Tage, sonst das nächste, sonst das letzte), höchstens zwei Zeilen, Stern am Lieblingsteam
+  function teamMatches() {
+    const followed = new Set(settings.sportsMatches || []);
+    const now = Date.now();
+    const rank = (m) => {
+      const t = new Date(m.kickoff).getTime() || 0;
+      if (m.state === 'live' || m.state === 'ht') return [0, -t];
+      if (m.state === 'ft' && now - t < 48 * 3600000) return [1, -t];
+      if (m.state === 'pre') return [2, t];
+      return [3, -t];
+    };
+    const best = new Map(); // Team (Kurzname) → bestes Spiel
+    for (const l of sportWidgetLeagues()) {
+      for (const m of sportData[l]?.matches || []) {
+        const key = `${l}:${m.id}`;
+        const favHome = isFav(l, m.home.id);
+        const favAway = isFav(l, m.away.id);
+        if (!favHome && !favAway && !followed.has(key)) continue;
+        const team = String((favHome ? m.home : favAway ? m.away : m.home).short || '').toLowerCase();
+        const item = { m: { ...m, league: m.league || l }, favHome, favAway, r: rank(m) };
+        const old = best.get(team);
+        if (!old || item.r[0] < old.r[0] || (item.r[0] === old.r[0] && item.r[1] < old.r[1])) best.set(team, item);
+      }
+    }
+    return [...best.values()].sort((a, b) => a.r[0] - b.r[0] || a.r[1] - b.r[1]).slice(0, 2);
+  }
+  function renderPageSport() {
+    const items = teamMatches();
+    if (!items.length) {
+      const loading = sportWidgetLeagues().some((l) => !sportData[l]);
+      list('wp-sport', `<div class="wpsp-empty">${loading ? 'Wird geladen …' : 'Lieblingsteam in der Sport-App wählen'}</div>`);
+      return;
+    }
+    const pad2 = (n) => String(n).padStart(2, '0');
+    list('wp-sport', items.map(({ m, favHome, favAway }) => {
+      const d = new Date(m.kickoff);
+      const mid = m.state === 'live' ? `<b class="live">${m.minute ? `${m.minute >= 90 ? '90+' : m.minute}′` : 'LIVE'}</b>`
+        : m.state === 'ht' ? '<b class="live">Halbzeit</b>'
+          : m.state === 'ft' ? `<span>Endergebnis</span><small>${d.getDate()}.${d.getMonth() + 1}.</small>`
+            : `<b>${pad2(d.getHours())}:${pad2(d.getMinutes())}</b><small>${DAYS[(d.getDay() + 6) % 7]}</small>`;
+      const score = (i) => (m.score && m.state !== 'pre' ? `<b class="wpsp-goal">${m.score[i]}</b>` : '<b class="wpsp-goal"></b>');
+      const meta = SPORT_LEAGUES.find(([x]) => x === m.league);
+      return `<button class="wpsp-row ${m.state}" data-focus data-action="sport-open" data-id="${m.league}">
+          <div class="wpsp-league">${escape(meta ? meta[1] : '')}</div>
+          <div class="wpsp-line"><i class="wpsp-fav">${favHome ? '★' : ''}</i>${crest(m.home)}${score(0)}<div class="wpsp-mid">${mid}</div>${score(1)}${crest(m.away)}<i class="wpsp-fav">${favAway ? '★' : ''}</i></div>
+        </button>`;
+    }).join(''));
+  }
   function renderSportWidget() {
+    if (pageWidgets().includes('sport') || stage.querySelector('.wp-thumb')) renderPageSport(); // auch für die Vorschau
     if (!dashboardWidgets().includes('sport')) return;
     const pick = sportWidgetMatch();
     if (!pick) {
@@ -12523,11 +13396,14 @@
     else body = d.matches?.length ? `<div class="sx-grid" data-scroll-area>${d.matches.map(matchCard).join('')}</div>` : '<div class="sx-empty">Keine Spiele</div>';
     list('sx-body', body);
     // vorbei: einzeln verfolgte Spiele aus der Liste nehmen (der Ticker hat den Abpfiff gemeldet)
+    // erst 2 Minuten nach dem ersten „Ende“ entfernen – der Ticker im Hauptprozess (alle 15 s) meldet sonst den Abpfiff nicht
+    const now = Date.now();
     const done = (settings.sportsMatches || []).filter((f) => {
       const [l, idText] = f.split(':');
       return sportData[l]?.matches?.some((x) => String(x.id) === idText && x.state === 'ft');
     });
-    if (done.length) changeSetting((s) => (s.sportsMatches = (s.sportsMatches || []).filter((f) => !done.includes(f))));
+    const ripe = done.filter((f) => { if (!sportFtSeen.has(f)) sportFtSeen.set(f, now); return now - sportFtSeen.get(f) > 120000; });
+    if (ripe.length) changeSetting((s) => (s.sportsMatches = (s.sportsMatches || []).filter((f) => !ripe.includes(f))));
     toggle('sx-hint', 'hidden', !(id !== 'f1' && sportView === 'table' && !sportFavs().some((f) => f.startsWith(`${id}:`))));
   }
 
@@ -12694,7 +13570,56 @@
       if (homeLongPressed) homeLongPressed = false;
       else pressHome();
     }
-    else if (d.pageDot) setHomePage(Number(d.pageDot));
+    else if (d.pageDot) {
+      // Punkt einer App-Seite auf der Widget-Seite oder dem Dashboard: erst zu den Apps
+      if (screen !== 'home') {
+        homePage = Number(d.pageDot);
+        showScreen('home', { slide: 'left' });
+        setHomePage(Number(d.pageDot), false);
+      } else setHomePage(Number(d.pageDot));
+    } else if (d.wpCol) {
+      wpEditCol = Number(d.wpCol);
+      rerenderSettings(`[data-wp-col="${d.wpCol}"]`);
+    } else if (d.wpRemove) {
+      const [col, i] = d.wpRemove.split(':').map(Number);
+      changeSetting((s) => s.widgetPage.stacks[col].splice(i, 1));
+    } else if (d.wpAdd) {
+      const [col, type] = d.wpAdd.split(':');
+      changeSetting((s) => {
+        const list = s.widgetPage.stacks[Number(col)];
+        if (!list.includes(type) && list.length < WP_MAX) list.push(type);
+      });
+      settingsBack(); // zurück zur Liste wie bei iOS
+    } else if (d.action === 'wp-cols') {
+      changeSetting((s) => (s.widgetPage.cols = wpCols() === 3 ? 2 : 3), '[data-action="wp-cols"]');
+    } else if (d.action === 'icon-sheet') {
+      iconSheetReturn = [...settingsStack];
+      homePage = 0;
+      showScreen('home', { slide: 'left' }); // erst wechseln: render() zeigt danach den aktuellen Bildschirm (sonst schlösse das Blatt gleich)
+      iconSheetOpen = true;
+      render();
+    } else if (d.action === 'icon-sheet-close') {
+      iconSheetOpen = false;
+      render();
+      showScreen('settings', { slide: 'right' }); // zurück zu den Einstellungen wie bei Apple …
+      if (iconSheetReturn?.length > 1) { // … auf die Seite, von der man kam
+        settingsStack = iconSheetReturn;
+        rerenderSettings();
+      }
+      iconSheetReturn = null;
+    } else if (d.action === 'wp-smart') {
+      changeSetting((s) => (s.widgetPage.smart = !s.widgetPage.smart), '[data-action="wp-smart"]');
+    } else if (d.action === 'wp-reset') {
+      if (role !== 'editor' || ask('Widgets auf die Standardauswahl zurücksetzen?')) {
+        wpIndex.fill(0);
+        changeSetting((s) => (s.widgetPage = JSON.parse(JSON.stringify(catalog.DEFAULTS.widgetPage))));
+      }
+    } else if (d.action === 'wp-on') {
+      changeSetting((s) => (s.widgetPage.on = !wpOn()), '[data-action="wp-on"]');
+    } else if (d.wpDot) {
+      const [col, i] = d.wpDot.split(':').map(Number);
+      setWpStack(col, i);
+    }
     else if (d.stackDot) {
       const [slot, i] = d.stackDot.split(':').map(Number);
       setStack(slot, i);
@@ -12748,7 +13673,9 @@
         s.clusterCycle = list;
       }, `[data-action="cluster-cycle"][data-design="${d.design}"]`);
     } else if (d.action === 'radar-sound') changeSetting((s) => (s.radarSound = !s.radarSound), '[data-action="radar-sound"]');
-    else if (d.action === 'radar-clear') {
+    else if (d.action === 'remote-renew') {
+      if (api?.remoteRenew && ask('Neuen Code erzeugen? Gekoppelte Handys müssen danach den neuen Code scannen.')) api.remoteRenew().then(() => refreshRemoteInfo(300), () => {});
+    } else if (d.action === 'radar-clear') {
       if (role !== 'editor' || ask('Alle gemeldeten und gelernten Blitzer löschen?')) changeSetting((s) => (s.cameras = s.cameras.filter((c) => (c.game || 'ets2') !== currentGame.id))); // nur die des laufenden Spiels
     } else if (d.camRemove) {
       const [x, z] = d.camRemove.split('|').map(Number);
@@ -12994,9 +13921,9 @@
     } else if (d.voicemail) {
       const entry = callLog[Number(d.voicemail)];
       if (entry) {
+        callSeq++;
         showCall(entry.text, { ongoing: true, contact: entry.contact });
-        speak(entry.text, () => setTimeout(endCall, 600), { call: true });
-        if (!callSpeaks() || !settings.voice) callTimer = setTimeout(endCall, 6000);
+        callSay(entry.text, () => setTimeout(endCall, 600), { fallbackMs: 6000 });
       }
     } else if (d.action === 'back') goBack();
     else if (d.stopsOpen) {
@@ -13095,6 +14022,14 @@
       showToast(r.ok ? { icon: 'check', color: 'green', title: 'Plugin installiert', text: 'Spiel starten – die App verbindet sich dann selbst' } : { icon: 'warning', color: 'red', title: 'Plugin nicht installiert', text: r.error });
       refreshPluginFile();
     });
+    else if (d.action === 'pick-game') api?.pickGame?.().then((r) => {
+      if (r.canceled) return;
+      if (!r.ok) return showToast({ icon: 'warning', color: 'red', title: 'Spielordner', text: r.error });
+      const name = r.id === 'ats' ? 'American Truck Simulator' : 'Euro Truck Simulator 2';
+      showToast(r.install?.ok ? { icon: 'check', color: 'green', title: `${name} gefunden`, text: 'Plugin installiert – Spiel starten, die App verbindet sich dann selbst' }
+        : { icon: 'check', color: 'green', title: `${name} gefunden`, text: r.install?.error || 'Das Plugin wird installiert, sobald das Spiel beendet ist' });
+      refreshPluginFile();
+    });
     else if (d.action === 'reset') resetAll();
   });
 
@@ -13102,6 +14037,37 @@
   function mapCommand(cmd) {
     if (cmd === 'in' || cmd === 'out') showZoom();
     if (cmd === 'overview') return setOverview(!mapOverview);
+    // Melden-Blatt und Verschieben-Modus (Apple): Zustand als Klasse an der Karte
+    const fullMap = () => document.querySelector('.screen.active .map-full') || document.querySelector('.map-full');
+    if (cmd === 'report' || cmd === 'report-close') return void fullMap()?.classList.toggle('reporting', cmd === 'report');
+    if (cmd === 'report-camera') {
+      fullMap()?.classList.remove('reporting');
+      return reportCamera();
+    }
+    if (cmd === 'pan' || cmd === 'pan-done') {
+      fullMap()?.classList.toggle('panning', cmd === 'pan');
+      if (cmd === 'pan-done') for (const m of maps) if (m.canvas.closest('.map-full')) m.resetPan?.();
+      return undefined;
+    }
+    if (cmd.startsWith('pan-')) {
+      const step = { 'pan-up': [0, -0.3], 'pan-down': [0, 0.3], 'pan-left': [-0.3, 0], 'pan-right': [0.3, 0] }[cmd];
+      if (step) for (const m of maps) if (m.canvas.closest('.map-full')) m.panBy?.(step[0], step[1]);
+      return undefined;
+    }
+    // Ton wie bei Apple: Knopf öffnet das Blatt „Ton“ (Ton an / Nur Hinweise / Ton aus)
+    if (cmd === 'voice' || cmd === 'voice-close') return void fullMap()?.classList.toggle('sounding', cmd === 'voice');
+    if (cmd.startsWith('voice-')) {
+      const next = cmd.slice(6);
+      fullMap()?.classList.remove('sounding');
+      for (const el of document.querySelectorAll('[data-voice]')) el.classList.toggle('on', el.dataset.voice === next);
+      quietSetting((s) => {
+        s.navVoice = next === 'all';
+        s.radarSound = next !== 'off';
+      });
+      for (const el of nodes('voice-btn')) el.innerHTML = voiceIcon();
+      return undefined;
+    }
+    if (cmd === 'tilt') setTimeout(() => { for (const el of nodes('tilt-btn')) el.textContent = settings.mapTilt ? '2D' : '3D'; }, 0);
     if (cmd === 'sheet') {
       mapSheetOpen = !mapSheetOpen;
       mapSheetPage = 'main';
@@ -13234,22 +14200,71 @@
     }
   }
 
-  // Mausrad: Karte zoomen (Vollbild) bzw. auf dem Home-Bildschirm blättern
+  // Mausrad: Karte zoomen (Vollbild) bzw. blättern – Widget-Seite ← Dashboard → App-Seiten (wie Wischen).
+  // Über einem Stapel im Dashboard blättert es im Stapel; auf der Widget-Seite wechselt es die Seite (Stapel dort
+  // senkrecht wischen oder die Punkte antippen)
   let lastWheel = 0;
   document.addEventListener('wheel', (e) => {
     if (editor.editing || !(e.target instanceof Element)) return;
     const onMap = e.target.closest('.map-full');
     const onStack = e.target.closest('[data-stack]');
-    const onHome = screen === 'home' && e.target.closest('.screen');
-    if (!onMap && !onHome && !onStack) return;
+    const inScreen = e.target.closest('.screen');
+    const onHome = screen === 'home' && inScreen;
+    const onDash = screen === 'dashboard' && inScreen && !onStack;
+    const onWp = screen === 'widgets' && inScreen;
+    if (!onMap && !onHome && !onStack && !onDash && !onWp) return;
     e.preventDefault();
     const now = performance.now();
     if (now - lastWheel < 180) return;
     lastWheel = now;
+    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY; // Touchpad: auch seitwärts
     if (onMap) mapCommand(e.deltaY < 0 ? 'in' : 'out');
     else if (onStack) setStack(Number(onStack.dataset.stack), stackIndex[Number(onStack.dataset.stack)] + (e.deltaY > 0 ? 1 : -1));
-    else setHomePage(homePage + (e.deltaY > 0 ? 1 : -1));
+    else if (onDash) {
+      if (delta > 0) {
+        homePage = 0;
+        showScreen('home', { slide: 'left' });
+        setHomePage(0, false);
+      } else if (wpOn()) showScreen('widgets', { slide: 'right' });
+    } else if (onWp) {
+      if (delta > 0) showScreen('dashboard', { slide: 'left' });
+    } else setHomePage(homePage + (delta > 0 ? 1 : -1));
   }, { passive: false });
+
+  // Einstellungen › Widgets: Reihenfolge am Griff ziehen (wie iOS). Fängt das Ereignis vor dem Ziehen-zum-Scrollen ab.
+  let wpDrag = null;
+  document.addEventListener('pointerdown', (e) => {
+    const h = e.target instanceof Element ? e.target.closest('[data-wp-handle]') : null;
+    if (!h) return;
+    e.stopPropagation();
+    e.preventDefault();
+    const row = h.closest('[data-wp-row]');
+    const rows = [...row.parentElement.querySelectorAll('[data-wp-row]')];
+    wpDrag = { key: h.dataset.wpHandle, row, y: e.clientY, mids: rows.map((r) => { const b = r.getBoundingClientRect(); return b.top + b.height / 2; }) };
+    row.classList.add('dragging');
+  }, true);
+  document.addEventListener('pointermove', (e) => {
+    if (wpDrag) wpDrag.row.style.transform = `translateY(${e.clientY - wpDrag.y}px)`;
+  });
+  const wpDragCancel = () => {
+    if (!wpDrag) return;
+    wpDrag.row.classList.remove('dragging');
+    wpDrag.row.style.transform = '';
+    wpDrag = null;
+  };
+  document.addEventListener('pointercancel', wpDragCancel);
+  window.addEventListener('blur', wpDragCancel);
+  document.addEventListener('pointerup', (e) => {
+    if (!wpDrag) return;
+    const { key, row, y, mids } = wpDrag;
+    wpDrag = null;
+    row.classList.remove('dragging');
+    row.style.transform = '';
+    const [col, from] = key.split(':').map(Number);
+    const center = mids[from] + (e.clientY - y);
+    const to = mids.filter((m, i) => i !== from && m < center).length;
+    if (to !== from) changeSetting((st) => { const l = st.widgetPage.stacks[col]; l.splice(to, 0, l.splice(from, 1)[0]); });
+  });
 
   // Wischen (Maus/Touch): senkrecht im Stapel, waagerecht auf dem Home-Bildschirm
   let swipe = null;
@@ -13260,7 +14275,9 @@
     const home = screen === 'home' ? e.target.closest('[data-screen="home"]') : null;
     // Dashboard: Wischen nach links öffnet die Apps (nicht auf der Karte – dort wird gezoomt/geschaut)
     const dash = screen === 'dashboard' && !e.target.closest('.map-card') ? e.target.closest('[data-screen="dashboard"]') : null;
-    swipe = stack || home || dash ? { x: e.clientX, y: e.clientY, stack, home, dash } : null;
+    const wp = screen === 'widgets' ? e.target.closest('[data-screen="widgets"]') : null;
+    const wpStack = wp ? e.target.closest('[data-wp-stack]') : null;
+    swipe = stack || home || dash || wp ? { x: e.clientX, y: e.clientY, stack, home, dash, wp, wpStack } : null;
   });
   document.addEventListener('pointerup', (e) => {
     if (!swipe) return;
@@ -13277,6 +14294,16 @@
       homePage = 0;
       showScreen('home', { slide: 'left' });
       setHomePage(0, false);
+      swallowClick = true;
+    } else if (swipe.dash && dx > 60 && Math.abs(dx) > Math.abs(dy) && wpOn()) {
+      showScreen('widgets', { slide: 'right' }); // links vom Dashboard: die Widget-Seite
+      swallowClick = true;
+    } else if (swipe.wpStack && Math.abs(dy) > 40 && Math.abs(dy) > Math.abs(dx)) {
+      const col = Number(swipe.wpStack.dataset.wpStack);
+      setWpStack(col, (wpIndex[col] || 0) + (dy < 0 ? 1 : -1));
+      swallowClick = true;
+    } else if (swipe.wp && dx < -60 && Math.abs(dx) > Math.abs(dy)) {
+      showScreen('dashboard', { slide: 'left' });
       swallowClick = true;
     }
     swipe = null;
@@ -13402,6 +14429,7 @@
   function pressHome() {
     if (screen === 'home') return showScreen('dashboard');
     if (screen === 'dashboard') return showScreen('home');
+    if (screen === 'widgets') return showScreen('dashboard');
     return showScreen(lastHub);
   }
 
@@ -13430,6 +14458,12 @@
     else if (action === 'back') goBack(); else if (!nav.move(action)) {
       if (screen === 'home' && (action === 'left' || action === 'right')) setHomePage(homePage + (action === 'right' ? 1 : -1));
       else if (screen === 'dashboard' && action === 'right') showScreen('home', { slide: 'left' });
+      else if (screen === 'dashboard' && action === 'left' && wpOn()) showScreen('widgets', { slide: 'right' });
+      else if (screen === 'widgets' && action === 'right') showScreen('dashboard', { slide: 'left' });
+      else if (screen === 'widgets' && (action === 'up' || action === 'down')) {
+        const col = Number(document.querySelector('.screen.active .focused')?.closest('[data-wp-stack]')?.dataset.wpStack ?? 0);
+        setWpStack(col, (wpIndex[col] || 0) + (action === 'down' ? 1 : -1));
+      }
     }
   }
 
@@ -13679,6 +14713,7 @@
       lang: CarI18n.lang,
       locale: CarI18n.lang === 'de' ? 'de-DE' : CarI18n.lang,
       imperial: imperial(),
+      units: unitMode(), // us | uk | metric – UK: °C und britische Gallonen (vorher wie US: °F, US-mpg)
       ats: isAts(), // US-Tempolimit-Schild
       mphSigns: !!land?.mph, // Großbritannien: Schilder in mph (Issue #9)
       // Linksverkehr (Issue #9): Großbritannien, mit Karten-Mods auch Irland, Malta, Zypern – sonst lernte das Instrument die
