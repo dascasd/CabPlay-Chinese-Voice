@@ -1,0 +1,1 @@
+  let lastNavKm = null; // 偏航检测：上次的剩余导航距离（公里）
